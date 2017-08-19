@@ -1,11 +1,14 @@
 package main
 
 import (
+	"fmt"
 	"general-api/app/controllers"
 	"general-api/app/middlewares"
 	"general-api/app/models"
 	"general-api/app/services"
 	"time"
+
+	"github.com/gotoeveryone/golib/logs"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gotoeveryone/golib"
@@ -47,9 +50,8 @@ func main() {
 	})
 
 	// ルーティング
-	r.GET("/", func(c *gin.Context) {
-		c.Redirect(301, "/web-api/v1/")
-	})
+	r.GET("/", controllers.RouteRedirect)
+	r.GET("/web-api", controllers.RouteRedirect)
 	v1 := r.Group("web-api/v1")
 	{
 		v1.GET("/", controllers.GetState)
@@ -60,6 +62,24 @@ func main() {
 			auth.GET("/users", controllers.GetUser)
 			auth.DELETE("/deauth", controllers.Deauthenticate)
 		}
+	}
+
+	// トークンの削除を定期的に実施するためのバッチ処理
+	// キャッシュサーバを利用している場合はそもそも動作させない
+	var ts services.TokensService
+	if !ts.UseCached() {
+		go func(ts services.TokensService) {
+			for {
+				cnt, err := ts.DeleteExpired()
+				if err != nil {
+					logs.Error(err)
+				}
+				if cnt > 0 {
+					logs.Info(fmt.Sprintf("トークンを%d件削除しました。", cnt))
+				}
+				time.Sleep(60 * time.Second)
+			}
+		}(ts)
 	}
 
 	r.Run()

@@ -95,19 +95,6 @@ func (s TokensService) Create(token models.Token) error {
 	return nil
 }
 
-// Has トークンを保持しているかどうか
-func (s TokensService) Has(token string, model *models.Token) (bool, error) {
-	if err := s.FindToken(token, model); err != nil {
-		return false, err
-	}
-
-	if model.Token == "" {
-		return false, errors.New("Token is invalid")
-	}
-
-	return true, nil
-}
-
 // Delete トークン削除処理
 func (s TokensService) Delete(token string) error {
 
@@ -138,6 +125,20 @@ func (s TokensService) GenerateToken() string {
 		result += letters[idx : idx+1]
 	}
 	return result
+}
+
+// DeleteExpired 有効期限切れトークンを削除する
+func (s TokensService) DeleteExpired() (int64, error) {
+	if s.UseCached() {
+		return 0, nil
+	}
+	comp := time.Now()
+	cnt := dbManager.Where("DATE_ADD(created, INTERVAL expire second) < ?", comp).
+		Delete(models.Token{}).RowsAffected
+	if err := dbManager.Error; err != nil {
+		return 0, err
+	}
+	return cnt, nil
 }
 
 // UseCached キャッシュサーバを利用するかどうかを判定
