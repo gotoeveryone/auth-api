@@ -1,9 +1,10 @@
 {
     "log": {
-        "path": "/logs/api.log",
+        "prefix": "[General API]",
+        "path": "logs/api.log",
         "level": "INFO"
     },
-    "redis": {
+    "cache": {
         "use": false,
         "host": "localhost",
         "port": 6379,

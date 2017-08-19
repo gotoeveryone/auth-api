@@ -1,48 +1,39 @@
 package controllers
 
 import (
-	"errors"
 	"general-api/app/models"
 	"general-api/app/services"
-	"math/rand"
-	"strings"
 	"time"
 
 	"golang.org/x/crypto/bcrypt"
 
 	"github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin/binding"
+	"github.com/gotoeveryone/golib"
+	"github.com/gotoeveryone/golib/logs"
 )
 
 const (
-	// TokenPrefix ヘッダのトークンに付与されるPrefix
-	TokenPrefix = "Bearer "
+	// AuthorizedHeader 認可済みヘッダ
+	AuthorizedHeader = "X-AUTHORIZED_USER"
 )
-
-// State 状態
-type State struct {
-	Status      string `json:"status"`
-	Environment string `json:"environment"`
-	LogLevel    string `json:"logLevel"`
-	TimeZone    string `json:"timeZone"`
-}
 
 // GetState 状態
 func GetState(c *gin.Context) {
-	c.JSON(200, State{
+	c.JSON(200, models.State{
 		Status:      "OK",
 		Environment: gin.Mode(),
-		LogLevel:    services.Config.Log.Level,
+		LogLevel:    golib.AppConfig.Log.Level,
 		TimeZone:    time.Local.String(),
 	})
 }
 
 // Authenticate 認証
 func Authenticate(c *gin.Context) {
-	// バリデーションエラー
+	// バリデーション
 	var postData models.Login
-	// TODO: bindingでエラー発生時にHTMLが出力されてしまう
-	if err := c.BindJSON(&postData); err != nil {
-		ErrorJSON(c, 400, errors.New("Bad Request"))
+	if err := c.ShouldBindWith(&postData, binding.JSON); err != nil {
+		errorJSON(c, 400, err)
 		return
 	}
 
@@ -50,7 +41,7 @@ func Authenticate(c *gin.Context) {
 	var userService services.UsersService
 	user, err := userService.FindActiveUser(postData.Account)
 	if err != nil {
-		ErrorJSON(c, 401, errors.New("Credentials is invalid"))
+		errorJSON(c, 401, err)
 		return
 	}
 
@@ -58,19 +49,21 @@ func Authenticate(c *gin.Context) {
 	input := []byte(postData.Password)
 	storeHashed := []byte(user.Password)
 	if err := bcrypt.CompareHashAndPassword(storeHashed, input); err != nil {
-		ErrorJSON(c, 401, errors.New("Credentials is invalid"))
+		errorJSON(c, 401, err)
 		return
 	}
 
+	// トークンの生成
+	var ts services.TokensService
 	token := models.Token{
 		UserID:      user.ID,
-		Token:       generateToken(),
+		Token:       ts.GenerateToken(),
 		Environment: gin.Mode(),
 		Expire:      600,
 	}
-	var tokenService services.TokensService
-	if err := tokenService.Create(token); err != nil {
-		ErrorJSON(c, 500, err)
+	if err := ts.Create(token); err != nil {
+		errorJSON(c, 500, err)
+		return
 	}
 
 	c.JSON(200, token)
@@ -78,44 +71,52 @@ func Authenticate(c *gin.Context) {
 
 // GetUser ユーザ取得
 func GetUser(c *gin.Context) {
-	// ヘッダに"Access-Token"が含まれているかチェック
-	tokenHeader := c.Request.Header.Get("Access-Token")
-	if !strings.HasPrefix(tokenHeader, TokenPrefix) {
-		ErrorJSON(c, 401, errors.New("Token is required"))
-		return
-	}
-
-	// ヘッダからトークンを取得
-	token := strings.TrimLeft(tokenHeader, TokenPrefix)
-	if token == "" {
-		ErrorJSON(c, 401, errors.New("Token is required"))
-		return
-	}
-
 	// トークンからユーザを取得
-	var tokenService services.TokensService
-	user, err := tokenService.FindUser(token)
+	token := c.Request.Header.Get(AuthorizedHeader)
+	var ts services.TokensService
+	user, err := ts.FindUser(token)
 	if err != nil {
-		ErrorJSON(c, 401, errors.New("Token is invalid"))
+		errorJSON(c, 401, err)
 		return
 	}
 
 	c.JSON(200, user)
 }
 
-// ErrorJSON エラー用JSONを出力します。
-func ErrorJSON(c *gin.Context, code int, err error) {
-	c.JSON(code, models.Error{
-		Code:    code,
-		Message: err.Error(),
-	})
+// Deauthenticate 認証解除
+func Deauthenticate(c *gin.Context) {
+	// トークンの削除
+	token := c.Request.Header.Get(AuthorizedHeader)
+	var ts services.TokensService
+	if err := ts.Delete(token); err != nil {
+		errorJSON(c, 500, err)
+		return
+	}
+
+	c.JSON(204, gin.H{})
 }
 
-func generateToken() string {
-	letters := []byte("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
-	r := make([]byte, 50)
-	for i := range r {
-		r[i] = letters[rand.Intn(len(letters))]
+// エラー用JSONの出力
+func errorJSON(c *gin.Context, code int, err error) {
+	logs.Error(err)
+	var message string
+	var header string
+	switch code {
+	case 400:
+		message = "Bad Request"
+		header = "error=\"invalid_request\""
+	case 401:
+		message = "Authenticate Failed"
+		header = "error=\"invalid_token\""
+	case 500:
+	default:
+		message = "Internal Server Error"
 	}
-	return string(r)
+	if header != "" && c.Request.Header.Get(AuthorizedHeader) != "" {
+		c.Writer.Header().Set("WWW-Authenticate", "Bearer "+header)
+	}
+	c.AbortWithStatusJSON(code, models.Error{
+		Code:    code,
+		Message: message,
+	})
 }

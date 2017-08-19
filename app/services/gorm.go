@@ -3,9 +3,9 @@ package services
 import (
 	"fmt"
 
-	_ "github.com/go-sql-driver/mysql"
-	"github.com/gotoeveryone/golang/common"
+	"github.com/gotoeveryone/golib"
 	"github.com/jinzhu/gorm"
+	_ "github.com/jinzhu/gorm/dialects/mysql"
 )
 
 var (
@@ -14,15 +14,16 @@ var (
 )
 
 // InitDB テーブル初期化
-func InitDB(config common.Config) {
+func InitDB() {
+	dbConfig := golib.AppConfig.DB
 
 	var err error
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8&parseTime=True&loc=%s",
-		config.DB.User,
-		config.DB.Password,
-		config.DB.Host,
-		config.DB.Port,
-		config.DB.Name,
+		dbConfig.User,
+		dbConfig.Password,
+		dbConfig.Host,
+		dbConfig.Port,
+		dbConfig.Name,
 		"Asia%2FTokyo",
 	)
 
