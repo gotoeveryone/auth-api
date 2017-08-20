@@ -50,7 +50,9 @@ func main() {
 	})
 
 	// ルーティング
-	r.GET("/", controllers.RouteRedirect)
+	r.GET("/", func(c *gin.Context) {
+		c.Redirect(301, "/v1")
+	})
 	v1 := r.Group("v1")
 	{
 		v1.GET("/", controllers.GetState)

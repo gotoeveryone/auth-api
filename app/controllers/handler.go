@@ -18,11 +18,6 @@ const (
 	AuthorizedHeader = "X-AUTHORIZED_USER"
 )
 
-// RouteRedirect ルートにリダイレクトさせる
-func RouteRedirect(c *gin.Context) {
-	c.Redirect(301, "/web-api/v1/")
-}
-
 // GetState 状態
 func GetState(c *gin.Context) {
 	c.JSON(200, models.State{
