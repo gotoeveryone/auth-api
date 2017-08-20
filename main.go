@@ -2,16 +2,15 @@ package main
 
 import (
 	"fmt"
-	"general-api/app/controllers"
-	"general-api/app/middlewares"
-	"general-api/app/models"
-	"general-api/app/services"
 	"time"
 
-	"github.com/gotoeveryone/golib/logs"
-
 	"github.com/gin-gonic/gin"
+	"github.com/gotoeveryone/general-api/app/controllers"
+	"github.com/gotoeveryone/general-api/app/middlewares"
+	"github.com/gotoeveryone/general-api/app/models"
+	"github.com/gotoeveryone/general-api/app/services"
 	"github.com/gotoeveryone/golib"
+	"github.com/gotoeveryone/golib/logs"
 )
 
 func main() {

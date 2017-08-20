@@ -1,14 +1,14 @@
 package controllers
 
 import (
-	"general-api/app/models"
-	"general-api/app/services"
 	"time"
 
 	"golang.org/x/crypto/bcrypt"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
+	"github.com/gotoeveryone/general-api/app/models"
+	"github.com/gotoeveryone/general-api/app/services"
 	"github.com/gotoeveryone/golib"
 	"github.com/gotoeveryone/golib/logs"
 )

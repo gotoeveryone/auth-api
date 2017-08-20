@@ -1,12 +1,12 @@
 package middlewares
 
 import (
-	"general-api/app/controllers"
-	"general-api/app/models"
-	"general-api/app/services"
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/gotoeveryone/general-api/app/controllers"
+	"github.com/gotoeveryone/general-api/app/models"
+	"github.com/gotoeveryone/general-api/app/services"
 	"github.com/gotoeveryone/golib/logs"
 )
 

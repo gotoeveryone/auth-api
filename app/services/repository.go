@@ -3,10 +3,10 @@ package services
 import (
 	"encoding/json"
 	"errors"
-	"general-api/app/models"
 	"math/rand"
 	"time"
 
+	"github.com/gotoeveryone/general-api/app/models"
 	"github.com/gotoeveryone/golib"
 )
 
