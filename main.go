@@ -51,8 +51,7 @@ func main() {
 
 	// ルーティング
 	r.GET("/", controllers.RouteRedirect)
-	r.GET("/web-api", controllers.RouteRedirect)
-	v1 := r.Group("web-api/v1")
+	v1 := r.Group("v1")
 	{
 		v1.GET("/", controllers.GetState)
 		v1.POST("/auth", controllers.Authenticate)
