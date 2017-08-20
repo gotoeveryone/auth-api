@@ -26,15 +26,16 @@ func (s TokensService) FindUser(token string) (*models.User, error) {
 		return nil, err
 	}
 
-	if err := dbManager.Preload("User", "is_active = ?", 1).Find(&m).Error; err != nil {
+	var u models.User
+	if err := dbManager.Where("id = ?", m.UserID).Find(&u).Error; err != nil {
 		return nil, err
 	}
 
-	if m.User.Account == "" {
-		return nil, errors.New("ユーザが不正")
+	if u.Account == "" {
+		return nil, errors.New("Token is invalid")
 	}
 
-	return &m.User, nil
+	return &u, nil
 }
 
 // FindToken トークンにマッチするログイン情報を取得します。
