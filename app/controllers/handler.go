@@ -38,8 +38,8 @@ func Authenticate(c *gin.Context) {
 	}
 
 	// ユーザの検索
-	var userService services.UsersService
-	user, err := userService.FindActiveUser(postData.Account)
+	var us services.UsersService
+	user, err := us.FindActiveUser(postData.Account)
 	if err != nil {
 		errorJSON(c, 401, err)
 		return
@@ -62,6 +62,12 @@ func Authenticate(c *gin.Context) {
 		Expire:      600,
 	}
 	if err := ts.Create(token); err != nil {
+		errorJSON(c, 500, err)
+		return
+	}
+
+	// 認証日時を更新
+	if err := us.UpdateAuthed(user); err != nil {
 		errorJSON(c, 500, err)
 		return
 	}

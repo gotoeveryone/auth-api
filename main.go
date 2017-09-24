@@ -11,6 +11,7 @@ import (
 	"github.com/gotoeveryone/general-api/app/services"
 	"github.com/gotoeveryone/golib"
 	"github.com/gotoeveryone/golib/logs"
+	_ "github.com/jinzhu/gorm/dialects/mysql"
 )
 
 func main() {
@@ -49,9 +50,7 @@ func main() {
 	})
 
 	// ルーティング
-	r.GET("/", func(c *gin.Context) {
-		c.Redirect(301, "/v1")
-	})
+	r.GET("/", controllers.GetState)
 	v1 := r.Group("v1")
 	{
 		v1.GET("/", controllers.GetState)

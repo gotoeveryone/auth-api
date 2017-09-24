@@ -65,21 +65,14 @@ func (s TokensService) FindToken(token string, model *models.Token) error {
 		return err
 	}
 
-	if err := json.Unmarshal(o.([]byte), model); err != nil {
-		return err
-	}
-	return nil
+	return json.Unmarshal(o.([]byte), model)
 }
 
 // Create トークン保存処理
 func (s TokensService) Create(token models.Token) error {
 
 	if !s.UseCached() {
-		if err := dbManager.Create(&token).Error; err != nil {
-			return err
-		}
-
-		return nil
+		return dbManager.Create(&token).Error
 	}
 
 	// JSONに変換
@@ -90,17 +83,15 @@ func (s TokensService) Create(token models.Token) error {
 
 	// キャッシュサーバに接続
 	var rs RedisService
-	if err := rs.SetWithExpire(token.Token, token.Expire, o); err != nil {
-		return err
-	}
-	return nil
+	return rs.SetWithExpire(token.Token, token.Expire, o)
 }
 
 // Delete トークン削除処理
 func (s TokensService) Delete(token string) error {
 
 	if !s.UseCached() {
-		if err := dbManager.Where("token = ?", token).Delete(models.Token{}).Error; err != nil {
+		err := dbManager.Where("token = ?", token).Delete(models.Token{}).Error
+		if err != nil {
 			return err
 		}
 
@@ -169,4 +160,10 @@ func (s UsersService) FindActiveUser(account string) (*models.User, error) {
 	}
 
 	return &user, nil
+}
+
+// UpdateAuthed 認証日時保存処理
+func (s UsersService) UpdateAuthed(user *models.User) error {
+	user.LastLogged = time.Now()
+	return dbManager.Save(user).Error
 }

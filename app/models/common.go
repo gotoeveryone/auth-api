@@ -26,13 +26,14 @@ type Login struct {
 
 // User ユーザ
 type User struct {
-	ID          uint    `gorm:"primary_key" json:"id"`
-	Account     string  `gorm:"type:varchar(10);not null;unique_index" json:"userId"`
-	Name        string  `gorm:"type:varchar(20);not null" json:"userName"`
-	Password    string  `gorm:"type:varchar(255);not null" json:"-"`
-	Sex         string  `gorm:"type:enum('男性','女性');not null" json:"sex"`
-	MailAddress *string `gorm:"type:varchar(100)" json:"mailAddress"`
-	Role        string  `gorm:"type:enum('管理者','一般');not null" json:"role"`
+	ID          uint      `gorm:"primary_key" json:"id"`
+	Account     string    `gorm:"type:varchar(10);not null;unique_index" json:"userId"`
+	Name        string    `gorm:"type:varchar(20);not null" json:"userName"`
+	Password    string    `gorm:"type:varchar(255);not null" json:"-"`
+	Sex         string    `gorm:"type:enum('男性','女性');not null" json:"sex"`
+	MailAddress *string   `gorm:"type:varchar(100)" json:"mailAddress"`
+	Role        string    `gorm:"type:enum('管理者','一般');not null" json:"role"`
+	LastLogged  time.Time `gorm:"type:datetime" json:"-"`
 }
 
 // Token トークン
