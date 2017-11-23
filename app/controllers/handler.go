@@ -1,15 +1,16 @@
 package controllers
 
 import (
+	"fmt"
+	"net/http"
 	"time"
 
-	"golang.org/x/crypto/bcrypt"
+	"github.com/gotoeveryone/golib/logs"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	"github.com/gotoeveryone/general-api/app/models"
 	"github.com/gotoeveryone/general-api/app/services"
-	"github.com/gotoeveryone/golib/logs"
 )
 
 const (
@@ -17,61 +18,131 @@ const (
 	AuthorizedHeader = "X-AUTHORIZED_USER"
 )
 
-// GetState 状態
+// GetState 状態監視
 func GetState(c *gin.Context) {
-	c.JSON(200, models.State{
-		Status:      "OK",
+	c.JSON(http.StatusOK, models.State{
+		Status:      "Active",
 		Environment: gin.Mode(),
 		LogLevel:    services.AppConfig.Log.Level,
 		TimeZone:    time.Local.String(),
 	})
 }
 
-// Authenticate 認証
-func Authenticate(c *gin.Context) {
+// Publish ユーザ登録
+func Publish(c *gin.Context) {
 	// バリデーション
-	var postData models.Login
-	if err := c.ShouldBindWith(&postData, binding.JSON); err != nil {
-		errorJSON(c, 400, err)
+	var u models.User
+	if err := c.ShouldBindWith(&u, binding.JSON); err != nil {
+		errorBadRequest(c, err.Error())
+		return
+	}
+
+	// 同じアカウントのユーザがすでに存在するか
+	var us services.UsersService
+	if res, err := us.Exists(u.Account); err != nil {
+		errorUnauthorized(c, "Authorization failed")
+		return
+	} else if res {
+		errorBadRequest(c, "Account is already exists")
+		return
+	}
+
+	// 初期パスワードの発行
+	password := services.GenerateToken(16)
+
+	// 一般ユーザとして登録
+	if err := us.Create(&u, password); err != nil {
+		errorUnauthorized(c, "Authorization failed")
+		return
+	}
+
+	c.JSON(http.StatusCreated, gin.H{
+		"password": password,
+	})
+}
+
+// Activate アカウント有効化
+func Activate(c *gin.Context) {
+	// バリデーション
+	var a models.Activate
+	if err := c.ShouldBindWith(&a, binding.JSON); err != nil {
+		errorBadRequest(c, err.Error())
+		return
+	}
+
+	// 同じパスワードには変更させない
+	if a.Password == a.NewPassword {
+		errorBadRequest(c, "Not allowed changing to same password")
 		return
 	}
 
 	// ユーザの検索
 	var us services.UsersService
-	user, err := us.FindActiveUser(postData.Account)
+	user, err := us.FindUser(a.Account, a.Password)
 	if err != nil {
-		errorJSON(c, 401, err)
+		errorUnauthorized(c, "Authorization failed")
 		return
 	}
 
-	// パスワードの一致確認
-	input := []byte(postData.Password)
-	storeHashed := []byte(user.Password)
-	if err := bcrypt.CompareHashAndPassword(storeHashed, input); err != nil {
-		errorJSON(c, 401, err)
+	// アカウントを有効化し、パスワードを更新
+	user.IsEnable = true
+	if err := us.UpdatePassword(user, a.NewPassword); err != nil {
+		errorUnauthorized(c, "Authorization failed")
+		return
+	}
+
+	c.JSON(http.StatusOK, user)
+}
+
+// Authenticate 認証
+func Authenticate(c *gin.Context) {
+	// バリデーション
+	var input models.Login
+	if err := c.ShouldBindWith(&input, binding.JSON); err != nil {
+		errorBadRequest(c, err.Error())
+		return
+	}
+
+	// ユーザの検索
+	var us services.UsersService
+	user, err := us.FindUser(input.Account, input.Password)
+	if err != nil {
+		errorUnauthorized(c, "Authorization failed")
+		return
+	}
+
+	// パスワード変更未実施
+	if !user.IsActive {
+		errorUnauthorized(c, "Password must be changed")
+		return
+	}
+
+	// 無効アカウント
+	if !user.IsEnable {
+		errorUnauthorized(c, "Account is invalid")
 		return
 	}
 
 	// トークンの生成
-	var ts services.TokensService
 	token := models.Token{
 		UserID:      user.ID,
-		Token:       ts.GenerateToken(),
+		Token:       services.GenerateToken(50),
 		Environment: gin.Mode(),
 		Expire:      600,
 	}
+	var ts services.TokensService
 	if err := ts.Create(token); err != nil {
-		errorJSON(c, 500, err)
+		errorInternalServerError(c, err)
 		return
 	}
 
 	// 認証日時を更新
 	if err := us.UpdateAuthed(user); err != nil {
-		errorJSON(c, 500, err)
+		errorInternalServerError(c, err)
 		return
 	}
 
-	c.JSON(200, token)
+	c.JSON(http.StatusOK, token)
 }
 
 // GetUser ユーザ取得
@@ -81,11 +152,11 @@ func GetUser(c *gin.Context) {
 	var ts services.TokensService
 	user, err := ts.FindUser(token)
 	if err != nil {
-		errorJSON(c, 401, err)
+		errorUnauthorized(c, "Authorization failed")
 		return
 	}
 
-	c.JSON(200, user)
+	c.JSON(http.StatusOK, user)
 }
 
 // Deauthenticate 認証解除
@@ -94,34 +165,55 @@ func Deauthenticate(c *gin.Context) {
 	token := c.Request.Header.Get(AuthorizedHeader)
 	var ts services.TokensService
 	if err := ts.Delete(token); err != nil {
-		errorJSON(c, 500, err)
+		errorInternalServerError(c, err)
 		return
 	}
 
-	c.JSON(204, gin.H{})
+	c.JSON(http.StatusNoContent, gin.H{})
+}
+
+// 400エラー
+func errorBadRequest(c *gin.Context, message string) {
+	errorJSON(c, models.Error{
+		Code:    http.StatusBadRequest,
+		Message: message,
+		Error:   nil,
+	})
+}
+
+// 401エラー
+func errorUnauthorized(c *gin.Context, message string) {
+	errorJSON(c, models.Error{
+		Code:    http.StatusUnauthorized,
+		Message: message,
+		Error:   nil,
+	})
+}
+
+// 500エラー
+func errorInternalServerError(c *gin.Context, err error) {
+	logs.Error(fmt.Errorf("Error: %s", err))
+	errorJSON(c, models.Error{
+		Code:    http.StatusInternalServerError,
+		Message: "",
+		Error:   err,
+	})
 }
 
 // エラー用JSONの出力
-func errorJSON(c *gin.Context, code int, err error) {
-	logs.Error(err)
-	var message string
+func errorJSON(c *gin.Context, err models.Error) {
 	var header string
-	switch code {
-	case 400:
-		message = "Bad Request"
+	switch err.Code {
+	case http.StatusBadRequest:
 		header = "error=\"invalid_request\""
-	case 401:
-		message = "Authenticate Failed"
+	case http.StatusUnauthorized:
 		header = "error=\"invalid_token\""
-	case 500:
-	default:
-		message = "Internal Server Error"
 	}
 	if header != "" && c.Request.Header.Get(AuthorizedHeader) != "" {
 		c.Writer.Header().Set("WWW-Authenticate", "Bearer "+header)
 	}
-	c.AbortWithStatusJSON(code, models.Error{
-		Code:    code,
-		Message: message,
-	})
+	if err.Message == "" {
+		err.Message = http.StatusText(err.Code)
+	}
+	c.AbortWithStatusJSON(err.Code, err)
 }

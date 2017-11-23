@@ -3,17 +3,10 @@ package services
 import (
 	"encoding/json"
 	"errors"
-	"math/rand"
 	"time"
 
 	"github.com/gotoeveryone/general-api/app/models"
 )
-
-var r *rand.Rand // Rand for this package.
-
-func init() {
-	r = rand.New(rand.NewSource(time.Now().UnixNano()))
-}
 
 // TokensService トークンモデルのサービス
 type TokensService struct{}
@@ -26,7 +19,8 @@ func (s TokensService) FindUser(token string) (*models.User, error) {
 	}
 
 	var u models.User
-	if err := dbManager.Where("id = ?", t.UserID).Find(&u).Error; err != nil {
+	if err := dbManager.Where(&models.User{ID: uint(t.UserID)}).
+		Find(&u).Error; err != nil {
 		return nil, err
 	}
 
@@ -37,10 +31,11 @@ func (s TokensService) FindUser(token string) (*models.User, error) {
 	return &u, nil
 }
 
-// FindToken トークンにマッチするログイン情報を取得します。
+// FindToken トークン取得処理
 func (s TokensService) FindToken(token string, t *models.Token) error {
 	if !s.UseCached() {
-		if err := dbManager.Where("token = ?", token).Order("created desc").First(t).Error; err != nil {
+		if err := dbManager.Where(&models.Token{Token: token}).
+			Order("created desc").First(t).Error; err != nil {
 			return err
 		}
 
@@ -86,7 +81,7 @@ func (s TokensService) Create(t models.Token) error {
 // Delete トークン削除処理
 func (s TokensService) Delete(token string) error {
 	if !s.UseCached() {
-		return dbManager.Where("token = ?", token).
+		return dbManager.Where(&models.Token{Token: token}).
 			Delete(models.Token{}).Error
 	}
 
@@ -94,18 +89,6 @@ func (s TokensService) Delete(token string) error {
 	var rs RedisService
 	_, err := rs.Delete(token)
 	return err
-}
-
-// GenerateToken トークン生成
-func (s TokensService) GenerateToken() string {
-	strlen := 50
-	letters := "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
-	result := ""
-	for i := 0; i < strlen; i++ {
-		idx := r.Intn(len(letters))
-		result += letters[idx : idx+1]
-	}
-	return result
 }
 
 // DeleteExpired 有効期限切れトークンを削除する
@@ -126,18 +109,60 @@ func (s TokensService) UseCached() bool {
 // UsersService ユーザモデルのサービス
 type UsersService struct{}
 
-// Find モデル検索
-func (s UsersService) Find(id int) (*models.User, error) {
-	var u models.User
-	dbManager.Where("id = ?", id).Find(&u)
-	return &u, dbManager.Error
+// Exists アカウントが存在するかを確認
+func (s UsersService) Exists(account string) (bool, error) {
+	var count int
+	dbManager.Model(&models.User{}).Where(&models.User{Account: account}).Count(&count)
+	if err := dbManager.Error; err != nil {
+		return false, err
+	}
+
+	if count > 0 {
+		return true, nil
+	}
+	return false, nil
 }
 
-// FindActiveUser アクティブなユーザを検索
-func (s UsersService) FindActiveUser(account string) (*models.User, error) {
+// FindUser ユーザ取得処理
+func (s UsersService) FindUser(account string, password string) (*models.User, error) {
 	var u models.User
-	dbManager.Where(&models.User{Account: account, IsActive: true}).Find(&u)
-	return &u, dbManager.Error
+	dbManager.Where(&models.User{Account: account}).Find(&u)
+	if err := dbManager.Error; err != nil {
+		return nil, err
+	}
+
+	// パスワードの一致確認
+	if err := u.MatchPassword(password); err != nil {
+		return nil, err
+	}
+
+	return &u, nil
+}
+
+// Create ユーザ登録処理
+func (s UsersService) Create(u *models.User, pass string) error {
+	pass, err := HashedPassword(pass)
+	if err != nil {
+		return err
+	}
+	u.Password = pass
+
+	// 指定がなければ一般ユーザ
+	if u.Role == "" {
+		u.Role = "General"
+	}
+	return dbManager.Create(u).Error
+}
+
+// UpdatePassword パスワード更新処理
+func (s UsersService) UpdatePassword(u *models.User, pass string) error {
+	newpass, err := HashedPassword(pass)
+	if err != nil {
+		return err
+	}
+	u.Password = newpass
+	u.IsActive = true
+	return dbManager.Save(u).Error
 }
 
 // UpdateAuthed 認証日時保存処理

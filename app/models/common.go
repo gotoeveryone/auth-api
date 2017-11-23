@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/gotoeveryone/golib"
+	"golang.org/x/crypto/bcrypt"
 )
 
 // AppConfig アプリケーション設定1
@@ -17,6 +18,7 @@ type AppConfig struct {
 type Error struct {
 	Code    int    `json:"code"`
 	Message string `json:"message"`
+	Error   error  `json:"-"`
 }
 
 // State 状態
@@ -25,6 +27,12 @@ type State struct {
 	Environment string `json:"environment"`
 	LogLevel    string `json:"logLevel"`
 	TimeZone    string `json:"timeZone"`
+}
+
+// Activate ユーザ有効化
+type Activate struct {
+	Login
+	NewPassword string `json:"newPassword" binding:"required,min=8"`
 }
 
 // Login ログイン時の入力情報
@@ -36,12 +44,12 @@ type Login struct {
 // User ユーザ
 type User struct {
 	ID          uint       `gorm:"primary_key" json:"id"`
-	Account     string     `gorm:"type:varchar(10);not null;unique_index" json:"userId" binding:"required,min=6,max=10"`
-	Name        string     `gorm:"type:varchar(20);not null" json:"userName" binding:"required,max=50"`
+	Account     string     `gorm:"type:varchar(10);not null;unique_index" json:"account" binding:"required,min=6,max=10"`
+	Name        string     `gorm:"type:varchar(20);not null" json:"name" binding:"required,max=50"`
 	Password    string     `gorm:"type:varchar(255);not null" json:"-"`
-	Sex         string     `gorm:"type:enum('男性','女性');not null" json:"sex" binding:"required"`
+	Sex         string     `gorm:"type:enum('Male','Female');not null" json:"sex" binding:"required"`
 	MailAddress *string    `gorm:"type:varchar(100)" json:"mailAddress" binding:"required"`
-	Role        string     `gorm:"type:enum('管理者','一般');not null" json:"role"`
+	Role        string     `gorm:"type:enum('Administrator','General');not null" json:"role"`
 	LastLogged  *time.Time `gorm:"type:datetime" json:"-"`
 	IsActive    bool       `gorm:"type:tinyint;not null" json:"-"`
 	IsEnable    bool       `gorm:"type:tinyint;not null" json:"-"`
@@ -51,9 +59,14 @@ type User struct {
 type Token struct {
 	ID          uint      `gorm:"primary_key" json:"-"`
 	UserID      uint      `gorm:"type:int unsigned;not null" json:"id"`
-	Token       string    `gorm:"type:varchar(50);not null;unique_index" json:"access_token"`
+	Token       string    `gorm:"type:varchar(50);not null;unique_index" json:"accessToken"`
 	Expire      int       `gorm:"type:smallint unsigned" json:"-"`
 	Environment string    `gorm:"type:varchar(20);not null" json:"environment"`
 	CreatedAt   time.Time `gorm:"column:created;type:datetime" json:"-"`
 	User        User      `json:"-"`
+}
+
+// MatchPassword パスワードが一致しているかを確認する
+func (u *User) MatchPassword(input string) error {
+	return bcrypt.CompareHashAndPassword([]byte(u.Password), []byte(input))
 }

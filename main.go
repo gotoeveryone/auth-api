@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"net/http"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -27,12 +28,7 @@ func main() {
 	}
 
 	// タイムゾーンの設定
-	loc, err := time.LoadLocation(config.AppTimezone)
-	if err != nil {
-		// UTCから9時間後
-		loc = time.FixedZone(config.AppTimezone, 9*60*60)
-	}
-	time.Local = loc
+	time.Local, _ = time.LoadLocation(config.AppTimezone)
 
 	// DB設定初期化
 	services.InitDB(config.DB)
@@ -40,19 +36,19 @@ func main() {
 	// Route初期化
 	r := gin.Default()
 
-	// 404
+	// Not found
 	r.NoRoute(func(c *gin.Context) {
-		c.JSON(404, models.Error{
-			Code:    404,
-			Message: "Not Found",
+		c.JSON(http.StatusNotFound, models.Error{
+			Code:    http.StatusNotFound,
+			Message: http.StatusText(http.StatusNotFound),
 		})
 	})
 
-	// 405
+	// Method not allowed
 	r.NoMethod(func(c *gin.Context) {
-		c.JSON(405, models.Error{
-			Code:    405,
-			Message: "Method Not Allowed",
+		c.JSON(http.StatusMethodNotAllowed, models.Error{
+			Code:    http.StatusMethodNotAllowed,
+			Message: http.StatusText(http.StatusMethodNotAllowed),
 		})
 	})
 
@@ -61,6 +57,8 @@ func main() {
 	v1 := r.Group("v1")
 	{
 		v1.GET("/", controllers.GetState)
+		v1.POST("/users", controllers.Publish)
+		v1.POST("/activate", controllers.Activate)
 		v1.POST("/auth", controllers.Authenticate)
 		auth := v1.Group("")
 		{
@@ -81,7 +79,7 @@ func main() {
 					logs.Error(err)
 				}
 				if cnt > 0 {
-					logs.Info(fmt.Sprintf("トークンを%d件削除しました。", cnt))
+					logs.Info(fmt.Sprintf("Expired %d tokens was deleted.", cnt))
 				}
 				time.Sleep(60 * time.Second)
 			}
