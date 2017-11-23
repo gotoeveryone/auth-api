@@ -2,7 +2,16 @@ package models
 
 import (
 	"time"
+
+	"github.com/gotoeveryone/golib"
 )
+
+// AppConfig アプリケーション設定1
+type AppConfig struct {
+	golib.Config
+	Port        int    `json:"port"`
+	AppTimezone string `json:"appTimezone"`
+}
 
 // Error エラー
 type Error struct {

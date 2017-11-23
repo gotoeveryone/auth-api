@@ -2,6 +2,7 @@ package services
 
 import (
 	"fmt"
+	"net/url"
 
 	"github.com/gotoeveryone/golib"
 	"github.com/jinzhu/gorm"
@@ -13,9 +14,7 @@ var (
 )
 
 // InitDB テーブル初期化
-func InitDB() {
-	dbConfig := golib.AppConfig.DB
-
+func InitDB(dbConfig golib.DB) {
 	var err error
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8&parseTime=True&loc=%s",
 		dbConfig.User,
@@ -23,7 +22,7 @@ func InitDB() {
 		dbConfig.Host,
 		dbConfig.Port,
 		dbConfig.Name,
-		"Asia%2FTokyo",
+		url.QueryEscape(dbConfig.Timezone),
 	)
 
 	dbManager, err = gorm.Open("mysql", dsn)

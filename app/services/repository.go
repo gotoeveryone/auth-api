@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/gotoeveryone/general-api/app/models"
-	"github.com/gotoeveryone/golib"
 )
 
 var r *rand.Rand // Rand for this package.
@@ -135,7 +134,7 @@ func (s TokensService) DeleteExpired() (int64, error) {
 
 // UseCached キャッシュサーバを利用するかどうかを判定
 func (s TokensService) UseCached() bool {
-	return golib.AppConfig.Cache.Use
+	return AppConfig.Cache.Use
 }
 
 // UsersService ユーザモデルのサービス

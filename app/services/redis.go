@@ -4,7 +4,6 @@ import (
 	"strconv"
 
 	"github.com/garyburd/redigo/redis"
-	"github.com/gotoeveryone/golib"
 )
 
 var (
@@ -16,7 +15,7 @@ type RedisService struct{}
 
 // Connect Redisへ接続
 func (s RedisService) Connect() error {
-	redisConig := golib.AppConfig.Cache
+	redisConig := AppConfig.Cache
 	// Redisに保存
 	newCon, err := redis.Dial("tcp", redisConig.Host+":"+strconv.Itoa(redisConig.Port))
 	if err != nil {

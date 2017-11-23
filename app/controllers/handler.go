@@ -9,7 +9,6 @@ import (
 	"github.com/gin-gonic/gin/binding"
 	"github.com/gotoeveryone/general-api/app/models"
 	"github.com/gotoeveryone/general-api/app/services"
-	"github.com/gotoeveryone/golib"
 	"github.com/gotoeveryone/golib/logs"
 )
 
@@ -23,7 +22,7 @@ func GetState(c *gin.Context) {
 	c.JSON(200, models.State{
 		Status:      "OK",
 		Environment: gin.Mode(),
-		LogLevel:    golib.AppConfig.Log.Level,
+		LogLevel:    services.AppConfig.Log.Level,
 		TimeZone:    time.Local.String(),
 	})
 }

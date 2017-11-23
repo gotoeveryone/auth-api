@@ -16,19 +16,26 @@ import (
 
 func main() {
 	// 設定ファイル読み出し
-	golib.LoadConfig()
+	if err := golib.LoadConfig(&services.AppConfig, ""); err != nil {
+		panic(fmt.Errorf("LoadConfig error: %s", err))
+	}
+	config := services.AppConfig
+
+	// ログ設定
+	if err := logs.Init(config.Log.Prefix, config.Log.Path, config.Log.Level); err != nil {
+		panic(fmt.Errorf("LogConfig error: %s", err))
+	}
 
 	// タイムゾーンの設定
-	location := "Asia/Tokyo"
-	loc, err := time.LoadLocation(location)
+	loc, err := time.LoadLocation(config.AppTimezone)
 	if err != nil {
 		// UTCから9時間後
-		loc = time.FixedZone(location, 9*60*60)
+		loc = time.FixedZone(config.AppTimezone, 9*60*60)
 	}
 	time.Local = loc
 
 	// DB設定初期化
-	services.InitDB()
+	services.InitDB(config.DB)
 
 	// Route初期化
 	r := gin.Default()
@@ -81,5 +88,5 @@ func main() {
 		}(ts)
 	}
 
-	r.Run()
+	r.Run(fmt.Sprintf(":%d", config.Port))
 }
