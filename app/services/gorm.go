@@ -4,6 +4,9 @@ import (
 	"fmt"
 	"net/url"
 
+	"github.com/gin-gonic/gin"
+
+	"github.com/gotoeveryone/general-api/app/models"
 	"github.com/gotoeveryone/golib"
 	"github.com/jinzhu/gorm"
 )
@@ -29,5 +32,13 @@ func InitDB(dbConfig golib.DB) {
 	if err != nil {
 		panic(err)
 	}
-	dbManager.LogMode(true)
+
+	if gin.Mode() == gin.DebugMode {
+		dbManager.LogMode(true)
+	}
+
+	// マイグレーション実行
+	if err := dbManager.AutoMigrate(models.Token{}, models.User{}).Error; err != nil {
+		panic(err)
+	}
 }

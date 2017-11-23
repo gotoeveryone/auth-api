@@ -20,13 +20,13 @@ type TokensService struct{}
 
 // FindUser 対象トークンのユーザが有効かどうかを判定
 func (s TokensService) FindUser(token string) (*models.User, error) {
-	var m models.Token
-	if err := s.FindToken(token, &m); err != nil {
+	var t models.Token
+	if err := s.FindToken(token, &t); err != nil {
 		return nil, err
 	}
 
 	var u models.User
-	if err := dbManager.Where("id = ?", m.UserID).Find(&u).Error; err != nil {
+	if err := dbManager.Where("id = ?", t.UserID).Find(&u).Error; err != nil {
 		return nil, err
 	}
 
@@ -38,15 +38,14 @@ func (s TokensService) FindUser(token string) (*models.User, error) {
 }
 
 // FindToken トークンにマッチするログイン情報を取得します。
-func (s TokensService) FindToken(token string, model *models.Token) error {
-
+func (s TokensService) FindToken(token string, t *models.Token) error {
 	if !s.UseCached() {
-		if err := dbManager.Where("token = ?", token).Order("created desc").First(model).Error; err != nil {
+		if err := dbManager.Where("token = ?", token).Order("created desc").First(t).Error; err != nil {
 			return err
 		}
 
 		// 有効期限内のもの
-		comp := model.CreatedAt.Add(time.Duration(model.Expire) * time.Second)
+		comp := t.CreatedAt.Add(time.Duration(t.Expire) * time.Second)
 		if time.Now().Sub(comp).Seconds() > 0 {
 			return errors.New("Token is invalid")
 		}
@@ -64,46 +63,37 @@ func (s TokensService) FindToken(token string, model *models.Token) error {
 		return err
 	}
 
-	return json.Unmarshal(o.([]byte), model)
+	return json.Unmarshal(o.([]byte), t)
 }
 
 // Create トークン保存処理
-func (s TokensService) Create(token models.Token) error {
-
+func (s TokensService) Create(t models.Token) error {
 	if !s.UseCached() {
-		return dbManager.Create(&token).Error
+		return dbManager.Create(&t).Error
 	}
 
 	// JSONに変換
-	o, err := json.Marshal(token)
+	o, err := json.Marshal(t)
 	if err != nil {
 		return err
 	}
 
 	// キャッシュサーバに接続
 	var rs RedisService
-	return rs.SetWithExpire(token.Token, token.Expire, o)
+	return rs.SetWithExpire(t.Token, t.Expire, o)
 }
 
 // Delete トークン削除処理
 func (s TokensService) Delete(token string) error {
-
 	if !s.UseCached() {
-		err := dbManager.Where("token = ?", token).Delete(models.Token{}).Error
-		if err != nil {
-			return err
-		}
-
-		return nil
+		return dbManager.Where("token = ?", token).
+			Delete(models.Token{}).Error
 	}
 
 	// キャッシュサーバに接続
 	var rs RedisService
-	if _, err := rs.Delete(token); err != nil {
-		return err
-	}
-
-	return nil
+	_, err := rs.Delete(token)
+	return err
 }
 
 // GenerateToken トークン生成
@@ -123,13 +113,9 @@ func (s TokensService) DeleteExpired() (int64, error) {
 	if s.UseCached() {
 		return 0, nil
 	}
-	comp := time.Now()
-	cnt := dbManager.Where("DATE_ADD(created, INTERVAL expire second) < ?", comp).
-		Delete(models.Token{}).RowsAffected
-	if err := dbManager.Error; err != nil {
-		return 0, err
-	}
-	return cnt, nil
+	cnt := dbManager.Where("DATE_ADD(created, INTERVAL expire second) < ?",
+		time.Now()).Delete(models.Token{}).RowsAffected
+	return cnt, dbManager.Error
 }
 
 // UseCached キャッシュサーバを利用するかどうかを判定
@@ -143,26 +129,20 @@ type UsersService struct{}
 // Find モデル検索
 func (s UsersService) Find(id int) (*models.User, error) {
 	var u models.User
-	if err := dbManager.Where("id = ?", id).Find(&u).Error; err != nil {
-		return nil, err
-	}
-	return &u, nil
+	dbManager.Where("id = ?", id).Find(&u)
+	return &u, dbManager.Error
 }
 
 // FindActiveUser アクティブなユーザを検索
 func (s UsersService) FindActiveUser(account string) (*models.User, error) {
-	var user models.User
-	dbManager.Where("account = ?", account).Where("is_active = ?", 1).Find(&user)
-
-	if err := dbManager.Error; err != nil {
-		return nil, err
-	}
-
-	return &user, nil
+	var u models.User
+	dbManager.Where(&models.User{Account: account, IsActive: true}).Find(&u)
+	return &u, dbManager.Error
 }
 
 // UpdateAuthed 認証日時保存処理
-func (s UsersService) UpdateAuthed(user *models.User) error {
-	user.LastLogged = time.Now()
-	return dbManager.Save(user).Error
+func (s UsersService) UpdateAuthed(u *models.User) error {
+	now := time.Now()
+	u.LastLogged = &now
+	return dbManager.Save(u).Error
 }
