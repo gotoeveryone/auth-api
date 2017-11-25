@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/gotoeveryone/general-api/app/controllers"
+	"github.com/gotoeveryone/general-api/app/handlers"
 	"github.com/gotoeveryone/general-api/app/middlewares"
 	"github.com/gotoeveryone/general-api/app/models"
 	"github.com/gotoeveryone/general-api/app/services"
@@ -53,18 +53,18 @@ func main() {
 	})
 
 	// ルーティング
-	r.GET("/", controllers.GetState)
+	r.GET("/", handlers.GetState)
 	v1 := r.Group("v1")
 	{
-		v1.GET("/", controllers.GetState)
-		v1.POST("/users", controllers.Publish)
-		v1.POST("/activate", controllers.Activate)
-		v1.POST("/auth", controllers.Authenticate)
+		v1.GET("/", handlers.GetState)
+		v1.POST("/users", handlers.Publish)
+		v1.POST("/activate", handlers.Activate)
+		v1.POST("/auth", handlers.Authenticate)
 		auth := v1.Group("")
 		{
 			auth.Use(middlewares.HasToken())
-			auth.GET("/users", controllers.GetUser)
-			auth.DELETE("/deauth", controllers.Deauthenticate)
+			auth.GET("/users", handlers.GetUser)
+			auth.DELETE("/deauth", handlers.Deauthenticate)
 		}
 	}
 

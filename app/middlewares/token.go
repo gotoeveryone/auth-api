@@ -4,7 +4,7 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
-	"github.com/gotoeveryone/general-api/app/controllers"
+	"github.com/gotoeveryone/general-api/app/handlers"
 	"github.com/gotoeveryone/general-api/app/models"
 	"github.com/gotoeveryone/general-api/app/services"
 	"github.com/gotoeveryone/golib/logs"
@@ -53,8 +53,8 @@ func HasToken() gin.HandlerFunc {
 			return
 		}
 
-		// 認可済みヘッダを設定
-		c.Request.Header.Set(controllers.AuthorizedHeader, m.Token)
+		// トークンを設定
+		c.Set(handlers.TokenKey, m.Token)
 		c.Next()
 	}
 }

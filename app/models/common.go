@@ -59,14 +59,19 @@ type User struct {
 type Token struct {
 	ID          uint      `gorm:"primary_key" json:"-"`
 	UserID      uint      `gorm:"type:int unsigned;not null" json:"id"`
-	Token       string    `gorm:"type:varchar(50);not null;unique_index" json:"accessToken"`
-	Expire      int       `gorm:"type:smallint unsigned" json:"-"`
+	Token       string    `gorm:"type:varchar(64);not null;unique_index" json:"accessToken"`
 	Environment string    `gorm:"type:varchar(20);not null" json:"environment"`
-	CreatedAt   time.Time `gorm:"column:created;type:datetime" json:"-"`
+	CreatedAt   time.Time `gorm:"type:datetime;not null" json:"-"`
+	ExpiredAt   time.Time `gorm:"type:datetime;not null" json:"-"`
 	User        User      `json:"-"`
 }
 
 // MatchPassword パスワードが一致しているかを確認する
 func (u *User) MatchPassword(input string) error {
 	return bcrypt.CompareHashAndPassword([]byte(u.Password), []byte(input))
+}
+
+// GetDefaultRole デフォルトの権限を取得する
+func (u *User) GetDefaultRole() string {
+	return "General"
 }
