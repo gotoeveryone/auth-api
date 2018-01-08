@@ -3,9 +3,12 @@
 
 [[projects]]
   name = "github.com/garyburd/redigo"
-  packages = ["internal","redis"]
-  revision = "47dc60e71eed504e3ef8e77ee3c6fe720f3be57f"
-  version = "v1.3.0"
+  packages = [
+    "internal",
+    "redis"
+  ]
+  revision = "d1ed5c67e5794de818ea85e6b522fda02623a484"
+  version = "v1.4.0"
 
 [[projects]]
   branch = "master"
@@ -15,7 +18,11 @@
 
 [[projects]]
   name = "github.com/gin-gonic/gin"
-  packages = [".","binding","render"]
+  packages = [
+    ".",
+    "binding",
+    "render"
+  ]
   revision = "d459835d2b077e44f7c9b453505ee29881d5d12d"
   version = "v1.2"
 
@@ -33,13 +40,19 @@
 
 [[projects]]
   name = "github.com/gotoeveryone/golib"
-  packages = [".","logs"]
+  packages = [
+    ".",
+    "logs"
+  ]
   revision = "75e25db5cc8cbd27a3942484eb70e6b217aed090"
   version = "v1.1.1"
 
 [[projects]]
   name = "github.com/jinzhu/gorm"
-  packages = [".","dialects/mysql"]
+  packages = [
+    ".",
+    "dialects/mysql"
+  ]
   revision = "5174cc5c242a728b435ea2be8a2f7f998e15429b"
   version = "v1.0"
 
@@ -59,19 +72,22 @@
   branch = "master"
   name = "github.com/ugorji/go"
   packages = ["codec"]
-  revision = "84cb69a8af8316eed8cf4a3c9368a56977850062"
+  revision = "ccfe18359b55b97855cee1d3f74e5efbda4869dc"
 
 [[projects]]
   branch = "master"
   name = "golang.org/x/crypto"
-  packages = ["bcrypt","blowfish"]
-  revision = "9f005a07e0d31d45e6656d241bb5c0f2efd4bc94"
+  packages = [
+    "bcrypt",
+    "blowfish"
+  ]
+  revision = "0fcca4842a8d74bfddc2c96a073bd2a4d2a7a2e8"
 
 [[projects]]
   branch = "master"
   name = "golang.org/x/sys"
   packages = ["unix"]
-  revision = "82aafbf43bf885069dc71b7e7c2f9d7a614d47da"
+  revision = "1792d66dc88e503d3cb2400578221cdf1f7fe26f"
 
 [[projects]]
   name = "gopkg.in/go-playground/validator.v8"
@@ -83,7 +99,7 @@
   branch = "v2"
   name = "gopkg.in/yaml.v2"
   packages = ["."]
-  revision = "287cf08546ab5e7e37d55a84f7ed3fd1db036de5"
+  revision = "c4a9fb418357aceb801272d73efd518f183700fa"
 
 [solve-meta]
   analyzer-name = "dep"
