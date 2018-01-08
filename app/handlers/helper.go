@@ -10,11 +10,11 @@ import (
 )
 
 const (
-	// TokenKey トークン取得用のキー
+	// TokenKey is authenticated token key
 	TokenKey = "authenticated-token"
 )
 
-// 400エラー
+// Bad request
 func errorBadRequest(c *gin.Context, message string) {
 	errorJSON(c, models.Error{
 		Code:    http.StatusBadRequest,
@@ -23,7 +23,7 @@ func errorBadRequest(c *gin.Context, message string) {
 	})
 }
 
-// 401エラー
+// Unauthorized
 func errorUnauthorized(c *gin.Context, message string) {
 	errorJSON(c, models.Error{
 		Code:    http.StatusUnauthorized,
@@ -32,7 +32,7 @@ func errorUnauthorized(c *gin.Context, message string) {
 	})
 }
 
-// 500エラー
+// Internal server error
 func errorInternalServerError(c *gin.Context, err error) {
 	logs.Error(fmt.Errorf("Error: %s", err))
 	errorJSON(c, models.Error{
@@ -42,7 +42,7 @@ func errorInternalServerError(c *gin.Context, err error) {
 	})
 }
 
-// エラー用JSONの出力
+// Outputting error with JSON format
 func errorJSON(c *gin.Context, err models.Error) {
 	var header string
 	switch err.Code {

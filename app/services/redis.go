@@ -10,19 +10,18 @@ var (
 	con *redis.Conn
 )
 
-// RedisService Redis接続サービス
+// RedisService Operationg of redis connection.
 type RedisService struct{}
 
-// Connect Redisへ接続
+// Connect Connect to Redis.
 func (s RedisService) Connect() error {
 	redisConig := AppConfig.Cache
-	// Redisに保存
 	newCon, err := redis.Dial("tcp", redisConig.Host+":"+strconv.Itoa(redisConig.Port))
 	if err != nil {
 		return err
 	}
 
-	// AUTHが取得できた場合は認証
+	// When could got auth property from configuration data, Execute "AUTH" command.
 	if redisConig.Auth != "" {
 		if _, err := newCon.Do("AUTH", redisConig.Auth); err != nil {
 			return err
@@ -33,7 +32,7 @@ func (s RedisService) Connect() error {
 	return nil
 }
 
-// Get キーの取得
+// Get Execute "GET" command.
 func (s RedisService) Get(key string) (interface{}, error) {
 	if con == nil {
 		if err := s.Connect(); err != nil {
@@ -43,7 +42,7 @@ func (s RedisService) Get(key string) (interface{}, error) {
 	return (*con).Do("GET", key)
 }
 
-// Set キーの設定
+// Set Execute "SET" command.
 func (s RedisService) Set(key string, value interface{}) (interface{}, error) {
 	if con == nil {
 		if err := s.Connect(); err != nil {
@@ -53,7 +52,7 @@ func (s RedisService) Set(key string, value interface{}) (interface{}, error) {
 	return (*con).Do("SET", key, value)
 }
 
-// Delete キーの削除
+// Delete Execute "DEL" command.
 func (s RedisService) Delete(key string) (interface{}, error) {
 	if con == nil {
 		if err := s.Connect(); err != nil {
@@ -63,7 +62,7 @@ func (s RedisService) Delete(key string) (interface{}, error) {
 	return (*con).Do("DEL", key)
 }
 
-// Expire キーの有効期限設定
+// Expire Execute "EXPIRE" command.
 func (s RedisService) Expire(key string, expire int) (interface{}, error) {
 	if con == nil {
 		if err := s.Connect(); err != nil {
@@ -73,7 +72,7 @@ func (s RedisService) Expire(key string, expire int) (interface{}, error) {
 	return (*con).Do("EXPIRE", key, expire)
 }
 
-// SetWithExpire キーの保存と有効期限を設定
+// SetWithExpire Execute "SET" and "EXPIRE" command.
 func (s RedisService) SetWithExpire(key string, expire int, value interface{}) error {
 	if con == nil {
 		if err := s.Connect(); err != nil {

@@ -12,10 +12,10 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-// TokensService トークンモデルのサービス
+// TokensService is operate of token data.
 type TokensService struct{}
 
-// FindUser 対象トークンのユーザが有効かどうかを判定
+// FindUser is judge user has valid token
 func (s TokensService) FindUser(token string) (*models.User, error) {
 	var t models.Token
 	if err := s.FindToken(token, &t); err != nil {
@@ -35,7 +35,7 @@ func (s TokensService) FindUser(token string) (*models.User, error) {
 	return &u, nil
 }
 
-// FindToken トークン取得処理
+// FindToken is execute token data finding
 func (s TokensService) FindToken(token string, t *models.Token) error {
 	if !s.UseCached() {
 		return dbManager.Where(&models.Token{Token: token}).
@@ -53,9 +53,9 @@ func (s TokensService) FindToken(token string, t *models.Token) error {
 	return json.Unmarshal(o.([]byte), t)
 }
 
-// Create トークン保存処理
+// Create is execute token data creating
 func (s TokensService) Create(u *models.User, t *models.Token) error {
-	// トークンの生成
+	// Generate token value
 	key := []byte(u.Account + time.Now().Format("20060102150405000"))
 	bytes := sha256.Sum256(key)
 	t.Token = hex.EncodeToString(bytes[:])
@@ -69,7 +69,7 @@ func (s TokensService) Create(u *models.User, t *models.Token) error {
 		return dbManager.Create(t).Error
 	}
 
-	// JSONに変換
+	// Conver to JSON
 	o, err := json.Marshal(t)
 	if err != nil {
 		return err
@@ -79,7 +79,7 @@ func (s TokensService) Create(u *models.User, t *models.Token) error {
 	return rs.SetWithExpire(t.Token, expire, o)
 }
 
-// Delete トークン削除処理
+// Delete is execute token data deleting
 func (s TokensService) Delete(token string) error {
 	if !s.UseCached() {
 		return dbManager.Where(&models.Token{Token: token}).
@@ -91,7 +91,7 @@ func (s TokensService) Delete(token string) error {
 	return err
 }
 
-// DeleteExpired 有効期限切れトークンを削除する
+// DeleteExpired is execute expired token data deleting
 func (s TokensService) DeleteExpired() (int64, error) {
 	if s.UseCached() {
 		return 0, nil
@@ -101,15 +101,15 @@ func (s TokensService) DeleteExpired() (int64, error) {
 	return cnt, dbManager.Error
 }
 
-// UseCached キャッシュサーバを利用するかどうかを判定
+// UseCached is execute using cache service to whether save tokens confirming
 func (s TokensService) UseCached() bool {
 	return AppConfig.Cache.Use
 }
 
-// UsersService ユーザモデルのサービス
+// UsersService is operate of user data.
 type UsersService struct{}
 
-// Exists アカウントが存在するかを確認
+// Exists is confirm to account already exists
 func (s UsersService) Exists(account string) (bool, error) {
 	var count int
 	dbManager.Model(&models.User{}).Where(&models.User{Account: account}).Count(&count)
@@ -123,7 +123,7 @@ func (s UsersService) Exists(account string) (bool, error) {
 	return false, nil
 }
 
-// FindUser ユーザ取得処理
+// FindUser is find user data from account and password
 func (s UsersService) FindUser(account string, password string) (*models.User, error) {
 	var u models.User
 	dbManager.Where(&models.User{Account: account}).Find(&u)
@@ -131,7 +131,7 @@ func (s UsersService) FindUser(account string, password string) (*models.User, e
 		return nil, err
 	}
 
-	// パスワードの一致確認
+	// Check password matching from user has password
 	if err := u.MatchPassword(password); err != nil {
 		return nil, err
 	}
@@ -139,7 +139,7 @@ func (s UsersService) FindUser(account string, password string) (*models.User, e
 	return &u, nil
 }
 
-// Create ユーザ登録処理
+// Create is create user data
 func (s UsersService) Create(u *models.User, pass string) error {
 	pass, err := s.hashedPassword(pass)
 	if err != nil {
@@ -147,14 +147,14 @@ func (s UsersService) Create(u *models.User, pass string) error {
 	}
 	u.Password = pass
 
-	// 指定がなければデフォルトの権限
+	// If not specify role, use default role
 	if u.Role == "" {
 		u.Role = u.GetDefaultRole()
 	}
 	return dbManager.Create(u).Error
 }
 
-// UpdatePassword パスワード更新処理
+// UpdatePassword is update new password
 func (s UsersService) UpdatePassword(u *models.User, pass string) error {
 	newpass, err := s.hashedPassword(pass)
 	if err != nil {
@@ -165,14 +165,14 @@ func (s UsersService) UpdatePassword(u *models.User, pass string) error {
 	return dbManager.Save(u).Error
 }
 
-// UpdateAuthed 認証日時保存処理
+// UpdateAuthed is update authenticated date
 func (s UsersService) UpdateAuthed(u *models.User) error {
 	now := time.Now()
 	u.LastLogged = &now
 	return dbManager.Save(u).Error
 }
 
-// パスワードをハッシュ化する
+// Get hashed password
 func (s UsersService) hashedPassword(pass string) (string, error) {
 	hashedPass, err := bcrypt.GenerateFromPassword([]byte(pass), bcrypt.DefaultCost)
 	if err != nil {

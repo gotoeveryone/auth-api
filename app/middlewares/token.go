@@ -11,14 +11,14 @@ import (
 )
 
 const (
-	// ヘッダのトークンに付与されるPrefix
+	// Authentication HTTP header prefix
 	tokenPrefix = "Bearer "
 )
 
-// HasToken トークン保持確認
+// HasToken is confirm has exactly token during proccessing request
 func HasToken() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		// "Authorization"ヘッダを含むか
+		// Confirm has "Authorization" to HTTP header
 		tokenHeader := c.Request.Header.Get("Authorization")
 		if !strings.HasPrefix(tokenHeader, tokenPrefix) {
 			c.Writer.Header().Set("WWW-Authenticate", "Bearer realm=\"token_required\"")
@@ -29,7 +29,7 @@ func HasToken() gin.HandlerFunc {
 			return
 		}
 
-		// ヘッダからトークンが取得できるか
+		// Confirm can get token value from HTTP header
 		token := strings.TrimSpace(strings.Replace(tokenHeader, tokenPrefix, "", 1))
 		if token == "" {
 			c.Writer.Header().Set("WWW-Authenticate", "Bearer error=\"token_required\"")
@@ -40,7 +40,7 @@ func HasToken() gin.HandlerFunc {
 			return
 		}
 
-		// トークンが不正ではないか
+		// Confirm has token valid
 		var ts services.TokensService
 		var m models.Token
 		if err := ts.FindToken(token, &m); err != nil {
@@ -53,7 +53,7 @@ func HasToken() gin.HandlerFunc {
 			return
 		}
 
-		// トークンを設定
+		// Set token value
 		c.Set(handlers.TokenKey, m.Token)
 		c.Next()
 	}

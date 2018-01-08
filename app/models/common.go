@@ -7,21 +7,21 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-// AppConfig アプリケーション設定1
+// AppConfig is sturct of application configuration
 type AppConfig struct {
 	golib.Config
 	Port        int    `json:"port"`
 	AppTimezone string `json:"appTimezone"`
 }
 
-// Error エラー
+// Error is struct of error object
 type Error struct {
 	Code    int    `json:"code"`
 	Message string `json:"message"`
 	Error   error  `json:"-"`
 }
 
-// State 状態
+// State is struct of Application state
 type State struct {
 	Status      string `json:"status"`
 	Environment string `json:"environment"`
@@ -29,19 +29,19 @@ type State struct {
 	TimeZone    string `json:"timeZone"`
 }
 
-// Activate ユーザ有効化
+// Activate is validation struct of using during activate user
 type Activate struct {
-	Login
+	Authenticate
 	NewPassword string `json:"newPassword" binding:"required,min=8"`
 }
 
-// Login ログイン時の入力情報
-type Login struct {
+// Authenticate is validation struct of using during authentication
+type Authenticate struct {
 	Account  string `json:"account" binding:"required,min=6,max=10"`
 	Password string `json:"password" binding:"required,min=8"`
 }
 
-// User ユーザ
+// User is struct of authenticated user data
 type User struct {
 	ID          uint       `gorm:"primary_key" json:"id"`
 	Account     string     `gorm:"type:varchar(10);not null;unique_index" json:"account" binding:"required,min=6,max=10"`
@@ -56,7 +56,7 @@ type User struct {
 	CreatedAt   time.Time  `gorm:"type:datetime;not null" sql:"default:current_timestamp" json:"-"`
 }
 
-// Token トークン
+// Token is struct of authenticated token data
 type Token struct {
 	ID          uint      `gorm:"primary_key" json:"-"`
 	UserID      uint      `gorm:"type:int unsigned;not null" json:"id"`
@@ -67,12 +67,12 @@ type Token struct {
 	User        User      `json:"-"`
 }
 
-// MatchPassword パスワードが一致しているかを確認する
+// MatchPassword is check whether password match
 func (u *User) MatchPassword(input string) error {
 	return bcrypt.CompareHashAndPassword([]byte(u.Password), []byte(input))
 }
 
-// GetDefaultRole デフォルトの権限を取得する
+// GetDefaultRole is get user default role
 func (u *User) GetDefaultRole() string {
 	return "General"
 }

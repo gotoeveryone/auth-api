@@ -9,7 +9,7 @@ import (
 	"github.com/gotoeveryone/general-api/app/services"
 )
 
-// GetState 状態監視
+// GetState is get application state
 func GetState(c *gin.Context) {
 	c.JSON(http.StatusOK, models.State{
 		Status:      "Active",

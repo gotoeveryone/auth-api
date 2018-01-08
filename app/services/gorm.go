@@ -12,11 +12,11 @@ import (
 )
 
 var (
-	// DbManager データベース接続用インスタンス
+	// Instance of connected database
 	dbManager *gorm.DB
 )
 
-// InitDB テーブル初期化
+// InitDB is execute database connection initial setting
 func InitDB(dbConfig golib.DB) {
 	var err error
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8&parseTime=True&loc=%s",

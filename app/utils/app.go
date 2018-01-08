@@ -11,7 +11,7 @@ func init() {
 	r = rand.New(rand.NewSource(time.Now().UnixNano()))
 }
 
-// Generate 指定桁にマッチするランダム文字列を生成
+// Generate a random character string matching the specified digit
 func Generate(l int) string {
 	letters := "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 	v := ""

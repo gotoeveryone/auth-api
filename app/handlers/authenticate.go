@@ -10,16 +10,16 @@ import (
 	"github.com/gotoeveryone/general-api/app/utils"
 )
 
-// Publish ユーザ登録
-func Publish(c *gin.Context) {
-	// バリデーション
+// Registration is execute account registration
+func Registration(c *gin.Context) {
+	// Execute validation
 	var u models.User
 	if err := c.ShouldBindWith(&u, binding.JSON); err != nil {
 		errorBadRequest(c, err.Error())
 		return
 	}
 
-	// 同じアカウントのユーザがすでに存在するか
+	// Check the same account already exists
 	var us services.UsersService
 	if res, err := us.Exists(u.Account); err != nil {
 		errorUnauthorized(c, "Authorization failed")
@@ -29,10 +29,10 @@ func Publish(c *gin.Context) {
 		return
 	}
 
-	// 初期パスワードの発行
+	// Issue initial password
 	password := utils.Generate(16)
 
-	// 一般ユーザとして登録
+	// Create user
 	if err := us.Create(&u, password); err != nil {
 		errorUnauthorized(c, "Authorization failed")
 		return
@@ -43,22 +43,22 @@ func Publish(c *gin.Context) {
 	})
 }
 
-// Activate アカウント有効化
+// Activate is enable account with update password
 func Activate(c *gin.Context) {
-	// バリデーション
+	// Execute validation
 	var a models.Activate
 	if err := c.ShouldBindWith(&a, binding.JSON); err != nil {
 		errorBadRequest(c, err.Error())
 		return
 	}
 
-	// 同じパスワードには変更させない
+	// Deny change to same password
 	if a.Password == a.NewPassword {
 		errorBadRequest(c, "Not allowed changing to same password")
 		return
 	}
 
-	// ユーザの検索
+	// Search user
 	var us services.UsersService
 	user, err := us.FindUser(a.Account, a.Password)
 	if err != nil {
@@ -66,7 +66,7 @@ func Activate(c *gin.Context) {
 		return
 	}
 
-	// アカウントを有効化し、パスワードを更新
+	// Enable account with update password
 	user.IsEnable = true
 	if err := us.UpdatePassword(user, a.NewPassword); err != nil {
 		errorUnauthorized(c, "Authorization failed")
@@ -76,16 +76,16 @@ func Activate(c *gin.Context) {
 	c.JSON(http.StatusOK, user)
 }
 
-// Authenticate 認証
+// Authenticate is execute user authenticate
 func Authenticate(c *gin.Context) {
-	// バリデーション
-	var input models.Login
+	// Execute validation
+	var input models.Authenticate
 	if err := c.ShouldBindWith(&input, binding.JSON); err != nil {
 		errorBadRequest(c, err.Error())
 		return
 	}
 
-	// ユーザの検索
+	// Search user
 	var us services.UsersService
 	user, err := us.FindUser(input.Account, input.Password)
 	if err != nil {
@@ -93,19 +93,19 @@ func Authenticate(c *gin.Context) {
 		return
 	}
 
-	// パスワード変更未実施
+	// When initial password still not changed, Deny authentications
 	if !user.IsActive {
 		errorUnauthorized(c, "Password must be changed")
 		return
 	}
 
-	// 無効アカウント
+	// Deny disabled account
 	if !user.IsEnable {
 		errorUnauthorized(c, "Account is invalid")
 		return
 	}
 
-	// トークンの生成
+	// Create token
 	var ts services.TokensService
 	var token models.Token
 	if err := ts.Create(user, &token); err != nil {
@@ -113,7 +113,7 @@ func Authenticate(c *gin.Context) {
 		return
 	}
 
-	// 認証日時を更新
+	// Authenticated
 	if err := us.UpdateAuthed(user); err != nil {
 		errorInternalServerError(c, err)
 		return
@@ -122,9 +122,9 @@ func Authenticate(c *gin.Context) {
 	c.JSON(http.StatusOK, token)
 }
 
-// GetUser ユーザ取得
+// GetUser is find user data from token
 func GetUser(c *gin.Context) {
-	// トークンからユーザを取得
+	// Find user from post token
 	token := c.GetString(TokenKey)
 	var ts services.TokensService
 	user, err := ts.FindUser(token)
@@ -136,9 +136,9 @@ func GetUser(c *gin.Context) {
 	c.JSON(http.StatusOK, user)
 }
 
-// Deauthenticate 認証解除
+// Deauthenticate is execute user deauthentication
 func Deauthenticate(c *gin.Context) {
-	// トークンの削除
+	// Delete token
 	token := c.GetString(TokenKey)
 	var ts services.TokensService
 	if err := ts.Delete(token); err != nil {

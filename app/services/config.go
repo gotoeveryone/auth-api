@@ -5,6 +5,6 @@ import (
 )
 
 var (
-	// AppConfig アプリケーション設定
+	// AppConfig is configuration data read from JSON file
 	AppConfig models.AppConfig
 )
