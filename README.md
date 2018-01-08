@@ -1,3 +1,6 @@
+[![License](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](https://github.com/gotoeveryone/myrecipe/blob/master/LICENSE)
+[![GitHub version](https://badge.fury.io/gh/gotoeveryone%2Fgeneral-api.svg)](https://badge.fury.io/gh/gotoeveryone%2Fgeneral-api)
+
 # General authentication API
 
 Execute authentication and authorization with JSON Request and Response.
