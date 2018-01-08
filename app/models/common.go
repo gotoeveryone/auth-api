@@ -53,6 +53,7 @@ type User struct {
 	LastLogged  *time.Time `gorm:"type:datetime" json:"-"`
 	IsActive    bool       `gorm:"type:tinyint;not null" json:"-"`
 	IsEnable    bool       `gorm:"type:tinyint;not null" json:"-"`
+	CreatedAt   time.Time  `gorm:"type:datetime;not null" sql:"default:current_timestamp" json:"-"`
 }
 
 // Token トークン
