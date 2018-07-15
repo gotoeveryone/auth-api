@@ -7,11 +7,17 @@ import (
 	"github.com/gotoeveryone/golib"
 )
 
-// application configuration
+// configuration
 type appConfig struct {
 	golib.Config
-	Port        int    `json:"port"`
-	AppTimezone string `json:"appTimezone"`
+	App app
+}
+
+// application configuration
+type app struct {
+	Host     string `json:"host"`
+	Port     int    `json:"port"`
+	Timezone string `json:"timezone"`
 }
 
 var (

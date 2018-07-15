@@ -1,4 +1,9 @@
 {
+    "app": {
+        "host": "localhost",
+        "port": 8080,
+        "timezone": "Asia/Tokyo"
+    },
     "log": {
         "prefix": "[General API]",
         "path": "logs/api.log",

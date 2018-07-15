@@ -30,7 +30,7 @@ func main() {
 	}
 
 	// Set timezone
-	time.Local, _ = time.LoadLocation(config.AppTimezone)
+	time.Local, _ = time.LoadLocation(config.App.Timezone)
 
 	// Initial database
 	infrastructure.InitDB(config.DB)
@@ -88,5 +88,5 @@ func main() {
 		}(tr)
 	}
 
-	r.Run(fmt.Sprintf(":%d", config.Port))
+	r.Run(fmt.Sprintf("%s:%d", config.App.Host, config.App.Port))
 }
