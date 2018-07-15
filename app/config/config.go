@@ -1,11 +1,26 @@
-package utils
+package config
 
 import (
 	"math/rand"
 	"time"
+
+	"github.com/gotoeveryone/golib"
 )
 
-var r *rand.Rand // Rand for this package.
+// application configuration
+type appConfig struct {
+	golib.Config
+	Port        int    `json:"port"`
+	AppTimezone string `json:"appTimezone"`
+}
+
+var (
+	// AppConfig is configuration data read from JSON file
+	AppConfig appConfig
+
+	// Rand for this package.
+	r *rand.Rand
+)
 
 func init() {
 	r = rand.New(rand.NewSource(time.Now().UnixNano()))

@@ -1,20 +1,20 @@
-package handlers
+package handler
 
 import (
 	"net/http"
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/gotoeveryone/general-api/app/models"
-	"github.com/gotoeveryone/general-api/app/services"
+	"github.com/gotoeveryone/general-api/app/config"
+	"github.com/gotoeveryone/general-api/app/domain/entity"
 )
 
 // GetState is get application state
 func GetState(c *gin.Context) {
-	c.JSON(http.StatusOK, models.State{
+	c.JSON(http.StatusOK, entity.State{
 		Status:      "Active",
 		Environment: gin.Mode(),
-		LogLevel:    services.AppConfig.Log.Level,
+		LogLevel:    config.AppConfig.Log.Level,
 		TimeZone:    time.Local.String(),
 	})
 }

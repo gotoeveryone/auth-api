@@ -1,29 +1,32 @@
-package services
+package clients
 
 import (
 	"strconv"
 
 	"github.com/garyburd/redigo/redis"
+	"github.com/gotoeveryone/golib"
 )
 
 var (
 	con *redis.Conn
 )
 
-// RedisService Operationg of redis connection.
-type RedisService struct{}
+// RedisClient Operationg of redis connection.
+type RedisClient struct {
+	Config golib.Cache
+}
 
 // Connect Connect to Redis.
-func (s RedisService) Connect() error {
-	redisConig := AppConfig.Cache
-	newCon, err := redis.Dial("tcp", redisConig.Host+":"+strconv.Itoa(redisConig.Port))
+func (s RedisClient) Connect() error {
+	c := s.Config
+	newCon, err := redis.Dial("tcp", c.Host+":"+strconv.Itoa(c.Port))
 	if err != nil {
 		return err
 	}
 
 	// When could got auth property from configuration data, Execute "AUTH" command.
-	if redisConig.Auth != "" {
-		if _, err := newCon.Do("AUTH", redisConig.Auth); err != nil {
+	if c.Auth != "" {
+		if _, err := newCon.Do("AUTH", c.Auth); err != nil {
 			return err
 		}
 	}
@@ -33,7 +36,7 @@ func (s RedisService) Connect() error {
 }
 
 // Get Execute "GET" command.
-func (s RedisService) Get(key string) (interface{}, error) {
+func (s RedisClient) Get(key string) (interface{}, error) {
 	if con == nil {
 		if err := s.Connect(); err != nil {
 			return nil, err
@@ -43,7 +46,7 @@ func (s RedisService) Get(key string) (interface{}, error) {
 }
 
 // Set Execute "SET" command.
-func (s RedisService) Set(key string, value interface{}) (interface{}, error) {
+func (s RedisClient) Set(key string, value interface{}) (interface{}, error) {
 	if con == nil {
 		if err := s.Connect(); err != nil {
 			return nil, err
@@ -53,7 +56,7 @@ func (s RedisService) Set(key string, value interface{}) (interface{}, error) {
 }
 
 // Delete Execute "DEL" command.
-func (s RedisService) Delete(key string) (interface{}, error) {
+func (s RedisClient) Delete(key string) (interface{}, error) {
 	if con == nil {
 		if err := s.Connect(); err != nil {
 			return nil, err
@@ -63,7 +66,7 @@ func (s RedisService) Delete(key string) (interface{}, error) {
 }
 
 // Expire Execute "EXPIRE" command.
-func (s RedisService) Expire(key string, expire int) (interface{}, error) {
+func (s RedisClient) Expire(key string, expire int) (interface{}, error) {
 	if con == nil {
 		if err := s.Connect(); err != nil {
 			return nil, err
@@ -73,7 +76,7 @@ func (s RedisService) Expire(key string, expire int) (interface{}, error) {
 }
 
 // SetWithExpire Execute "SET" and "EXPIRE" command.
-func (s RedisService) SetWithExpire(key string, expire int, value interface{}) error {
+func (s RedisClient) SetWithExpire(key string, expire int, value interface{}) error {
 	if con == nil {
 		if err := s.Connect(); err != nil {
 			return err

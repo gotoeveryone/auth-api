@@ -1,11 +1,11 @@
-package handlers
+package handler
 
 import (
 	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/gotoeveryone/general-api/app/models"
+	"github.com/gotoeveryone/general-api/app/domain/entity"
 	"github.com/gotoeveryone/golib/logs"
 )
 
@@ -16,7 +16,7 @@ const (
 
 // Bad request
 func errorBadRequest(c *gin.Context, message string) {
-	errorJSON(c, models.Error{
+	errorJSON(c, entity.Error{
 		Code:    http.StatusBadRequest,
 		Message: message,
 		Error:   nil,
@@ -25,7 +25,7 @@ func errorBadRequest(c *gin.Context, message string) {
 
 // Unauthorized
 func errorUnauthorized(c *gin.Context, message string) {
-	errorJSON(c, models.Error{
+	errorJSON(c, entity.Error{
 		Code:    http.StatusUnauthorized,
 		Message: message,
 		Error:   nil,
@@ -35,7 +35,7 @@ func errorUnauthorized(c *gin.Context, message string) {
 // Internal server error
 func errorInternalServerError(c *gin.Context, err error) {
 	logs.Error(fmt.Errorf("Error: %s", err))
-	errorJSON(c, models.Error{
+	errorJSON(c, entity.Error{
 		Code:    http.StatusInternalServerError,
 		Message: "",
 		Error:   err,
@@ -43,7 +43,7 @@ func errorInternalServerError(c *gin.Context, err error) {
 }
 
 // Outputting error with JSON format
-func errorJSON(c *gin.Context, err models.Error) {
+func errorJSON(c *gin.Context, err entity.Error) {
 	var header string
 	switch err.Code {
 	case http.StatusBadRequest:
