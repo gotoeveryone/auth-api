@@ -1,4 +1,4 @@
-package services
+package infrastructure
 
 import (
 	"fmt"
@@ -6,7 +6,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/gotoeveryone/general-api/app/models"
+	"github.com/gotoeveryone/general-api/app/domain/entity"
 	"github.com/gotoeveryone/golib"
 	"github.com/jinzhu/gorm"
 )
@@ -38,7 +38,7 @@ func InitDB(dbConfig golib.DB) {
 	}
 
 	// マイグレーション実行
-	if err := dbManager.AutoMigrate(models.Token{}, models.User{}).Error; err != nil {
+	if err := dbManager.AutoMigrate(entity.Token{}, entity.User{}).Error; err != nil {
 		panic(err)
 	}
 }

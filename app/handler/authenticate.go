@@ -1,27 +1,27 @@
-package handlers
+package handler
 
 import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
-	"github.com/gotoeveryone/general-api/app/models"
-	"github.com/gotoeveryone/general-api/app/services"
-	"github.com/gotoeveryone/general-api/app/utils"
+	"github.com/gotoeveryone/general-api/app/config"
+	"github.com/gotoeveryone/general-api/app/domain/entity"
+	"github.com/gotoeveryone/general-api/app/infrastructure"
 )
 
 // Registration is execute account registration
 func Registration(c *gin.Context) {
 	// Execute validation
-	var u models.User
+	var u entity.User
 	if err := c.ShouldBindWith(&u, binding.JSON); err != nil {
 		errorBadRequest(c, err.Error())
 		return
 	}
 
 	// Check the same account already exists
-	var us services.UsersService
-	if res, err := us.Exists(u.Account); err != nil {
+	ur := infrastructure.NewUserRepository()
+	if res, err := ur.Exists(u.Account); err != nil {
 		errorUnauthorized(c, "Authorization failed")
 		return
 	} else if res {
@@ -30,10 +30,10 @@ func Registration(c *gin.Context) {
 	}
 
 	// Issue initial password
-	password := utils.Generate(16)
+	password := config.Generate(16)
 
 	// Create user
-	if err := us.Create(&u, password); err != nil {
+	if err := ur.Create(&u, password); err != nil {
 		errorUnauthorized(c, "Authorization failed")
 		return
 	}
@@ -46,7 +46,7 @@ func Registration(c *gin.Context) {
 // Activate is enable account with update password
 func Activate(c *gin.Context) {
 	// Execute validation
-	var a models.Activate
+	var a entity.Activate
 	if err := c.ShouldBindWith(&a, binding.JSON); err != nil {
 		errorBadRequest(c, err.Error())
 		return
@@ -59,8 +59,8 @@ func Activate(c *gin.Context) {
 	}
 
 	// Search user
-	var us services.UsersService
-	user, err := us.FindUser(a.Account, a.Password)
+	ur := infrastructure.NewUserRepository()
+	user, err := ur.FindByUserAndPassword(a.Account, a.Password)
 	if err != nil {
 		errorUnauthorized(c, "Authorization failed")
 		return
@@ -68,7 +68,7 @@ func Activate(c *gin.Context) {
 
 	// Enable account with update password
 	user.IsEnable = true
-	if err := us.UpdatePassword(user, a.NewPassword); err != nil {
+	if err := ur.UpdatePassword(user, a.NewPassword); err != nil {
 		errorUnauthorized(c, "Authorization failed")
 		return
 	}
@@ -79,15 +79,15 @@ func Activate(c *gin.Context) {
 // Authenticate is execute user authenticate
 func Authenticate(c *gin.Context) {
 	// Execute validation
-	var input models.Authenticate
+	var input entity.Authenticate
 	if err := c.ShouldBindWith(&input, binding.JSON); err != nil {
 		errorBadRequest(c, err.Error())
 		return
 	}
 
 	// Search user
-	var us services.UsersService
-	user, err := us.FindUser(input.Account, input.Password)
+	ur := infrastructure.NewUserRepository()
+	user, err := ur.FindByUserAndPassword(input.Account, input.Password)
 	if err != nil {
 		errorUnauthorized(c, "Authorization failed")
 		return
@@ -106,15 +106,15 @@ func Authenticate(c *gin.Context) {
 	}
 
 	// Create token
-	var ts services.TokensService
-	var token models.Token
-	if err := ts.Create(user, &token); err != nil {
+	tr := infrastructure.NewTokenRepository()
+	var token entity.Token
+	if err := tr.Create(user, &token); err != nil {
 		errorInternalServerError(c, err)
 		return
 	}
 
 	// Authenticated
-	if err := us.UpdateAuthed(user); err != nil {
+	if err := ur.UpdateAuthed(user); err != nil {
 		errorInternalServerError(c, err)
 		return
 	}
@@ -126,8 +126,8 @@ func Authenticate(c *gin.Context) {
 func GetUser(c *gin.Context) {
 	// Find user from post token
 	token := c.GetString(TokenKey)
-	var ts services.TokensService
-	user, err := ts.FindUser(token)
+	ur := infrastructure.NewUserRepository()
+	user, err := ur.FindByToken(token)
 	if err != nil {
 		errorUnauthorized(c, "Authorization failed")
 		return
@@ -140,8 +140,8 @@ func GetUser(c *gin.Context) {
 func Deauthenticate(c *gin.Context) {
 	// Delete token
 	token := c.GetString(TokenKey)
-	var ts services.TokensService
-	if err := ts.Delete(token); err != nil {
+	tr := infrastructure.NewTokenRepository()
+	if err := tr.Delete(token); err != nil {
 		errorInternalServerError(c, err)
 		return
 	}

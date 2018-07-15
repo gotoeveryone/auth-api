@@ -27,6 +27,9 @@ $ dep ensure
 ## Build & Run
 
 ```
+$ cd <repository_root>
+$ cp config.json.example config.json # with editing
+$
 $ GOOS=<target_os> GOARCH=<target_arch> go build -o general-api
 $ ./general-api
 ```
