@@ -1,7 +1,7 @@
 package infrastructure
 
 import (
-	"crypto/sha256"
+	"crypto/sha512"
 	"encoding/hex"
 	"encoding/json"
 	"errors"
@@ -46,11 +46,10 @@ func NewTokenRepository() repository.TokenRepository {
 // Create entity from user.
 func (r tokenRepository) createFromUser(u *entity.User, t *entity.Token) {
 	key := []byte(u.Account + time.Now().Format("20060102150405000"))
-	bytes := sha256.Sum256(key)
+	bytes := sha512.Sum512_256(key)
 	t.Token = hex.EncodeToString(bytes[:])
 	t.UserID = u.ID
 	t.Environment = gin.Mode()
-
 	t.ExpiredAt = time.Now().Add(time.Duration(r.getExpire()) * time.Second)
 }
 
