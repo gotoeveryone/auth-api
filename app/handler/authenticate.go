@@ -1,13 +1,26 @@
 package handler
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
-	"github.com/gotoeveryone/general-api/app/config"
+	"github.com/gotoeveryone/general-api/app/domain"
 	"github.com/gotoeveryone/general-api/app/domain/entity"
 	"github.com/gotoeveryone/general-api/app/infrastructure"
+	"github.com/gotoeveryone/golib/logs"
+	"gopkg.in/go-playground/validator.v8"
+)
+
+var (
+	errInvalidAccount = errors.New("Account is invalid")
+	errExistsAccount  = errors.New("Account is already exists")
+	errInvalidRole    = errors.New("Role is invalid")
+
+	errUpdatePassword     = errors.New("Update password failed")
+	errSamePassword       = errors.New("Not allowed changing to same password")
+	errMustChangePassword = errors.New("Password must be changed")
 )
 
 // Registration is execute account registration
@@ -15,31 +28,36 @@ func Registration(c *gin.Context) {
 	// Execute validation
 	var u entity.User
 	if err := c.ShouldBindWith(&u, binding.JSON); err != nil {
-		errorBadRequest(c, err.Error())
+		errors := err.(validator.ValidationErrors)
+		ErrorBadRequest(c, domain.ValidationErrors(errors, &u))
 		return
 	}
 
 	// Check the same account already exists
 	ur := infrastructure.NewUserRepository()
 	if res, err := ur.Exists(u.Account); err != nil {
-		errorUnauthorized(c, "Authorization failed")
+		ErrorInternalServerError(c, err)
 		return
 	} else if res {
-		errorBadRequest(c, "Account is already exists")
+		ErrorBadRequest(c, errExistsAccount)
 		return
 	}
 
-	// Issue initial password
-	password := config.Generate(16)
+	// Check valid role
+	if !ur.ValidRole(u.Role) {
+		ErrorBadRequest(c, errInvalidRole)
+		return
+	}
 
 	// Create user
-	if err := ur.Create(&u, password); err != nil {
-		errorUnauthorized(c, "Authorization failed")
+	pass, err := ur.Create(&u)
+	if err != nil {
+		ErrorInternalServerError(c, err)
 		return
 	}
 
 	c.JSON(http.StatusCreated, gin.H{
-		"password": password,
+		"password": pass,
 	})
 }
 
@@ -48,32 +66,42 @@ func Activate(c *gin.Context) {
 	// Execute validation
 	var a entity.Activate
 	if err := c.ShouldBindWith(&a, binding.JSON); err != nil {
-		errorBadRequest(c, err.Error())
+		errors := err.(validator.ValidationErrors)
+		ErrorBadRequest(c, domain.ValidationErrors(errors, &a))
 		return
 	}
 
 	// Deny change to same password
 	if a.Password == a.NewPassword {
-		errorBadRequest(c, "Not allowed changing to same password")
+		ErrorBadRequest(c, errSamePassword)
 		return
 	}
 
 	// Search user
 	ur := infrastructure.NewUserRepository()
-	user, err := ur.FindByUserAndPassword(a.Account, a.Password)
+	user, err := ur.FindByAccount(a.Account)
 	if err != nil {
-		errorUnauthorized(c, "Authorization failed")
+		ErrorInternalServerError(c, err)
+		return
+	}
+
+	// Check password matching from user has password
+	if err := ur.MatchPassword(user.Password, a.Password); err != nil {
+		logs.Error(err)
+		ErrorUnauthorized(c, ErrUnauthorized)
 		return
 	}
 
 	// Enable account with update password
 	user.IsEnable = true
 	if err := ur.UpdatePassword(user, a.NewPassword); err != nil {
-		errorUnauthorized(c, "Authorization failed")
+		ErrorInternalServerError(c, err)
 		return
 	}
 
-	c.JSON(http.StatusOK, user)
+	c.JSON(http.StatusOK, gin.H{
+		"result": "success",
+	})
 }
 
 // Authenticate is execute user authenticate
@@ -81,27 +109,35 @@ func Authenticate(c *gin.Context) {
 	// Execute validation
 	var input entity.Authenticate
 	if err := c.ShouldBindWith(&input, binding.JSON); err != nil {
-		errorBadRequest(c, err.Error())
+		errors := err.(validator.ValidationErrors)
+		ErrorBadRequest(c, domain.ValidationErrors(errors, &input))
 		return
 	}
 
 	// Search user
 	ur := infrastructure.NewUserRepository()
-	user, err := ur.FindByUserAndPassword(input.Account, input.Password)
+	user, err := ur.FindByAccount(input.Account)
 	if err != nil {
-		errorUnauthorized(c, "Authorization failed")
+		ErrorInternalServerError(c, err)
+		return
+	}
+
+	// Invalid account
+	if !ur.ValidUser(user) {
+		ErrorBadRequest(c, errInvalidAccount)
 		return
 	}
 
 	// When initial password still not changed, Deny authentications
 	if !user.IsActive {
-		errorUnauthorized(c, "Password must be changed")
+		ErrorBadRequest(c, errMustChangePassword)
 		return
 	}
 
-	// Deny disabled account
-	if !user.IsEnable {
-		errorUnauthorized(c, "Account is invalid")
+	// Check password matching from user has password
+	if err := ur.MatchPassword(user.Password, input.Password); err != nil {
+		logs.Error(err)
+		ErrorUnauthorized(c, ErrUnauthorized)
 		return
 	}
 
@@ -109,13 +145,13 @@ func Authenticate(c *gin.Context) {
 	tr := infrastructure.NewTokenRepository()
 	var token entity.Token
 	if err := tr.Create(user, &token); err != nil {
-		errorInternalServerError(c, err)
+		ErrorInternalServerError(c, err)
 		return
 	}
 
 	// Authenticated
 	if err := ur.UpdateAuthed(user); err != nil {
-		errorInternalServerError(c, err)
+		ErrorInternalServerError(c, err)
 		return
 	}
 
@@ -129,7 +165,13 @@ func GetUser(c *gin.Context) {
 	ur := infrastructure.NewUserRepository()
 	user, err := ur.FindByToken(token)
 	if err != nil {
-		errorUnauthorized(c, "Authorization failed")
+		ErrorInternalServerError(c, err)
+		return
+	}
+
+	// Invalid account
+	if !ur.ValidUser(user) {
+		ErrorBadRequest(c, errInvalidAccount)
 		return
 	}
 
@@ -142,7 +184,7 @@ func Deauthenticate(c *gin.Context) {
 	token := c.GetString(TokenKey)
 	tr := infrastructure.NewTokenRepository()
 	if err := tr.Delete(token); err != nil {
-		errorInternalServerError(c, err)
+		ErrorInternalServerError(c, err)
 		return
 	}
 
