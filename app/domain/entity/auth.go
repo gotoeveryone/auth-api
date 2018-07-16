@@ -2,8 +2,13 @@ package entity
 
 import (
 	"time"
+)
 
-	"golang.org/x/crypto/bcrypt"
+var (
+	// RoleAdministrator is administrator user.
+	RoleAdministrator = "Administrator"
+	// RoleGeneral is general user.
+	RoleGeneral = "General"
 )
 
 // User is struct of authenticated user data
@@ -13,7 +18,7 @@ type User struct {
 	Name        string     `gorm:"type:varchar(20);not null" json:"name" binding:"required,max=50"`
 	Password    string     `gorm:"type:varchar(255);not null" json:"-"`
 	Sex         string     `gorm:"type:enum('Male','Female');not null" json:"sex" binding:"required"`
-	MailAddress *string    `gorm:"type:varchar(100)" json:"mailAddress" binding:"required"`
+	MailAddress *string    `gorm:"type:varchar(100)" json:"mailAddress" binding:"required,email"`
 	Role        string     `gorm:"type:enum('Administrator','General');not null" json:"role"`
 	LastLogged  *time.Time `gorm:"type:datetime" json:"-"`
 	IsActive    bool       `gorm:"type:tinyint;not null" json:"-"`
@@ -33,12 +38,7 @@ type Token struct {
 	User        User      `json:"-"`
 }
 
-// MatchPassword is check whether password match
-func (u *User) MatchPassword(input string) error {
-	return bcrypt.CompareHashAndPassword([]byte(u.Password), []byte(input))
-}
-
 // GetDefaultRole is get user default role
 func (u *User) GetDefaultRole() string {
-	return "General"
+	return RoleGeneral
 }

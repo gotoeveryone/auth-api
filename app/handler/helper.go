@@ -1,8 +1,10 @@
 package handler
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
+	"reflect"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gotoeveryone/general-api/app/domain/entity"
@@ -14,8 +16,17 @@ const (
 	TokenKey = "authenticated-token"
 )
 
-// Bad request
-func errorBadRequest(c *gin.Context, message string) {
+var (
+	// ErrUnauthorized is unauthorized message.
+	ErrUnauthorized = errors.New("Authorization failed")
+	// ErrRequiredAccessToken is access token is required message.
+	ErrRequiredAccessToken = errors.New("Token is required")
+	// ErrInvalidAccessToken is access token is invalid message.
+	ErrInvalidAccessToken = errors.New("Token is invalid")
+)
+
+// ErrorBadRequest is return bad request response.
+func ErrorBadRequest(c *gin.Context, message interface{}) {
 	errorJSON(c, entity.Error{
 		Code:    http.StatusBadRequest,
 		Message: message,
@@ -23,8 +34,8 @@ func errorBadRequest(c *gin.Context, message string) {
 	})
 }
 
-// Unauthorized
-func errorUnauthorized(c *gin.Context, message string) {
+// ErrorUnauthorized is return unauthorized response.
+func ErrorUnauthorized(c *gin.Context, message interface{}) {
 	errorJSON(c, entity.Error{
 		Code:    http.StatusUnauthorized,
 		Message: message,
@@ -32,8 +43,8 @@ func errorUnauthorized(c *gin.Context, message string) {
 	})
 }
 
-// Internal server error
-func errorInternalServerError(c *gin.Context, err error) {
+// ErrorInternalServerError is return internal server error response.
+func ErrorInternalServerError(c *gin.Context, err error) {
 	logs.Error(fmt.Errorf("Error: %s", err))
 	errorJSON(c, entity.Error{
 		Code:    http.StatusInternalServerError,
@@ -56,6 +67,11 @@ func errorJSON(c *gin.Context, err entity.Error) {
 	}
 	if err.Message == "" {
 		err.Message = http.StatusText(err.Code)
+	} else {
+		et := reflect.TypeOf(err.Message)
+		if et.Implements(reflect.TypeOf((*error)(nil)).Elem()) {
+			err.Message = err.Message.(error).Error()
+		}
 	}
 	c.AbortWithStatusJSON(err.Code, err)
 }
