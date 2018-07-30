@@ -5,7 +5,7 @@
         "timezone": "Asia/Tokyo"
     },
     "log": {
-        "prefix": "[General API]",
+        "prefix": "General API",
         "path": "logs/api.log",
         "level": "INFO"
     },

@@ -4,7 +4,7 @@ import (
 	"strconv"
 
 	"github.com/garyburd/redigo/redis"
-	"github.com/gotoeveryone/golib"
+	"github.com/gotoeveryone/golib/config"
 )
 
 var (
@@ -13,7 +13,7 @@ var (
 
 // RedisClient Operationg of redis connection.
 type RedisClient struct {
-	Config golib.Cache
+	Config config.Cache
 }
 
 // Connect Connect to Redis.

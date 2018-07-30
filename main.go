@@ -2,38 +2,44 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/gotoeveryone/general-api/app/config"
-	"github.com/gotoeveryone/general-api/app/domain/entity"
-	"github.com/gotoeveryone/general-api/app/domain/repository"
-	"github.com/gotoeveryone/general-api/app/handler"
-	"github.com/gotoeveryone/general-api/app/infrastructure"
-	"github.com/gotoeveryone/general-api/app/middleware"
+	"github.com/gotoeveryone/auth-api/app/application/handler"
+	"github.com/gotoeveryone/auth-api/app/application/middleware"
+	"github.com/gotoeveryone/auth-api/app/config"
+	"github.com/gotoeveryone/auth-api/app/domain/entity"
+	"github.com/gotoeveryone/auth-api/app/domain/repository"
+	"github.com/gotoeveryone/auth-api/app/infrastructure"
 	"github.com/gotoeveryone/golib"
-	"github.com/gotoeveryone/golib/logs"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 )
 
 func main() {
 	// Load configuration from JSON file
 	if err := golib.LoadConfig(&config.AppConfig, ""); err != nil {
-		panic(fmt.Errorf("LoadConfig error: %s", err))
+		log.Fatal(fmt.Sprintf("LoadConfig error: %s", err))
 	}
-	config := config.AppConfig
+	c := config.AppConfig
 
 	// Initial log
-	if err := logs.Init(config.Log.Prefix, config.Log.Path, config.Log.Level); err != nil {
-		panic(fmt.Errorf("LogConfig error: %s", err))
+	var err error
+	config.Logger, err = golib.NewLogger(c.Log)
+	if err != nil {
+		log.Fatal(fmt.Sprintf("Log initialize error: %s", err))
 	}
 
 	// Set timezone
-	time.Local, _ = time.LoadLocation(config.App.Timezone)
+	time.Local, err = time.LoadLocation(c.App.Timezone)
+	if err != nil {
+		config.Logger.Error(fmt.Sprintf("Get location error: %s", err))
+		// continue with default timezone.
+	}
 
 	// Initial database
-	infrastructure.InitDB(config.DB)
+	infrastructure.InitDB(c.DB)
 
 	// Initial application
 	r := gin.Default()
@@ -78,15 +84,15 @@ func main() {
 			for {
 				cnt, err := repo.DeleteExpired()
 				if err != nil {
-					logs.Error(err)
+					config.Logger.Error(err)
 				}
 				if cnt > 0 {
-					logs.Info(fmt.Sprintf("Expired %d tokens was deleted.", cnt))
+					config.Logger.Info(fmt.Sprintf("Expired %d tokens was deleted.", cnt))
 				}
 				time.Sleep(60 * time.Second)
 			}
 		}(tr)
 	}
 
-	r.Run(fmt.Sprintf("%s:%d", config.App.Host, config.App.Port))
+	r.Run(fmt.Sprintf("%s:%d", c.App.Host, c.App.Port))
 }

@@ -5,10 +5,10 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
+	"github.com/gotoeveryone/auth-api/app/config"
 	"github.com/gotoeveryone/auth-api/app/domain"
 	"github.com/gotoeveryone/auth-api/app/domain/entity"
 	"github.com/gotoeveryone/auth-api/app/infrastructure"
-	"github.com/gotoeveryone/golib/logs"
 	"gopkg.in/go-playground/validator.v8"
 )
 
@@ -38,7 +38,7 @@ func Activate(c *gin.Context) {
 
 	// Check password matching from user has password
 	if err := ur.MatchPassword(user.Password, a.Password); err != nil {
-		logs.Error(err)
+		config.Logger.Error(err)
 		ErrorUnauthorized(c, ErrUnauthorized)
 		return
 	}
@@ -87,7 +87,7 @@ func Authenticate(c *gin.Context) {
 
 	// Check password matching from user has password
 	if err := ur.MatchPassword(user.Password, input.Password); err != nil {
-		logs.Error(err)
+		config.Logger.Error(err)
 		ErrorUnauthorized(c, ErrUnauthorized)
 		return
 	}

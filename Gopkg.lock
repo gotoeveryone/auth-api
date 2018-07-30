@@ -49,32 +49,15 @@
   version = "v1.1.0"
 
 [[projects]]
-  branch = "master"
-  digest = "1:c11c0c98a497d4b9ae0dd534236468d18f247f9c13d52ddefbf4e02d33ca1f9a"
-  name = "github.com/gotoeveryone/general-api"
-  packages = [
-    "app/application",
-    "app/config",
-    "app/domain",
-    "app/domain/entity",
-    "app/domain/repository",
-    "app/handler",
-    "app/infrastructure",
-    "app/middleware",
-  ]
-  pruneopts = ""
-  revision = "9502611207258c608d7d78e6af56e9777a297a32"
-
-[[projects]]
-  digest = "1:faf9d0d9096c4d3bffd6c00c0efc4e7614c3270c3e2ac6cedba8ab325e1c3ea7"
+  digest = "1:f97c174cb9712fe34ea0ba0c2ea9a1114d5144fb8e8d651ff1847794bc9795da"
   name = "github.com/gotoeveryone/golib"
   packages = [
     ".",
-    "logs",
+    "config",
   ]
   pruneopts = ""
-  revision = "75e25db5cc8cbd27a3942484eb70e6b217aed090"
-  version = "v1.1.1"
+  revision = "fe30aeb994b70bacb03294ce3d02540533601df7"
+  version = "v2.0.0"
 
 [[projects]]
   digest = "1:ef98d342d9f7771cf470498a5b9bc00989c436fa62046f2dad50f6813a5909d3"
@@ -113,22 +96,22 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:e79c3d6b195477b429f017aaa02af135249bbdff31c9acbd8a93bb37a4ef7d3b"
+  digest = "1:798981f04990c9da3f4fde5d7b717e9cdabed624450aaecf01e9a2896d076040"
   name = "golang.org/x/crypto"
   packages = [
     "bcrypt",
     "blowfish",
   ]
   pruneopts = ""
-  revision = "a49355c7e3f8fe157a85be2f77e6e269a0f89602"
+  revision = "c126467f60eb25f8f27e5a981f32a87e3965053f"
 
 [[projects]]
   branch = "master"
-  digest = "1:a8944db88149e7ecbea4b760c625b9ccf455fceae21387bc8890c3589d28b623"
+  digest = "1:cfc5bd16b264cf9960abb45ecc09e4f3c70638d838f0d9c18e39b5b35af45e86"
   name = "golang.org/x/sys"
   packages = ["unix"]
   pruneopts = ""
-  revision = "ac767d655b305d4e9612f5f6e33120b9176c4ad4"
+  revision = "bd9dbc187b6e1dacfdd2722a87e83093c2d7bd6e"
 
 [[projects]]
   digest = "1:eede11c81b63c8f6fd06ef24ba0a640dc077196ec9b7a58ecde03c82eee2f151"
@@ -161,14 +144,8 @@
     "github.com/garyburd/redigo/redis",
     "github.com/gin-gonic/gin",
     "github.com/gin-gonic/gin/binding",
-    "github.com/gotoeveryone/general-api/app/config",
-    "github.com/gotoeveryone/general-api/app/domain/entity",
-    "github.com/gotoeveryone/general-api/app/domain/repository",
-    "github.com/gotoeveryone/general-api/app/handler",
-    "github.com/gotoeveryone/general-api/app/infrastructure",
-    "github.com/gotoeveryone/general-api/app/middleware",
     "github.com/gotoeveryone/golib",
-    "github.com/gotoeveryone/golib/logs",
+    "github.com/gotoeveryone/golib/config",
     "github.com/jinzhu/gorm",
     "github.com/jinzhu/gorm/dialects/mysql",
     "golang.org/x/crypto/bcrypt",

@@ -1,5 +1,5 @@
 [![License](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](https://github.com/gotoeveryone/myrecipe/blob/master/LICENSE)
-[![GitHub version](https://badge.fury.io/gh/gotoeveryone%2Fgeneral-api.svg)](https://badge.fury.io/gh/gotoeveryone%2Fgeneral-api)
+[![GitHub version](https://badge.fury.io/gh/gotoeveryone%2Fauth-api.svg)](https://badge.fury.io/gh/gotoeveryone%2Fauth-api)
 
 # General authentication API
 
@@ -30,8 +30,8 @@ $ dep ensure
 $ cd <repository_root>
 $ cp config.json.example config.json # with editing
 $
-$ GOOS=<target_os> GOARCH=<target_arch> go build -o general-api
-$ ./general-api
+$ GOOS=<target_os> GOARCH=<target_arch> go build -o auth-api
+$ ./auth-api
 ```
 
 ## Endpoint
