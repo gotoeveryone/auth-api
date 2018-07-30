@@ -1,7 +1,7 @@
 package repository
 
 import (
-	"github.com/gotoeveryone/general-api/app/domain/entity"
+	"github.com/gotoeveryone/auth-api/app/domain/entity"
 )
 
 // TokenRepository is operate of token data.

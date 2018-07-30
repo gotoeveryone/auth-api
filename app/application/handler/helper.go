@@ -23,6 +23,14 @@ var (
 	ErrRequiredAccessToken = errors.New("Token is required")
 	// ErrInvalidAccessToken is access token is invalid message.
 	ErrInvalidAccessToken = errors.New("Token is invalid")
+
+	errInvalidAccount = errors.New("Account is invalid")
+	errExistsAccount  = errors.New("Account is already exists")
+	errInvalidRole    = errors.New("Role is invalid")
+
+	errUpdatePassword     = errors.New("Update password failed")
+	errSamePassword       = errors.New("Not allowed changing to same password")
+	errMustChangePassword = errors.New("Password must be changed")
 )
 
 // ErrorBadRequest is return bad request response.

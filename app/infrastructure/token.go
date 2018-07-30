@@ -8,10 +8,10 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/gotoeveryone/general-api/app/application"
-	"github.com/gotoeveryone/general-api/app/config"
-	"github.com/gotoeveryone/general-api/app/domain/entity"
-	"github.com/gotoeveryone/general-api/app/domain/repository"
+	"github.com/gotoeveryone/auth-api/app/application/client"
+	"github.com/gotoeveryone/auth-api/app/config"
+	"github.com/gotoeveryone/auth-api/app/domain/entity"
+	"github.com/gotoeveryone/auth-api/app/domain/repository"
 )
 
 type (
@@ -26,18 +26,18 @@ type (
 	// Token control by Redis.
 	redisTokenRepository struct {
 		tokenRepository
-		Client application.RedisClient
+		Client client.RedisClient
 	}
 )
 
 // NewTokenRepository is create token management repository.
 func NewTokenRepository() repository.TokenRepository {
 	if config.AppConfig.Cache.Use {
-		client := application.RedisClient{
+		redisClient := client.RedisClient{
 			Config: config.AppConfig.Cache,
 		}
 		return redisTokenRepository{
-			Client: client,
+			Client: redisClient,
 		}
 	}
 	return dbTokenRepository{}

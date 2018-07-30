@@ -4,8 +4,8 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
-	"github.com/gotoeveryone/general-api/app/handler"
-	"github.com/gotoeveryone/general-api/app/infrastructure"
+	"github.com/gotoeveryone/auth-api/app/application/handler"
+	"github.com/gotoeveryone/auth-api/app/infrastructure"
 	"github.com/gotoeveryone/golib/logs"
 )
 
