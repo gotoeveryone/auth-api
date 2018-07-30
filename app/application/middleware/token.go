@@ -5,8 +5,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/gotoeveryone/auth-api/app/application/handler"
+	"github.com/gotoeveryone/auth-api/app/config"
 	"github.com/gotoeveryone/auth-api/app/infrastructure"
-	"github.com/gotoeveryone/golib/logs"
 )
 
 const (
@@ -37,7 +37,7 @@ func HasToken() gin.HandlerFunc {
 		ur := infrastructure.NewUserRepository()
 		user, err := ur.FindByToken(token)
 		if err != nil {
-			logs.Error(err)
+			config.Logger.Error(err)
 			handler.ErrorInternalServerError(c, err)
 			return
 		} else if !ur.ValidUser(user) {

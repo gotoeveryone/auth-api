@@ -5,8 +5,8 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/gotoeveryone/general-api/app/config"
-	"github.com/gotoeveryone/general-api/app/domain/entity"
+	"github.com/gotoeveryone/auth-api/app/config"
+	"github.com/gotoeveryone/auth-api/app/domain/entity"
 )
 
 // GetState is get application state

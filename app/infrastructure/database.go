@@ -7,7 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"github.com/gotoeveryone/auth-api/app/domain/entity"
-	"github.com/gotoeveryone/golib"
+	"github.com/gotoeveryone/golib/config"
 	"github.com/jinzhu/gorm"
 )
 
@@ -17,7 +17,7 @@ var (
 )
 
 // InitDB is execute database connection initial setting
-func InitDB(dbConfig golib.DB) {
+func InitDB(dbConfig config.DB) {
 	var err error
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8&parseTime=True&loc=%s",
 		dbConfig.User,
