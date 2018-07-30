@@ -3,9 +3,9 @@ package infrastructure
 import (
 	"time"
 
-	"github.com/gotoeveryone/general-api/app/config"
-	"github.com/gotoeveryone/general-api/app/domain/entity"
-	"github.com/gotoeveryone/general-api/app/domain/repository"
+	"github.com/gotoeveryone/auth-api/app/config"
+	"github.com/gotoeveryone/auth-api/app/domain/entity"
+	"github.com/gotoeveryone/auth-api/app/domain/repository"
 	"golang.org/x/crypto/bcrypt"
 )
 

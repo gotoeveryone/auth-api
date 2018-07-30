@@ -6,7 +6,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/gotoeveryone/general-api/app/domain/entity"
+	"github.com/gotoeveryone/auth-api/app/domain/entity"
 	"github.com/gotoeveryone/golib"
 	"github.com/jinzhu/gorm"
 )

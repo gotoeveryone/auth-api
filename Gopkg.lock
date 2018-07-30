@@ -49,6 +49,23 @@
   version = "v1.1.0"
 
 [[projects]]
+  branch = "master"
+  digest = "1:c11c0c98a497d4b9ae0dd534236468d18f247f9c13d52ddefbf4e02d33ca1f9a"
+  name = "github.com/gotoeveryone/general-api"
+  packages = [
+    "app/application",
+    "app/config",
+    "app/domain",
+    "app/domain/entity",
+    "app/domain/repository",
+    "app/handler",
+    "app/infrastructure",
+    "app/middleware",
+  ]
+  pruneopts = ""
+  revision = "9502611207258c608d7d78e6af56e9777a297a32"
+
+[[projects]]
   digest = "1:faf9d0d9096c4d3bffd6c00c0efc4e7614c3270c3e2ac6cedba8ab325e1c3ea7"
   name = "github.com/gotoeveryone/golib"
   packages = [
@@ -144,11 +161,18 @@
     "github.com/garyburd/redigo/redis",
     "github.com/gin-gonic/gin",
     "github.com/gin-gonic/gin/binding",
+    "github.com/gotoeveryone/general-api/app/config",
+    "github.com/gotoeveryone/general-api/app/domain/entity",
+    "github.com/gotoeveryone/general-api/app/domain/repository",
+    "github.com/gotoeveryone/general-api/app/handler",
+    "github.com/gotoeveryone/general-api/app/infrastructure",
+    "github.com/gotoeveryone/general-api/app/middleware",
     "github.com/gotoeveryone/golib",
     "github.com/gotoeveryone/golib/logs",
     "github.com/jinzhu/gorm",
     "github.com/jinzhu/gorm/dialects/mysql",
     "golang.org/x/crypto/bcrypt",
+    "gopkg.in/go-playground/validator.v8",
   ]
   solver-name = "gps-cdcl"
   solver-version = 1
