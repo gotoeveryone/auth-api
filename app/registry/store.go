@@ -7,5 +7,5 @@ import (
 
 // InitDatastore is initialize datastore
 func InitDatastore() error {
-	return database.Init(config.AppConfig.DB)
+	return database.Init(config.AppConfig.App.Debug, config.AppConfig.DB)
 }

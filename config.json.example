@@ -2,7 +2,8 @@
     "app": {
         "host": "localhost",
         "port": 8080,
-        "timezone": "Asia/Tokyo"
+        "timezone": "Asia/Tokyo",
+        "debug": true
     },
     "log": {
         "prefix": "General API",

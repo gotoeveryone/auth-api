@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"net/url"
 
-	"github.com/gin-gonic/gin"
-
 	"github.com/gotoeveryone/auth-api/app/domain/entity"
 	"github.com/gotoeveryone/golib/config"
 	"github.com/jinzhu/gorm"
@@ -17,7 +15,7 @@ var (
 )
 
 // Init is execute database connection initial setting
-func Init(dbConfig config.DB) error {
+func Init(debug bool, dbConfig config.DB) error {
 	var err error
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8&parseTime=True&loc=%s",
 		dbConfig.User,
@@ -33,9 +31,7 @@ func Init(dbConfig config.DB) error {
 		return err
 	}
 
-	if gin.Mode() == gin.DebugMode {
-		dbManager.LogMode(true)
-	}
+	dbManager.LogMode(debug)
 
 	// マイグレーション実行
 	if err := dbManager.AutoMigrate(entity.Token{}, entity.User{}).Error; err != nil {

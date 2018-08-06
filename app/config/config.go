@@ -19,6 +19,7 @@ type app struct {
 	Host     string `json:"host"`
 	Port     int    `json:"port"`
 	Timezone string `json:"timezone"`
+	Debug    bool   `json:"debug"`
 }
 
 var (
