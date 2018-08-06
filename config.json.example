@@ -7,7 +7,8 @@
     "log": {
         "prefix": "General API",
         "path": "logs/api.log",
-        "level": "INFO"
+        "level": "INFO",
+        "type": "file"
     },
     "cache": {
         "use": false,

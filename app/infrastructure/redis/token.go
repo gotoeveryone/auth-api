@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 
+	"github.com/gotoeveryone/auth-api/app/domain/cache"
 	"github.com/gotoeveryone/auth-api/app/domain/entity"
 	"github.com/gotoeveryone/auth-api/app/domain/repository"
 	"github.com/gotoeveryone/auth-api/app/infrastructure"
@@ -11,18 +12,18 @@ import (
 
 type tokenRepository struct {
 	infrastructure.BaseTokenRepository
-	client Client
+	client cache.Client
 }
 
 // NewTokenRepository is create token management repository using Redis.
-func NewTokenRepository(c Client) repository.TokenRepository {
-	return tokenRepository{
+func NewTokenRepository(c cache.Client) repository.TokenRepository {
+	return &tokenRepository{
 		client: c,
 	}
 }
 
-// FindToken is execute token data finding
-func (r tokenRepository) FindToken(token string, t *entity.Token) error {
+// Find is execute token data finding
+func (r tokenRepository) Find(token string, t *entity.Token) error {
 	o, err := r.client.Get(token)
 	if err != nil {
 		return err

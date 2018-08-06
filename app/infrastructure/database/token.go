@@ -17,8 +17,8 @@ func NewTokenRepository() repository.TokenRepository {
 	return &tokenRepository{}
 }
 
-// FindToken is execute token data finding
-func (r tokenRepository) FindToken(token string, t *entity.Token) error {
+// Find is execute token data finding
+func (r tokenRepository) Find(token string, t *entity.Token) error {
 	return dbManager.Where(&entity.Token{Token: token}).
 		Where("expired_at >= ?", time.Now()).First(t).Error
 }
