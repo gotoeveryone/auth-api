@@ -3,13 +3,11 @@ package main
 import (
 	"fmt"
 	"log"
-	"net/http"
 	"os"
 	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gotoeveryone/auth-api/app/config"
-	"github.com/gotoeveryone/auth-api/app/domain/entity"
 	"github.com/gotoeveryone/auth-api/app/domain/repository"
 	"github.com/gotoeveryone/auth-api/app/registry"
 	"github.com/gotoeveryone/golib"
@@ -23,7 +21,7 @@ func main() {
 	}
 	c := config.AppConfig
 
-	// Initial log
+	// Initialize logger
 	var err error
 	config.Logger, err = golib.NewLogger(c.Log)
 	if err != nil {
@@ -37,30 +35,15 @@ func main() {
 		// continue with default timezone.
 	}
 
-	// Initial datastore
+	// Initialize datastore
 	if err := registry.InitDatastore(); err != nil {
 		config.Logger.Error(err)
 		os.Exit(1)
 	}
 
-	// Initial application
+	// Initialize application
 	r := gin.Default()
-
-	// Not found
-	r.NoRoute(func(c *gin.Context) {
-		c.JSON(http.StatusNotFound, entity.Error{
-			Code:    http.StatusNotFound,
-			Message: http.StatusText(http.StatusNotFound),
-		})
-	})
-
-	// Method not allowed
-	r.NoMethod(func(c *gin.Context) {
-		c.JSON(http.StatusMethodNotAllowed, entity.Error{
-			Code:    http.StatusMethodNotAllowed,
-			Message: http.StatusText(http.StatusMethodNotAllowed),
-		})
-	})
+	r.HandleMethodNotAllowed = true
 
 	// Repository
 	ur := registry.NewUserRepository()
@@ -74,7 +57,13 @@ func main() {
 	m := registry.NewAuthenticateMiddleware(ur)
 
 	// Routing
+	// Root
 	r.GET("/", sh.Get)
+	// Not Found
+	r.NoRoute(sh.NoRoute)
+	// Method Not Allowed
+	r.NoMethod(sh.NoMethod)
+	// Application
 	v1 := r.Group("v1")
 	{
 		v1.GET("/", sh.Get)

@@ -26,3 +26,19 @@ func (h *stateHandler) Get(c *gin.Context) {
 		TimeZone:    time.Local.String(),
 	})
 }
+
+// NoRoute is not found response
+func (h *stateHandler) NoRoute(c *gin.Context) {
+	c.AbortWithStatusJSON(http.StatusNotFound, entity.Error{
+		Code:    http.StatusNotFound,
+		Message: http.StatusText(http.StatusNotFound),
+	})
+}
+
+// NoMethod is method not allowed response
+func (h *stateHandler) NoMethod(c *gin.Context) {
+	c.AbortWithStatusJSON(http.StatusMethodNotAllowed, entity.Error{
+		Code:    http.StatusMethodNotAllowed,
+		Message: http.StatusText(http.StatusMethodNotAllowed),
+	})
+}
