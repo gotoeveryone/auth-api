@@ -28,6 +28,11 @@ func main() {
 		log.Fatal(fmt.Sprintf("Log initialize error: %s", err))
 	}
 
+	// Set application mode
+	if !c.App.Debug {
+		gin.SetMode(gin.ReleaseMode)
+	}
+
 	// Set timezone
 	time.Local, err = time.LoadLocation(c.App.Timezone)
 	if err != nil {
