@@ -1,4 +1,4 @@
-package client
+package redis
 
 import (
 	"strconv"
@@ -11,13 +11,13 @@ var (
 	con *redis.Conn
 )
 
-// RedisClient Operationg of redis connection.
-type RedisClient struct {
+// Client is operationg of redis connection.
+type Client struct {
 	Config config.Cache
 }
 
 // Connect Connect to Redis.
-func (s RedisClient) Connect() error {
+func (s Client) Connect() error {
 	c := s.Config
 	newCon, err := redis.Dial("tcp", c.Host+":"+strconv.Itoa(c.Port))
 	if err != nil {
@@ -36,7 +36,7 @@ func (s RedisClient) Connect() error {
 }
 
 // Get Execute "GET" command.
-func (s RedisClient) Get(key string) (interface{}, error) {
+func (s Client) Get(key string) (interface{}, error) {
 	if con == nil {
 		if err := s.Connect(); err != nil {
 			return nil, err
@@ -46,7 +46,7 @@ func (s RedisClient) Get(key string) (interface{}, error) {
 }
 
 // Set Execute "SET" command.
-func (s RedisClient) Set(key string, value interface{}) (interface{}, error) {
+func (s Client) Set(key string, value interface{}) (interface{}, error) {
 	if con == nil {
 		if err := s.Connect(); err != nil {
 			return nil, err
@@ -56,7 +56,7 @@ func (s RedisClient) Set(key string, value interface{}) (interface{}, error) {
 }
 
 // Delete Execute "DEL" command.
-func (s RedisClient) Delete(key string) (interface{}, error) {
+func (s Client) Delete(key string) (interface{}, error) {
 	if con == nil {
 		if err := s.Connect(); err != nil {
 			return nil, err
@@ -66,7 +66,7 @@ func (s RedisClient) Delete(key string) (interface{}, error) {
 }
 
 // Expire Execute "EXPIRE" command.
-func (s RedisClient) Expire(key string, expire int) (interface{}, error) {
+func (s Client) Expire(key string, expire int) (interface{}, error) {
 	if con == nil {
 		if err := s.Connect(); err != nil {
 			return nil, err
@@ -76,7 +76,7 @@ func (s RedisClient) Expire(key string, expire int) (interface{}, error) {
 }
 
 // SetWithExpire Execute "SET" and "EXPIRE" command.
-func (s RedisClient) SetWithExpire(key string, expire int, value interface{}) error {
+func (s Client) SetWithExpire(key string, expire int, value interface{}) error {
 	if con == nil {
 		if err := s.Connect(); err != nil {
 			return err

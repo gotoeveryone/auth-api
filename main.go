@@ -4,15 +4,14 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/gotoeveryone/auth-api/app/application/handler"
-	"github.com/gotoeveryone/auth-api/app/application/middleware"
 	"github.com/gotoeveryone/auth-api/app/config"
 	"github.com/gotoeveryone/auth-api/app/domain/entity"
 	"github.com/gotoeveryone/auth-api/app/domain/repository"
-	"github.com/gotoeveryone/auth-api/app/infrastructure"
+	"github.com/gotoeveryone/auth-api/app/registry"
 	"github.com/gotoeveryone/golib"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 )
@@ -38,8 +37,11 @@ func main() {
 		// continue with default timezone.
 	}
 
-	// Initial database
-	infrastructure.InitDB(c.DB)
+	// Initial datastore
+	if err := registry.InitDatastore(); err != nil {
+		config.Logger.Error(err)
+		os.Exit(1)
+	}
 
 	// Initial application
 	r := gin.Default()
@@ -60,25 +62,35 @@ func main() {
 		})
 	})
 
+	// Repository
+	ur := registry.NewUserRepository()
+	tr := registry.NewTokenRepository()
+
+	// Handler
+	sh := registry.NewStateHandler()
+	ah := registry.NewAuthenticateHandler(ur, tr)
+
+	// Middleware
+	m := registry.NewAuthenticateMiddleware(ur)
+
 	// Routing
-	r.GET("/", handler.GetState)
+	r.GET("/", sh.Get)
 	v1 := r.Group("v1")
 	{
-		v1.GET("/", handler.GetState)
-		v1.POST("/users", handler.Registration)
-		v1.POST("/activate", handler.Activate)
-		v1.POST("/auth", handler.Authenticate)
+		v1.GET("/", sh.Get)
+		v1.POST("/users", ah.Registration)
+		v1.POST("/activate", ah.Activate)
+		v1.POST("/auth", ah.Authenticate)
 		auth := v1.Group("")
 		{
-			auth.Use(middleware.HasToken())
-			auth.GET("/users", handler.GetUser)
-			auth.DELETE("/deauth", handler.Deauthenticate)
+			auth.Use(m.Authorized())
+			auth.GET("/users", ah.GetUser)
+			auth.DELETE("/deauth", ah.Deauthenticate)
 		}
 	}
 
 	// Deleting expired tokens.
 	// When can't auto delete expired tokens, this function is behavior.
-	tr := infrastructure.NewTokenRepository()
 	if !tr.CanAutoDeleteExpired() {
 		go func(repo repository.TokenRepository) {
 			for {
@@ -94,5 +106,8 @@ func main() {
 		}(tr)
 	}
 
-	r.Run(fmt.Sprintf("%s:%d", c.App.Host, c.App.Port))
+	if err := r.Run(fmt.Sprintf("%s:%d", c.App.Host, c.App.Port)); err != nil {
+		config.Logger.Error(err)
+		os.Exit(1)
+	}
 }
