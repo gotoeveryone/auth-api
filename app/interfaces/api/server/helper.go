@@ -1,4 +1,4 @@
-package handler
+package server
 
 import (
 	"errors"
@@ -7,8 +7,8 @@ import (
 	"reflect"
 
 	"github.com/gin-gonic/gin"
-	"github.com/gotoeveryone/general-api/app/domain/entity"
-	"github.com/gotoeveryone/golib/logs"
+	"github.com/gotoeveryone/auth-api/app/config"
+	"github.com/gotoeveryone/auth-api/app/domain/entity"
 )
 
 const (
@@ -17,12 +17,9 @@ const (
 )
 
 var (
-	// ErrUnauthorized is unauthorized message.
-	ErrUnauthorized = errors.New("Authorization failed")
-	// ErrRequiredAccessToken is access token is required message.
-	ErrRequiredAccessToken = errors.New("Token is required")
-	// ErrInvalidAccessToken is access token is invalid message.
-	ErrInvalidAccessToken = errors.New("Token is invalid")
+	errUnauthorized        = errors.New("Authorization failed")
+	errRequiredAccessToken = errors.New("Token is required")
+	errInvalidAccessToken  = errors.New("Token is invalid")
 
 	errInvalidAccount = errors.New("Account is invalid")
 	errExistsAccount  = errors.New("Account is already exists")
@@ -33,8 +30,8 @@ var (
 	errMustChangePassword = errors.New("Password must be changed")
 )
 
-// ErrorBadRequest is return bad request response.
-func ErrorBadRequest(c *gin.Context, message interface{}) {
+// Return bad request response.
+func errorBadRequest(c *gin.Context, message interface{}) {
 	errorJSON(c, entity.Error{
 		Code:    http.StatusBadRequest,
 		Message: message,
@@ -42,8 +39,8 @@ func ErrorBadRequest(c *gin.Context, message interface{}) {
 	})
 }
 
-// ErrorUnauthorized is return unauthorized response.
-func ErrorUnauthorized(c *gin.Context, message interface{}) {
+// Return unauthorized response.
+func errorUnauthorized(c *gin.Context, message interface{}) {
 	errorJSON(c, entity.Error{
 		Code:    http.StatusUnauthorized,
 		Message: message,
@@ -51,9 +48,9 @@ func ErrorUnauthorized(c *gin.Context, message interface{}) {
 	})
 }
 
-// ErrorInternalServerError is return internal server error response.
-func ErrorInternalServerError(c *gin.Context, err error) {
-	logs.Error(fmt.Errorf("Error: %s", err))
+// Return internal server error response.
+func errorInternalServerError(c *gin.Context, err error) {
+	config.Logger.Error(fmt.Errorf("Error: %s", err))
 	errorJSON(c, entity.Error{
 		Code:    http.StatusInternalServerError,
 		Message: "",

@@ -5,11 +5,12 @@ import (
 	"time"
 
 	"github.com/gotoeveryone/golib"
+	"github.com/gotoeveryone/golib/config"
 )
 
 // configuration
 type appConfig struct {
-	golib.Config
+	config.Config
 	App app
 }
 
@@ -23,6 +24,8 @@ type app struct {
 var (
 	// AppConfig is configuration data read from JSON file
 	AppConfig appConfig
+	// Logger is logging configuration structure
+	Logger *golib.Logger
 
 	// Rand for this package.
 	r *rand.Rand

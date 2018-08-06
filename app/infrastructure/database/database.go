@@ -1,4 +1,4 @@
-package infrastructure
+package database
 
 import (
 	"fmt"
@@ -7,7 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"github.com/gotoeveryone/auth-api/app/domain/entity"
-	"github.com/gotoeveryone/golib"
+	"github.com/gotoeveryone/golib/config"
 	"github.com/jinzhu/gorm"
 )
 
@@ -16,8 +16,8 @@ var (
 	dbManager *gorm.DB
 )
 
-// InitDB is execute database connection initial setting
-func InitDB(dbConfig golib.DB) {
+// Init is execute database connection initial setting
+func Init(dbConfig config.DB) error {
 	var err error
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8&parseTime=True&loc=%s",
 		dbConfig.User,
@@ -30,7 +30,7 @@ func InitDB(dbConfig golib.DB) {
 
 	dbManager, err = gorm.Open("mysql", dsn)
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	if gin.Mode() == gin.DebugMode {
@@ -39,6 +39,8 @@ func InitDB(dbConfig golib.DB) {
 
 	// マイグレーション実行
 	if err := dbManager.AutoMigrate(entity.Token{}, entity.User{}).Error; err != nil {
-		panic(err)
+		return err
 	}
+
+	return nil
 }

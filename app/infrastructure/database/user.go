@@ -1,4 +1,4 @@
-package infrastructure
+package database
 
 import (
 	"time"
@@ -9,14 +9,11 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-type (
-	// User control repository.
-	userRepository struct{}
-)
+type userRepository struct{}
 
-// NewUserRepository is create user management repository.
+// NewUserRepository is create user management repository
 func NewUserRepository() repository.UserRepository {
-	return userRepository{}
+	return &userRepository{}
 }
 
 // Exists is confirm to account already exists
