@@ -12,11 +12,24 @@ Execute authentication and authorization with JSON Request and Response.
 Installed the following program.
 
 - Docker
-## Build & Run
+
+## Run
 
 ```
 $ cp config.json.example config.json # with editing
 $ docker-compose up
+```
+
+## Test
+
+```
+$ docker-compose exec api go test
+```
+
+## Build
+
+```
+$ docker-compose exec api go build main.go
 ```
 
 ## Endpoint
