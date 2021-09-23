@@ -11,17 +11,11 @@ Execute authentication and authorization with JSON Request and Response.
 
 Installed the following program.
 
-- Golang 1.8+
-
+- Golang 1.11+
 ## Installing
 
-- Get `dep` binary (`dep` is Golang's package manager)
-
 ```
-$ go get -u github.com/golang/dep/cmd/dep
-$
-$ cd <repository_root>
-$ dep ensure
+$ go mod tidy
 ```
 
 ## Build & Run
