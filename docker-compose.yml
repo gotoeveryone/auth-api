@@ -1,0 +1,29 @@
+version: "3"
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./:/go/src/github.com/auth-api
+    environment:
+      CUSTOM_PATH: "./"
+    ports:
+      - "8080:8080"
+    depends_on:
+      - database
+  database:
+    image: mysql:5.7
+    volumes:
+      - ./database:/var/lib/mysql
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+      MYSQL_DATABASE: "auth_api"
+      TZ: "Asia/Tokyo"
+    ports:
+      - "13306:3306"
+    command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_bin
+  redis:
+    image: redis:6
+    ports:
+      - "6379:6379"

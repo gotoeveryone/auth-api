@@ -1,5 +1,9 @@
+/database
 /vendor
 /config.json
 /debug
 /.vscode
 /logs
+
+# goenv
+.go-version

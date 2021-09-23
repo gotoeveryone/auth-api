@@ -11,21 +11,12 @@ Execute authentication and authorization with JSON Request and Response.
 
 Installed the following program.
 
-- Golang 1.11+
-## Installing
-
-```
-$ go mod tidy
-```
-
+- Docker
 ## Build & Run
 
 ```
-$ cd <repository_root>
 $ cp config.json.example config.json # with editing
-$
-$ GOOS=<target_os> GOARCH=<target_arch> go build -o auth-api
-$ ./auth-api
+$ docker-compose up
 ```
 
 ## Endpoint

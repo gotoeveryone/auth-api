@@ -16,7 +16,7 @@ import (
 
 func main() {
 	// Load configuration from JSON file
-	if err := golib.LoadConfig(&config.AppConfig, ""); err != nil {
+	if err := golib.LoadConfig(&config.AppConfig, os.Getenv("CUSTOM_PATH")); err != nil {
 		log.Fatal(fmt.Sprintf("LoadConfig error: %s", err))
 	}
 	c := config.AppConfig
