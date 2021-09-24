@@ -1,6 +1,6 @@
 {
     "app": {
-        "host": "localhost",
+        "host": "0.0.0.0",
         "port": 8080,
         "timezone": "Asia/Tokyo",
         "debug": true
@@ -13,15 +13,15 @@
     },
     "cache": {
         "use": false,
-        "host": "localhost",
+        "host": "redis",
         "port": 6379,
         "auth": ""
     },
     "db": {
-        "name": "",
-        "host": "localhost",
+        "name": "auth_api",
+        "host": "database",
         "port": 3306,
-        "user": "",
+        "user": "root",
         "password": "",
         "timezone": "Asia/Tokyo"
     },
