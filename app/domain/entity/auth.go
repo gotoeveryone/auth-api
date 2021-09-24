@@ -17,7 +17,7 @@ type User struct {
 	Account     string     `gorm:"type:varchar(10);not null;unique_index" json:"account" binding:"required,min=6,max=10"`
 	Name        string     `gorm:"type:varchar(20);not null" json:"name" binding:"required,max=50"`
 	Password    string     `gorm:"type:varchar(255);not null" json:"-"`
-	Sex         string     `gorm:"type:enum('Male','Female');not null" json:"sex" binding:"required"`
+	Sex         string     `gorm:"type:enum('Male','Female','Unknown');not null" json:"sex" binding:"required"`
 	MailAddress *string    `gorm:"type:varchar(100)" json:"mailAddress" binding:"required,email"`
 	Role        string     `gorm:"type:enum('Administrator','General');not null" json:"role"`
 	LastLogged  *time.Time `gorm:"type:datetime" json:"-"`
