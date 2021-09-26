@@ -5,8 +5,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/gotoeveryone/auth-api/app/domain/entity"
-	"gopkg.in/DATA-DOG/go-sqlmock.v1"
 )
 
 func TestNewUserRepository(t *testing.T) {

@@ -6,7 +6,9 @@ import (
 
 	"github.com/gotoeveryone/auth-api/app/domain/entity"
 	"github.com/gotoeveryone/golib/config"
-	"github.com/jinzhu/gorm"
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 )
 
 var (
@@ -26,15 +28,18 @@ func Init(debug bool, dbConfig config.DB) error {
 		url.QueryEscape(dbConfig.Timezone),
 	)
 
-	dbManager, err = gorm.Open("mysql", dsn)
+	dbManager, err = gorm.Open(mysql.New(mysql.Config{
+		DSN: dsn,
+	}), &gorm.Config{
+		Logger: logger.Default.LogMode(logger.Info),
+	})
+
 	if err != nil {
 		return err
 	}
 
-	dbManager.LogMode(debug)
-
 	// マイグレーション実行
-	if err := dbManager.AutoMigrate(entity.Token{}, entity.User{}).Error; err != nil {
+	if err := dbManager.AutoMigrate(entity.Token{}, entity.User{}); err != nil {
 		return err
 	}
 

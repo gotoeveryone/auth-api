@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"github.com/gin-gonic/gin/binding"
-	validator "gopkg.in/go-playground/validator.v8"
+	"github.com/go-playground/validator/v10"
 )
 
 func TestActivate(t *testing.T) {
@@ -37,12 +37,13 @@ func TestValidateStruct(t *testing.T) {
 
 	// required
 	if err := binding.Validator.ValidateStruct(a); err != nil {
-		errs := err.(validator.ValidationErrors)
-		if !strings.Contains(errs["Authenticate.Account"].Tag, "required") {
-			t.Errorf("Account is required not specified")
-		}
-		if !strings.Contains(errs["Authenticate.Password"].Tag, "required") {
-			t.Errorf("Password is required not specified")
+		for _, fe := range err.(validator.ValidationErrors) {
+			if fe.Field() == "Authenticate.Account" && !strings.Contains(fe.Tag(), "required") {
+				t.Errorf("Account is required not specified")
+			}
+			if fe.Field() == "Authenticate.Password" && !strings.Contains(fe.Tag(), "required") {
+				t.Errorf("Password is required not specified")
+			}
 		}
 	}
 
@@ -50,21 +51,23 @@ func TestValidateStruct(t *testing.T) {
 	a.Account = "testt"
 	a.Password = "testtes"
 	if err := binding.Validator.ValidateStruct(a); err != nil {
-		errs := err.(validator.ValidationErrors)
-		if !strings.Contains(errs["Authenticate.Account"].Tag, "min") {
-			t.Errorf("Account is min length not specified")
-		}
-		if !strings.Contains(errs["Authenticate.Password"].Tag, "min") {
-			t.Errorf("Password is min length not specified")
+		for _, fe := range err.(validator.ValidationErrors) {
+			if fe.Field() == "Authenticate.Account" && !strings.Contains(fe.Tag(), "min") {
+				t.Errorf("Account is min length not specified")
+			}
+			if fe.Field() == "Authenticate.Password" && !strings.Contains(fe.Tag(), "min") {
+				t.Errorf("Password is min length not specified")
+			}
 		}
 	}
 
 	// max length
 	a.Account = "testtesttes"
 	if err := binding.Validator.ValidateStruct(a); err != nil {
-		errs := err.(validator.ValidationErrors)
-		if !strings.Contains(errs["Authenticate.Account"].Tag, "max") {
-			t.Errorf("Account is max length not specified")
+		for _, fe := range err.(validator.ValidationErrors) {
+			if fe.Field() == "Authenticate.Account" && !strings.Contains(fe.Tag(), "max") {
+				t.Errorf("Account is max length not specified")
+			}
 		}
 	}
 
@@ -75,18 +78,20 @@ func TestValidateStruct(t *testing.T) {
 	}
 	// required
 	if err := binding.Validator.ValidateStruct(ac); err != nil {
-		errs := err.(validator.ValidationErrors)
-		if !strings.Contains(errs["Activate.NewPassword"].Tag, "required") {
-			t.Errorf("NewPassword is required not specified")
+		for _, fe := range err.(validator.ValidationErrors) {
+			if fe.Field() == "Authenticate.NewPassword" && !strings.Contains(fe.Tag(), "min") {
+				t.Errorf("NewPassword is required not specified")
+			}
 		}
 	}
 
 	// min length
 	ac.NewPassword = "test"
 	if err := binding.Validator.ValidateStruct(ac); err != nil {
-		errs := err.(validator.ValidationErrors)
-		if !strings.Contains(errs["Activate.NewPassword"].Tag, "min") {
-			t.Errorf("NewPassword is min length not specified")
+		for _, fe := range err.(validator.ValidationErrors) {
+			if fe.Field() == "Authenticate.NewPassword" && !strings.Contains(fe.Tag(), "min") {
+				t.Errorf("NewPassword is min length not specified")
+			}
 		}
 	}
 }

@@ -1,8 +1,9 @@
 package database
 
 import (
-	"github.com/jinzhu/gorm"
-	sqlmock "gopkg.in/DATA-DOG/go-sqlmock.v1"
+	"github.com/DATA-DOG/go-sqlmock"
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
 )
 
 var (
@@ -14,14 +15,18 @@ func init() {
 }
 
 func initDBMock() sqlmock.Sqlmock {
-	dsn := "sqlmock-user_test"
-	db, mock, err := sqlmock.NewWithDSN(dsn)
+	db, mock, err := sqlmock.New()
 	if err != nil {
 		panic(err)
 	}
-	defer db.Close()
+	// defer db.Close()
 
-	gdb, err := gorm.Open("sqlmock", dsn)
+	gdb, err := gorm.Open(mysql.New(mysql.Config{
+		Conn: db,
+		SkipInitializeWithVersion: true,
+	}), &gorm.Config{
+		SkipDefaultTransaction: true,
+	})
 	if err != nil {
 		panic(err)
 	}

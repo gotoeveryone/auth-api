@@ -5,8 +5,8 @@ import (
 	"testing"
 
 	"github.com/gin-gonic/gin/binding"
+	"github.com/go-playground/validator/v10"
 	"github.com/gotoeveryone/auth-api/app/domain/entity"
-	validator "gopkg.in/go-playground/validator.v8"
 )
 
 func TestActivateValidate(t *testing.T) {
