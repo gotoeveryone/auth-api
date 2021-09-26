@@ -1,12 +1,14 @@
 package database
 
 import (
+	"errors"
 	"time"
 
 	"github.com/gotoeveryone/auth-api/app/config"
 	"github.com/gotoeveryone/auth-api/app/domain/entity"
 	"github.com/gotoeveryone/auth-api/app/domain/repository"
 	"golang.org/x/crypto/bcrypt"
+	"gorm.io/gorm"
 )
 
 type userRepository struct{}
@@ -18,7 +20,7 @@ func NewUserRepository() repository.UserRepository {
 
 // Exists is confirm to account already exists
 func (r userRepository) Exists(account string) (bool, error) {
-	var count int
+	var count int64
 	dbManager.Model(&entity.User{}).Where(&entity.User{Account: account}).Count(&count)
 	if err := dbManager.Error; err != nil {
 		return false, err
@@ -32,11 +34,10 @@ func (r userRepository) FindByAccount(account string) (*entity.User, error) {
 	var u entity.User
 	dbManager.Where(&entity.User{Account: account, IsEnable: true}).Find(&u)
 
-	if dbManager.RecordNotFound() {
-		return nil, nil
-	}
-
 	if err := dbManager.Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil
+		}
 		return nil, err
 	}
 
@@ -50,11 +51,10 @@ func (r userRepository) FindByToken(token string) (*entity.User, error) {
 		Where(&entity.User{IsEnable: true}).
 		Where("tokens.token = ?", token).Find(&u)
 
-	if dbManager.RecordNotFound() {
-		return nil, nil
-	}
-
 	if err := dbManager.Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil
+		}
 		return nil, err
 	}
 

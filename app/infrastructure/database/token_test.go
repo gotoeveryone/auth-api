@@ -6,8 +6,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/gotoeveryone/auth-api/app/domain/entity"
-	"github.com/jinzhu/gorm"
 	"gopkg.in/DATA-DOG/go-sqlmock.v1"
+	"gorm.io/gorm"
 )
 
 func TestNewTokenRepository(t *testing.T) {

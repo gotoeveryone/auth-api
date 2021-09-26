@@ -11,7 +11,6 @@ import (
 	"github.com/gotoeveryone/auth-api/app/domain/repository"
 	"github.com/gotoeveryone/auth-api/app/registry"
 	"github.com/gotoeveryone/golib"
-	_ "github.com/jinzhu/gorm/dialects/mysql"
 )
 
 func main() {

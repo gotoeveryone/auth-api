@@ -1,8 +1,9 @@
 package database
 
 import (
-	"github.com/jinzhu/gorm"
 	sqlmock "gopkg.in/DATA-DOG/go-sqlmock.v1"
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
 )
 
 var (
@@ -21,7 +22,9 @@ func initDBMock() sqlmock.Sqlmock {
 	}
 	defer db.Close()
 
-	gdb, err := gorm.Open("sqlmock", dsn)
+	gdb, err := gorm.Open(mysql.New(mysql.Config{
+		Conn: db,
+	}))
 	if err != nil {
 		panic(err)
 	}
