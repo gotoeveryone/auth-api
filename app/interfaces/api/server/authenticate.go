@@ -1,6 +1,7 @@
 package server
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -34,8 +35,12 @@ func (h *authenticateHandler) Authenticate(c *gin.Context) {
 	// Execute validation
 	var input entity.Authenticate
 	if err := c.ShouldBindWith(&input, binding.JSON); err != nil {
-		errors := err.(validator.ValidationErrors)
-		errorBadRequest(c, domain.ValidationErrors(errors, &input))
+		var verr validator.ValidationErrors
+		if errors.As(err, &verr) {
+			errorBadRequest(c, domain.ValidationErrors(verr, &input))
+			return
+		}
+		errorBadRequest(c, errValidationFailed)
 		return
 	}
 
@@ -98,8 +103,12 @@ func (h *authenticateHandler) Registration(c *gin.Context) {
 	// Execute validation
 	var u entity.User
 	if err := c.ShouldBindWith(&u, binding.JSON); err != nil {
-		errors := err.(validator.ValidationErrors)
-		errorBadRequest(c, domain.ValidationErrors(errors, &u))
+		var verr validator.ValidationErrors
+		if errors.As(err, &verr) {
+			errorBadRequest(c, domain.ValidationErrors(verr, &u))
+			return
+		}
+		errorBadRequest(c, errValidationFailed)
 		return
 	}
 
@@ -135,8 +144,12 @@ func (h *authenticateHandler) Activate(c *gin.Context) {
 	// Execute validation
 	var a entity.Activate
 	if err := c.ShouldBindWith(&a, binding.JSON); err != nil {
-		errors := err.(validator.ValidationErrors)
-		errorBadRequest(c, domain.ValidationErrors(errors, &a))
+		var verr validator.ValidationErrors
+		if errors.As(err, &verr) {
+			errorBadRequest(c, domain.ValidationErrors(verr, &a))
+			return
+		}
+		errorBadRequest(c, errValidationFailed)
 		return
 	}
 
