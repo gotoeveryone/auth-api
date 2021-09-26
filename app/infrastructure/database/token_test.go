@@ -4,9 +4,9 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/gin-gonic/gin"
 	"github.com/gotoeveryone/auth-api/app/domain/entity"
-	"gopkg.in/DATA-DOG/go-sqlmock.v1"
 	"gorm.io/gorm"
 )
 
