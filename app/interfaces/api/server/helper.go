@@ -28,6 +28,8 @@ var (
 	errUpdatePassword     = errors.New("Update password failed")
 	errSamePassword       = errors.New("Not allowed changing to same password")
 	errMustChangePassword = errors.New("Password must be changed")
+
+	errValidationFailed = errors.New("Validation failed")
 )
 
 // Return bad request response.
