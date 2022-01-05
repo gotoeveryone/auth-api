@@ -5,7 +5,7 @@ services:
       context: .
       dockerfile: Dockerfile
     volumes:
-      - ./:/go/src/github.com/auth-api
+      - ./:/go/src/app
     environment:
       CUSTOM_PATH: "./"
     ports:
