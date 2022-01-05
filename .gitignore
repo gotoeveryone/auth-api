@@ -4,6 +4,7 @@
 /debug
 /.vscode
 /logs
+/tmp
 
 # goenv
 .go-version
