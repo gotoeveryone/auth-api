@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"os"
 	"time"
 
@@ -10,38 +9,59 @@ import (
 	"github.com/gotoeveryone/auth-api/app/config"
 	"github.com/gotoeveryone/auth-api/app/domain/repository"
 	"github.com/gotoeveryone/auth-api/app/registry"
-	"github.com/gotoeveryone/golib"
+	"github.com/sirupsen/logrus"
 )
 
+func getEnv(key, fallback string) string {
+	if value, ok := os.LookupEnv(key); ok {
+		return value
+	}
+	return fallback
+}
+
 func main() {
-	// Load configuration from JSON file
-	if err := golib.LoadConfig(&config.AppConfig, os.Getenv("CUSTOM_PATH")); err != nil {
-		log.Fatal(fmt.Sprintf("LoadConfig error: %s", err))
-	}
-	c := config.AppConfig
-
 	// Initialize logger
+	logrus.SetFormatter(&logrus.JSONFormatter{})
+
+	c := config.App{
+    DB: config.DB{
+      Host: getEnv("DATABASE_HOST", "127.0.0.1"),
+      Port: getEnv("DATABASE_PORT", "3306"),
+      Name: getEnv("DATABASE_NAME", "auth_api"),
+      User: getEnv("DATABASE_USER", "auth_api"),
+      Password: getEnv("DATABASE_PASSWORD", ""),
+    },
+    Cache: config.Cache{
+      Host: getEnv("CACHE_HOST", "127.0.0.1"),
+      Port: getEnv("CACHE_PORT", "6379"),
+      Auth: getEnv("CACHE_AUTH", ""),
+    },
+  }
+
+  if getEnv("APP_ENV", "dev") == "dev" {
+    c.Debug = true
+  }
+
+  if getEnv("USE_CACHE", "") != "" {
+    c.Cache.Use = true
+  }
+
+  // Set timezone
 	var err error
-	config.Logger, err = golib.NewLogger(c.Log)
+	time.Local, err = time.LoadLocation(getEnv("TZ", "Asia/Tokyo"))
 	if err != nil {
-		log.Fatal(fmt.Sprintf("Log initialize error: %s", err))
-	}
-
-	// Set application mode
-	if !c.App.Debug {
-		gin.SetMode(gin.ReleaseMode)
-	}
-
-	// Set timezone
-	time.Local, err = time.LoadLocation(c.App.Timezone)
-	if err != nil {
-		config.Logger.Error(fmt.Sprintf("Get location error: %s", err))
+		logrus.Error(fmt.Sprintf("Get location error: %s", err))
 		// continue with default timezone.
 	}
 
+	// Set release mode
+	if !c.Debug {
+		gin.SetMode(gin.ReleaseMode)
+	}
+
 	// Initialize datastore
-	if err := registry.InitDatastore(); err != nil {
-		config.Logger.Error(err)
+	if err := registry.InitDatastore(c.Debug, c.DB); err != nil {
+		logrus.Error(err)
 		os.Exit(1)
 	}
 
@@ -51,7 +71,7 @@ func main() {
 
 	// Repository
 	ur := registry.NewUserRepository()
-	tr := registry.NewTokenRepository()
+	tr := registry.NewTokenRepository(c)
 
 	// Handler
 	sh := registry.NewStateHandler()
@@ -89,18 +109,20 @@ func main() {
 			for {
 				cnt, err := repo.DeleteExpired()
 				if err != nil {
-					config.Logger.Error(err)
+					logrus.Error(err)
 				}
 				if cnt > 0 {
-					config.Logger.Info(fmt.Sprintf("Expired %d tokens was deleted.", cnt))
+					logrus.Info(fmt.Sprintf("Expired %d tokens was deleted.", cnt))
 				}
 				time.Sleep(60 * time.Second)
 			}
 		}(tr)
 	}
 
-	if err := r.Run(fmt.Sprintf("%s:%d", c.App.Host, c.App.Port)); err != nil {
-		config.Logger.Error(err)
+	host := getEnv("APP_HOST", "0.0.0.0")
+	port := getEnv("APP_PORT", "8080")
+	if err := r.Run(fmt.Sprintf("%s:%s", host, port)); err != nil {
+		logrus.Error(err)
 		os.Exit(1)
 	}
 }

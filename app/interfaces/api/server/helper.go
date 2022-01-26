@@ -7,8 +7,8 @@ import (
 	"reflect"
 
 	"github.com/gin-gonic/gin"
-	"github.com/gotoeveryone/auth-api/app/config"
 	"github.com/gotoeveryone/auth-api/app/domain/entity"
+	"github.com/sirupsen/logrus"
 )
 
 const (
@@ -52,7 +52,7 @@ func errorUnauthorized(c *gin.Context, message interface{}) {
 
 // Return internal server error response.
 func errorInternalServerError(c *gin.Context, err error) {
-	config.Logger.Error(fmt.Errorf("Error: %s", err))
+	logrus.Error(fmt.Errorf("Error: %s", err))
 	errorJSON(c, entity.Error{
 		Code:    http.StatusInternalServerError,
 		Message: "",

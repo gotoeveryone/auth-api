@@ -3,31 +3,34 @@ package config
 import (
 	"math/rand"
 	"time"
-
-	"github.com/gotoeveryone/golib"
-	"github.com/gotoeveryone/golib/config"
 )
 
-// configuration
-type appConfig struct {
-	config.Config
-	App app
+// DB データベース接続設定
+type DB struct {
+  Name     string
+  Host     string
+  Port     string
+  User     string
+  Password string
+  Timezone string
 }
 
-// application configuration
-type app struct {
-	Host     string `json:"host"`
-	Port     int    `json:"port"`
-	Timezone string `json:"timezone"`
-	Debug    bool   `json:"debug"`
+// Cache キャッシュ接続設定
+type Cache struct {
+  Use  bool
+  Host string
+  Port string
+  Auth string
+}
+
+// App is application configuration
+type App struct {
+	Debug    bool
+  DB
+  Cache
 }
 
 var (
-	// AppConfig is configuration data read from JSON file
-	AppConfig appConfig
-	// Logger is logging configuration structure
-	Logger *golib.Logger
-
 	// Rand for this package.
 	r *rand.Rand
 )

@@ -7,11 +7,11 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	"github.com/go-playground/validator/v10"
-	"github.com/gotoeveryone/auth-api/app/config"
 	"github.com/gotoeveryone/auth-api/app/domain"
 	"github.com/gotoeveryone/auth-api/app/domain/entity"
 	"github.com/gotoeveryone/auth-api/app/domain/repository"
 	"github.com/gotoeveryone/auth-api/app/presentation/handler"
+	"github.com/sirupsen/logrus"
 )
 
 type (
@@ -65,7 +65,7 @@ func (h *authenticateHandler) Authenticate(c *gin.Context) {
 
 	// Check password matching from user has password
 	if err := h.userRepo.MatchPassword(user.Password, input.Password); err != nil {
-		config.Logger.Error(err)
+		logrus.Error(err)
 		errorUnauthorized(c, errUnauthorized)
 		return
 	}
@@ -168,7 +168,7 @@ func (h *authenticateHandler) Activate(c *gin.Context) {
 
 	// Check password matching from user has password
 	if err := h.userRepo.MatchPassword(user.Password, a.Password); err != nil {
-		config.Logger.Error(err)
+		logrus.Error(err)
 		errorUnauthorized(c, errUnauthorized)
 		return
 	}
