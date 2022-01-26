@@ -4,9 +4,9 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
-	"github.com/gotoeveryone/auth-api/app/config"
 	"github.com/gotoeveryone/auth-api/app/domain/repository"
 	"github.com/gotoeveryone/auth-api/app/presentation/middleware"
+	"github.com/sirupsen/logrus"
 )
 
 const (
@@ -47,7 +47,7 @@ func (m *tokenAuthenticate) Authorized() gin.HandlerFunc {
 		// Confirm has token valid
 		user, err := m.repo.FindByToken(token)
 		if err != nil {
-			config.Logger.Error(err)
+			logrus.Error(err)
 			errorInternalServerError(c, err)
 			return
 		} else if !m.repo.ValidUser(user) {

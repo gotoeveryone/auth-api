@@ -13,10 +13,10 @@ func NewUserRepository() repository.UserRepository {
 }
 
 // NewTokenRepository is create token management repository.
-func NewTokenRepository() repository.TokenRepository {
-	if config.AppConfig.Cache.Use {
+func NewTokenRepository(c config.App) repository.TokenRepository {
+	if c.Cache.Use {
 		c := redis.Client{
-			Config: config.AppConfig.Cache,
+			Config: c.Cache,
 		}
 		return redis.NewTokenRepository(c)
 	}

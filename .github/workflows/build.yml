@@ -35,6 +35,8 @@ jobs:
         run: go mod download
 
       - name: Run test
+        env:
+          GIN_MODE: test
         run: go test -v ./...
 
   notify_slack:

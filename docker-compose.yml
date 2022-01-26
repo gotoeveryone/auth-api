@@ -4,10 +4,9 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    env_file: .env
     volumes:
       - ./:/go/src/app
-    environment:
-      CUSTOM_PATH: "./"
     ports:
       - "8080:8080"
     depends_on:

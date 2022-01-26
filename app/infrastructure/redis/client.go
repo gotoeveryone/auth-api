@@ -1,10 +1,10 @@
 package redis
 
 import (
-	"strconv"
+	"fmt"
 
 	"github.com/garyburd/redigo/redis"
-	"github.com/gotoeveryone/golib/config"
+	"github.com/gotoeveryone/auth-api/app/config"
 )
 
 var (
@@ -19,7 +19,7 @@ type Client struct {
 // Connect Connect to Redis.
 func (s Client) Connect() error {
 	c := s.Config
-	newCon, err := redis.Dial("tcp", c.Host+":"+strconv.Itoa(c.Port))
+	newCon, err := redis.Dial("tcp", fmt.Sprintf("%s:%s", c.Host, c.Port))
 	if err != nil {
 		return err
 	}

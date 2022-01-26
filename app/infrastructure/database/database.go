@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"net/url"
 
+	"github.com/gotoeveryone/auth-api/app/config"
 	"github.com/gotoeveryone/auth-api/app/domain/entity"
-	"github.com/gotoeveryone/golib/config"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -19,7 +19,7 @@ var (
 // Init is execute database connection initial setting
 func Init(debug bool, dbConfig config.DB) error {
 	var err error
-	dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8&parseTime=True&loc=%s",
+	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8&parseTime=True&loc=%s",
 		dbConfig.User,
 		dbConfig.Password,
 		dbConfig.Host,

@@ -1,10 +1,15 @@
-/database
-/vendor
-/config.json
-/debug
-/.vscode
-/logs
-/tmp
+# Editor, IDE
+.idea
+.vscode
+
+# dotenv
+.env
 
 # goenv
 .go-version
+
+# database
+/database
+
+# Output directory of binary
+/tmp

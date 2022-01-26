@@ -6,6 +6,6 @@ import (
 )
 
 // InitDatastore is initialize datastore
-func InitDatastore() error {
-	return database.Init(config.AppConfig.App.Debug, config.AppConfig.DB)
+func InitDatastore(debug bool, db config.DB) error {
+	return database.Init(debug, db)
 }

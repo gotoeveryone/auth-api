@@ -17,7 +17,7 @@ Installed the following program.
 ## Run
 
 ```
-$ cp config.json.example config.json # with editing
+$ cp .env.example .env # with editing
 $ docker-compose up
 ```
 
