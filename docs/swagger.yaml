@@ -1,0 +1,28 @@
+definitions:
+  entity.State:
+    properties:
+      environment:
+        type: string
+      logLevel:
+        type: string
+      status:
+        type: string
+      timezone:
+        type: string
+    type: object
+info:
+  contact: {}
+paths:
+  /:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.State'
+      summary: Return application state
+      tags:
+      - State
+swagger: "2.0"

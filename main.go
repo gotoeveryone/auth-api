@@ -9,7 +9,10 @@ import (
 	"github.com/gotoeveryone/auth-api/app/config"
 	"github.com/gotoeveryone/auth-api/app/domain/repository"
 	"github.com/gotoeveryone/auth-api/app/registry"
+	_ "github.com/gotoeveryone/auth-api/docs"
 	"github.com/sirupsen/logrus"
+	ginSwagger "github.com/swaggo/gin-swagger"
+	"github.com/swaggo/gin-swagger/swaggerFiles"
 )
 
 func getEnv(key, fallback string) string {
@@ -24,29 +27,29 @@ func main() {
 	logrus.SetFormatter(&logrus.JSONFormatter{})
 
 	c := config.App{
-    DB: config.DB{
-      Host: getEnv("DATABASE_HOST", "127.0.0.1"),
-      Port: getEnv("DATABASE_PORT", "3306"),
-      Name: getEnv("DATABASE_NAME", "auth_api"),
-      User: getEnv("DATABASE_USER", "auth_api"),
-      Password: getEnv("DATABASE_PASSWORD", ""),
-    },
-    Cache: config.Cache{
-      Host: getEnv("CACHE_HOST", "127.0.0.1"),
-      Port: getEnv("CACHE_PORT", "6379"),
-      Auth: getEnv("CACHE_AUTH", ""),
-    },
-  }
+		DB: config.DB{
+			Host:     getEnv("DATABASE_HOST", "127.0.0.1"),
+			Port:     getEnv("DATABASE_PORT", "3306"),
+			Name:     getEnv("DATABASE_NAME", "auth_api"),
+			User:     getEnv("DATABASE_USER", "auth_api"),
+			Password: getEnv("DATABASE_PASSWORD", ""),
+		},
+		Cache: config.Cache{
+			Host: getEnv("CACHE_HOST", "127.0.0.1"),
+			Port: getEnv("CACHE_PORT", "6379"),
+			Auth: getEnv("CACHE_AUTH", ""),
+		},
+	}
 
-  if getEnv("APP_ENV", "dev") == "dev" {
-    c.Debug = true
-  }
+	if getEnv("APP_ENV", "dev") == "dev" {
+		c.Debug = true
+	}
 
-  if getEnv("USE_CACHE", "") != "" {
-    c.Cache.Use = true
-  }
+	if getEnv("USE_CACHE", "") != "" {
+		c.Cache.Use = true
+	}
 
-  // Set timezone
+	// Set timezone
 	var err error
 	time.Local, err = time.LoadLocation(getEnv("TZ", "Asia/Tokyo"))
 	if err != nil {
@@ -101,6 +104,9 @@ func main() {
 			auth.DELETE("/deauth", ah.Deauthenticate)
 		}
 	}
+
+	// show swagger ui to /swagger/index.html
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	// Deleting expired tokens.
 	// When can't auto delete expired tokens, this function is behavior.

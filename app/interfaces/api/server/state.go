@@ -18,6 +18,11 @@ func NewStateHandler() handler.StateHandler {
 }
 
 // Get is get application state
+// @Summary Return application state
+// @Tags State
+// @Produce json
+// @Success 200 {object} entity.State
+// @Router / [get]
 func (h *stateHandler) Get(c *gin.Context) {
 	c.JSON(http.StatusOK, entity.State{
 		Status:      "Active",

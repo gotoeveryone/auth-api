@@ -1,0 +1,46 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "contact": {}
+    },
+    "paths": {
+        "/": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "State"
+                ],
+                "summary": "Return application state",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/entity.State"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "entity.State": {
+            "type": "object",
+            "properties": {
+                "environment": {
+                    "type": "string"
+                },
+                "logLevel": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "timezone": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}

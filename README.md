@@ -33,6 +33,12 @@ $ docker-compose exec api go test
 $ docker-compose exec api go build main.go
 ```
 
+## Generate swagger
+
+```
+$ docker-compose exec api swag init ./main.go
+```
+
 ## Endpoint
 
 |Endpoint|Method|Required token|Description|
