@@ -18,7 +18,7 @@ func TestNewTokenRepository(t *testing.T) {
 	}
 }
 
-func TestFindToken(t *testing.T) {
+func TestFind(t *testing.T) {
 	mock.ExpectQuery("SELECT *").
 		WillReturnRows(sqlmock.NewRows([]string{"token"}))
 

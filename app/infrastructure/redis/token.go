@@ -2,7 +2,6 @@ package redis
 
 import (
 	"encoding/json"
-	"errors"
 
 	"github.com/gotoeveryone/auth-api/app/domain/cache"
 	"github.com/gotoeveryone/auth-api/app/domain/entity"
@@ -28,7 +27,7 @@ func (r tokenRepository) Find(token string, t *entity.Token) error {
 	if err != nil {
 		return err
 	} else if o == nil {
-		return errors.New("Token is invalid")
+		return nil
 	}
 
 	return json.Unmarshal(o.([]byte), t)

@@ -7,8 +7,8 @@ import (
 // UserRepository is operate of user data.
 type UserRepository interface {
 	Exists(account string) (bool, error)
+	Find(id uint, u *entity.User) error
 	FindByAccount(account string) (*entity.User, error)
-	FindByToken(token string) (*entity.User, error)
 	ValidUser(u *entity.User) bool
 	ValidRole(role string) bool
 	MatchPassword(hashedPassword, password string) error

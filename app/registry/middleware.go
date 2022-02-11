@@ -7,6 +7,6 @@ import (
 )
 
 // NewAuthenticateMiddleware is create authenticate middleware
-func NewAuthenticateMiddleware(r repository.UserRepository) middleware.Authenticate {
-	return server.NewTokenAuthenticate(r)
+func NewAuthenticateMiddleware(ur repository.UserRepository, tr repository.TokenRepository) middleware.Authenticate {
+	return server.NewTokenAuthenticate(ur, tr)
 }
