@@ -40,6 +40,7 @@ jobs:
         run: go test -v ./...
 
   build_image:
+    if: ${{ github.ref == 'refs/heads/main' }}
     name: Build image
     needs:
       - format_check
@@ -61,10 +62,31 @@ jobs:
           target: production
           tags: gotoeveryone/auth-api:1.0.0
 
+  deploy:
+    if: ${{ github.ref == 'refs/heads/main' }}
+    name: Deploy
+    needs:
+      - build_image
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+
+      - uses: okteto/login@master
+        with:
+          token: ${{ secrets.OKTETO_TOKEN }}
+
+      - uses: okteto/namespace@master
+        with:
+          name: gotoeveryone
+
+      - uses: okteto/apply@master
+        with:
+          manifest: manifests
+
   notify_slack:
     if: ${{ always() }}
     needs:
-      - build_image
+      - deploy
     runs-on: ubuntu-latest
     steps:
       - uses: technote-space/workflow-conclusion-action@v1
