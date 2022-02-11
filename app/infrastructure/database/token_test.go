@@ -7,7 +7,6 @@ import (
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/gin-gonic/gin"
 	"github.com/gotoeveryone/auth-api/app/domain/entity"
-	"gorm.io/gorm"
 )
 
 func TestNewTokenRepository(t *testing.T) {
@@ -27,9 +26,7 @@ func TestFind(t *testing.T) {
 	v := "test"
 	e := entity.Token{}
 	if err := r.Find(v, &e); err != nil {
-		if err != gorm.ErrRecordNotFound {
-			t.Error(err)
-		}
+		t.Error(err)
 	}
 	if e.Token != "" {
 		t.Errorf("actual: exists, expected: not exists [%s]", e.Token)

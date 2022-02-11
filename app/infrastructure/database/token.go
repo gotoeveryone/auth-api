@@ -1,11 +1,13 @@
 package database
 
 import (
+	"errors"
 	"time"
 
 	"github.com/gotoeveryone/auth-api/app/domain/entity"
 	"github.com/gotoeveryone/auth-api/app/domain/repository"
 	"github.com/gotoeveryone/auth-api/app/infrastructure"
+	"gorm.io/gorm"
 )
 
 type tokenRepository struct {
@@ -19,8 +21,14 @@ func NewTokenRepository() repository.TokenRepository {
 
 // Find is execute token data finding
 func (r tokenRepository) Find(token string, t *entity.Token) error {
-	return dbManager.Where(&entity.Token{Token: token}).
+	err := dbManager.Where(&entity.Token{Token: token}).
 		Where("expired_at >= ?", time.Now()).First(t).Error
+
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil
+	}
+
+	return err
 }
 
 // Create is execute token data creating
