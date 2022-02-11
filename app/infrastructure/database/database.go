@@ -28,10 +28,15 @@ func Init(debug bool, dbConfig config.DB) error {
 		url.QueryEscape(dbConfig.Timezone),
 	)
 
+	logMode := logger.Warn
+	if debug {
+		logMode = logger.Info
+	}
+
 	dbManager, err = gorm.Open(mysql.New(mysql.Config{
 		DSN: dsn,
 	}), &gorm.Config{
-		Logger: logger.Default.LogMode(logger.Info),
+		Logger: logger.Default.LogMode(logMode),
 	})
 
 	if err != nil {
