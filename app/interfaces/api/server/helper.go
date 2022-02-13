@@ -52,7 +52,7 @@ func errorUnauthorized(c *gin.Context, message interface{}) {
 
 // Return internal server error response.
 func errorInternalServerError(c *gin.Context, err error) {
-	logrus.Error(fmt.Errorf("Error: %s", err))
+	logrus.Error(fmt.Errorf("error: %s", err))
 	errorJSON(c, entity.Error{
 		Code:    http.StatusInternalServerError,
 		Message: "",

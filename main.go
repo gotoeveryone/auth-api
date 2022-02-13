@@ -9,7 +9,10 @@ import (
 	"github.com/gotoeveryone/auth-api/app/config"
 	"github.com/gotoeveryone/auth-api/app/domain/repository"
 	"github.com/gotoeveryone/auth-api/app/registry"
+	_ "github.com/gotoeveryone/auth-api/docs"
 	"github.com/sirupsen/logrus"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 func getEnv(key, fallback string) string {
@@ -19,6 +22,13 @@ func getEnv(key, fallback string) string {
 	return fallback
 }
 
+// @title    General authentication API
+// @version  1.0
+// @license.name Kazuki Kamizuru
+// @BasePath /
+// @securityDefinitions.apikey ApiKeyAuth
+// @in header
+// @name Authorization
 func main() {
 	// Initialize logger
 	logrus.SetFormatter(&logrus.JSONFormatter{})
@@ -100,6 +110,11 @@ func main() {
 			auth.GET("/users", ah.GetUser)
 			auth.DELETE("/deauth", ah.Deauthenticate)
 		}
+	}
+
+	// show swagger ui to /swagger/index.html
+	if c.Debug {
+		r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	}
 
 	// Deleting expired tokens.
