@@ -29,27 +29,15 @@ func (r userRepository) Exists(account string) (bool, error) {
 	return (count > 0), nil
 }
 
+// Find is execute user data finding
+func (r userRepository) Find(id uint, u *entity.User) error {
+	return dbManager.Where(&entity.User{ID: id}).First(u).Error
+}
+
 // FindByAccount is find user data from account and password
 func (r userRepository) FindByAccount(account string) (*entity.User, error) {
 	var u entity.User
 	dbManager.Where(&entity.User{Account: account, IsEnable: true}).Find(&u)
-
-	if err := dbManager.Error; err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, nil
-		}
-		return nil, err
-	}
-
-	return &u, nil
-}
-
-// FindByToken is judge user has valid token
-func (r userRepository) FindByToken(token string) (*entity.User, error) {
-	var u entity.User
-	dbManager.Joins("INNER JOIN tokens ON users.id = tokens.user_id").
-		Where(&entity.User{IsEnable: true}).
-		Where("tokens.token = ?", token).Find(&u)
 
 	if err := dbManager.Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {

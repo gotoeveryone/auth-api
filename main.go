@@ -81,7 +81,7 @@ func main() {
 	ah := registry.NewAuthenticateHandler(ur, tr)
 
 	// Middleware
-	m := registry.NewAuthenticateMiddleware(ur)
+	m := registry.NewAuthenticateMiddleware(ur, tr)
 
 	// Routing
 	// Root

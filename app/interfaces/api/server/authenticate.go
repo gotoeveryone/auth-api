@@ -189,17 +189,23 @@ func (h *authenticateHandler) Activate(c *gin.Context) {
 func (h *authenticateHandler) GetUser(c *gin.Context) {
 	// Find user from post token
 	token := c.GetString(TokenKey)
-	user, err := h.userRepo.FindByToken(token)
-	if err != nil {
+	var t entity.Token
+	if err := h.tokenRepo.Find(token, &t); err != nil {
+		errorInternalServerError(c, err)
+		return
+	}
+
+	var u entity.User
+	if err := h.userRepo.Find(t.UserID, &u); err != nil {
 		errorInternalServerError(c, err)
 		return
 	}
 
 	// Invalid account
-	if !h.userRepo.ValidUser(user) {
+	if !h.userRepo.ValidUser(&u) {
 		errorBadRequest(c, errInvalidAccount)
 		return
 	}
 
-	c.JSON(http.StatusOK, user)
+	c.JSON(http.StatusOK, u)
 }

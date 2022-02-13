@@ -4,6 +4,7 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/gotoeveryone/auth-api/app/domain/entity"
 	"github.com/gotoeveryone/auth-api/app/domain/repository"
 	"github.com/gotoeveryone/auth-api/app/presentation/middleware"
 	"github.com/sirupsen/logrus"
@@ -15,13 +16,15 @@ const (
 )
 
 type tokenAuthenticate struct {
-	repo repository.UserRepository
+	userRepo  repository.UserRepository
+	tokenRepo repository.TokenRepository
 }
 
 // NewTokenAuthenticate is create authenticate token middleware
-func NewTokenAuthenticate(r repository.UserRepository) middleware.Authenticate {
+func NewTokenAuthenticate(ur repository.UserRepository, tr repository.TokenRepository) middleware.Authenticate {
 	return &tokenAuthenticate{
-		repo: r,
+		userRepo:  ur,
+		tokenRepo: tr,
 	}
 }
 
@@ -45,12 +48,23 @@ func (m *tokenAuthenticate) Authorized() gin.HandlerFunc {
 		}
 
 		// Confirm has token valid
-		user, err := m.repo.FindByToken(token)
-		if err != nil {
+		var t entity.Token
+		if err := m.tokenRepo.Find(token, &t); err != nil {
 			logrus.Error(err)
 			errorInternalServerError(c, err)
 			return
-		} else if !m.repo.ValidUser(user) {
+		}
+		if t.Token == "" || t.UserID == 0 {
+			c.Writer.Header().Set("WWW-Authenticate", "Bearer error=\"invalid_token\"")
+			errorUnauthorized(c, errInvalidAccessToken)
+		}
+		var u entity.User
+		if err := m.userRepo.Find(t.UserID, &u); err != nil {
+			logrus.Error(err)
+			errorInternalServerError(c, err)
+			return
+		}
+		if !m.userRepo.ValidUser(&u) {
 			c.Writer.Header().Set("WWW-Authenticate", "Bearer error=\"invalid_token\"")
 			errorUnauthorized(c, errInvalidAccessToken)
 			return
