@@ -14,3 +14,8 @@ type State struct {
 	LogLevel    string `json:"logLevel"`
 	TimeZone    string `json:"timezone"`
 }
+
+// GeneratedPassword is struct of generated password
+type GeneratedPassword struct {
+	Password string `json:"password"`
+}

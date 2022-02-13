@@ -1,4 +1,46 @@
+basePath: /
 definitions:
+  entity.Activate:
+    properties:
+      account:
+        maxLength: 10
+        minLength: 6
+        type: string
+      newPassword:
+        minLength: 8
+        type: string
+      password:
+        minLength: 8
+        type: string
+    required:
+    - account
+    - newPassword
+    - password
+    type: object
+  entity.Authenticate:
+    properties:
+      account:
+        maxLength: 10
+        minLength: 6
+        type: string
+      password:
+        minLength: 8
+        type: string
+    required:
+    - account
+    - password
+    type: object
+  entity.Error:
+    properties:
+      code:
+        type: integer
+      message: {}
+    type: object
+  entity.GeneratedPassword:
+    properties:
+      password:
+        type: string
+    type: object
   entity.State:
     properties:
       environment:
@@ -10,10 +52,46 @@ definitions:
       timezone:
         type: string
     type: object
+  entity.Token:
+    properties:
+      accessToken:
+        type: string
+      environment:
+        type: string
+      id:
+        type: integer
+    type: object
+  entity.User:
+    properties:
+      account:
+        maxLength: 10
+        minLength: 6
+        type: string
+      id:
+        type: integer
+      mailAddress:
+        type: string
+      name:
+        maxLength: 50
+        type: string
+      role:
+        type: string
+      sex:
+        type: string
+    required:
+    - account
+    - mailAddress
+    - name
+    - sex
+    type: object
 info:
   contact: {}
+  license:
+    name: Kazuki Kamizuru
+  title: General authentication API
+  version: "1.0"
 paths:
-  /:
+  /v1:
     get:
       produces:
       - application/json
@@ -22,7 +100,170 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/entity.State'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/entity.Error'
+        "405":
+          description: Method Not Allowed
+          schema:
+            $ref: '#/definitions/entity.Error'
       summary: Return application state
       tags:
       - State
+  /v1/activate:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: request data
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/entity.Activate'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ""
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/entity.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/entity.Error'
+        "405":
+          description: Method Not Allowed
+          schema:
+            $ref: '#/definitions/entity.Error'
+      summary: Enable account with update password
+      tags:
+      - Authenticate
+  /v1/auth:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: request data
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/entity.Authenticate'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.Token'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/entity.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/entity.Error'
+        "405":
+          description: Method Not Allowed
+          schema:
+            $ref: '#/definitions/entity.Error'
+      summary: Execute authentication by user
+      tags:
+      - Authenticate
+  /v1/deauth:
+    delete:
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: ""
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/entity.Error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/entity.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/entity.Error'
+        "405":
+          description: Method Not Allowed
+          schema:
+            $ref: '#/definitions/entity.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: Execute deauthentication by user
+      tags:
+      - Authenticate
+  /v1/users:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.User'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/entity.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/entity.Error'
+        "405":
+          description: Method Not Allowed
+          schema:
+            $ref: '#/definitions/entity.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: Return authenticated user
+      tags:
+      - Authenticate
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: request data
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/entity.User'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/entity.GeneratedPassword'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/entity.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/entity.Error'
+        "405":
+          description: Method Not Allowed
+          schema:
+            $ref: '#/definitions/entity.Error'
+      summary: Execute registration of account
+      tags:
+      - Authenticate
+securityDefinitions:
+  ApiKeyAuth:
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"

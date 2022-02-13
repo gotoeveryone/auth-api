@@ -21,3 +21,10 @@ func TestStatus(t *testing.T) {
 		t.Errorf("Environment is not default value")
 	}
 }
+
+func TestGeneratedPassword(t *testing.T) {
+	s := GeneratedPassword{}
+	if s.Password != "" {
+		t.Errorf("Password is not default value")
+	}
+}

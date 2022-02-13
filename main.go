@@ -11,8 +11,8 @@ import (
 	"github.com/gotoeveryone/auth-api/app/registry"
 	_ "github.com/gotoeveryone/auth-api/docs"
 	"github.com/sirupsen/logrus"
+	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
-	"github.com/swaggo/gin-swagger/swaggerFiles"
 )
 
 func getEnv(key, fallback string) string {
@@ -22,6 +22,13 @@ func getEnv(key, fallback string) string {
 	return fallback
 }
 
+// @title    General authentication API
+// @version  1.0
+// @license.name Kazuki Kamizuru
+// @BasePath /
+// @securityDefinitions.apikey ApiKeyAuth
+// @in header
+// @name Authorization
 func main() {
 	// Initialize logger
 	logrus.SetFormatter(&logrus.JSONFormatter{})
@@ -106,7 +113,9 @@ func main() {
 	}
 
 	// show swagger ui to /swagger/index.html
-	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+	if c.Debug {
+		r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+	}
 
 	// Deleting expired tokens.
 	// When can't auto delete expired tokens, this function is behavior.

@@ -30,7 +30,17 @@ func NewAuthenticateHandler(ur repository.UserRepository, tr repository.TokenRep
 	}
 }
 
-// Authenticate is execute user authenticate
+// Authenticate is execute authentication by user
+// @Summary Execute authentication by user
+// @Tags Authenticate
+// @Accept  json
+// @Produce json
+// @Param data body entity.Authenticate true "request data"
+// @Success 200 {object} entity.Token
+// @Failure 400 {object} entity.Error
+// @Failure 404 {object} entity.Error
+// @Failure 405 {object} entity.Error
+// @Router /v1/auth [post]
 func (h *authenticateHandler) Authenticate(c *gin.Context) {
 	// Execute validation
 	var input entity.Authenticate
@@ -86,7 +96,17 @@ func (h *authenticateHandler) Authenticate(c *gin.Context) {
 	c.JSON(http.StatusOK, token)
 }
 
-// Deauthenticate is execute user deauthentication
+// Deauthenticate is execute deauthentication by user
+// @Summary Execute deauthentication by user
+// @Tags Authenticate
+// @Security ApiKeyAuth
+// @Produce json
+// @Success 204
+// @Failure 400 {object} entity.Error
+// @Failure 401 {object} entity.Error
+// @Failure 404 {object} entity.Error
+// @Failure 405 {object} entity.Error
+// @Router /v1/deauth [delete]
 func (h *authenticateHandler) Deauthenticate(c *gin.Context) {
 	// Delete token
 	token := c.GetString(TokenKey)
@@ -98,7 +118,17 @@ func (h *authenticateHandler) Deauthenticate(c *gin.Context) {
 	c.JSON(http.StatusNoContent, gin.H{})
 }
 
-// Registration is execute account registration
+// Registration is execute registration of account
+// @Summary Execute registration of account
+// @Tags Authenticate
+// @Accept  json
+// @Produce json
+// @Param data body entity.User true "request data"
+// @Success 201 {object} entity.GeneratedPassword
+// @Failure 400 {object} entity.Error
+// @Failure 404 {object} entity.Error
+// @Failure 405 {object} entity.Error
+// @Router /v1/users [post]
 func (h *authenticateHandler) Registration(c *gin.Context) {
 	// Execute validation
 	var u entity.User
@@ -134,12 +164,22 @@ func (h *authenticateHandler) Registration(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusCreated, gin.H{
-		"password": pass,
+	c.JSON(http.StatusCreated, entity.GeneratedPassword{
+		Password: pass,
 	})
 }
 
 // Activate is enable account with update password
+// @Summary Enable account with update password
+// @Tags Authenticate
+// @Accept  json
+// @Produce json
+// @Param data body entity.Activate true "request data"
+// @Success 200
+// @Failure 400 {object} entity.Error
+// @Failure 404 {object} entity.Error
+// @Failure 405 {object} entity.Error
+// @Router /v1/activate [post]
 func (h *authenticateHandler) Activate(c *gin.Context) {
 	// Execute validation
 	var a entity.Activate
@@ -180,12 +220,19 @@ func (h *authenticateHandler) Activate(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"result": "success",
-	})
+	c.JSON(http.StatusOK, gin.H{})
 }
 
 // GetUser is find user data from token
+// @Summary Return authenticated user
+// @Tags Authenticate
+// @Security ApiKeyAuth
+// @Produce json
+// @Success 200 {object} entity.User
+// @Failure 401 {object} entity.Error
+// @Failure 404 {object} entity.Error
+// @Failure 405 {object} entity.Error
+// @Router /v1/users [get]
 func (h *authenticateHandler) GetUser(c *gin.Context) {
 	// Find user from post token
 	token := c.GetString(TokenKey)

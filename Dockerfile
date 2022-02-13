@@ -9,7 +9,8 @@ WORKDIR ${APP_ROOT}
 COPY go.mod go.sum ./
 
 RUN go mod download && \
-  go get github.com/cosmtrek/air
+  go get -u github.com/cosmtrek/air && \
+  go get -u github.com/swaggo/swag/cmd/swag
 
 CMD ["air", "-c", ".air.toml"]
 
