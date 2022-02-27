@@ -2,6 +2,7 @@ package database
 
 import (
 	"reflect"
+	"regexp"
 	"testing"
 	"time"
 
@@ -19,7 +20,7 @@ func TestNewUserRepository(t *testing.T) {
 }
 
 func TestExists(t *testing.T) {
-	mock.ExpectQuery("SELECT count").
+	mock.ExpectQuery(regexp.QuoteMeta("SELECT count(*) FROM `users`")).
 		WithArgs("test").
 		WillReturnRows(sqlmock.NewRows([]string{"count"}).AddRow(1))
 
@@ -34,7 +35,7 @@ func TestExists(t *testing.T) {
 		t.Errorf("User %s is not exists", v)
 	}
 
-	mock.ExpectQuery("SELECT count").
+	mock.ExpectQuery(regexp.QuoteMeta("SELECT count(*) FROM `users`")).
 		WillReturnRows(sqlmock.NewRows([]string{"count"}).AddRow(0))
 
 	e, err = r.Exists(v)
@@ -47,7 +48,7 @@ func TestExists(t *testing.T) {
 }
 
 func TestFindUser(t *testing.T) {
-	mock.ExpectQuery("SELECT *").
+	mock.ExpectQuery(regexp.QuoteMeta("SELECT * FROM `users`")).
 		WillReturnRows(sqlmock.NewRows([]string{"id"}))
 
 	r := userRepository{}
@@ -63,7 +64,7 @@ func TestFindUser(t *testing.T) {
 		t.Errorf("actual: exists, expected: not exists [%d]", e.ID)
 	}
 
-	mock.ExpectQuery("SELECT *").
+	mock.ExpectQuery(regexp.QuoteMeta("SELECT * FROM `users`")).
 		WillReturnRows(sqlmock.NewRows([]string{"id"}).AddRow(1))
 
 	if err := r.Find(id, &e); err != nil {
@@ -75,7 +76,7 @@ func TestFindUser(t *testing.T) {
 }
 
 func TestFindByAccount(t *testing.T) {
-	mock.ExpectQuery("SELECT *").
+	mock.ExpectQuery(regexp.QuoteMeta("SELECT * FROM `users`")).
 		WillReturnRows(sqlmock.NewRows([]string{"account"}))
 
 	r := userRepository{}
@@ -89,7 +90,7 @@ func TestFindByAccount(t *testing.T) {
 		t.Errorf("actual: not exists, expected: exists [%s]", u.Account)
 	}
 
-	mock.ExpectQuery("SELECT *").
+	mock.ExpectQuery(regexp.QuoteMeta("SELECT * FROM `users`")).
 		WillReturnRows(sqlmock.NewRows([]string{"account"}).AddRow("test"))
 
 	u, err = r.FindByAccount(v)
@@ -160,7 +161,7 @@ func TestMatchPassword(t *testing.T) {
 }
 
 func TestCreateUser(t *testing.T) {
-	mock.ExpectExec("INSERT INTO").
+	mock.ExpectExec(regexp.QuoteMeta("INSERT INTO `users`")).
 		WillReturnResult(sqlmock.NewResult(1, 1))
 
 	r := userRepository{}
@@ -182,7 +183,7 @@ func TestCreateUser(t *testing.T) {
 		t.Errorf("User is disable")
 	}
 
-	mock.ExpectExec("INSERT INTO").
+	mock.ExpectExec(regexp.QuoteMeta("INSERT INTO `users`")).
 		WillReturnResult(sqlmock.NewResult(1, 1))
 
 	u = entity.User{
@@ -200,7 +201,7 @@ func TestCreateUser(t *testing.T) {
 }
 
 func TestUpdatePassword(t *testing.T) {
-	mock.ExpectExec("UPDATE").
+	mock.ExpectExec(regexp.QuoteMeta("UPDATE `users`")).
 		WillReturnResult(sqlmock.NewResult(1, 1))
 
 	r := userRepository{}
@@ -222,7 +223,7 @@ func TestUpdatePassword(t *testing.T) {
 }
 
 func TestUpdateAuthed(t *testing.T) {
-	mock.ExpectExec("UPDATE").
+	mock.ExpectExec(regexp.QuoteMeta("UPDATE `users`")).
 		WillReturnResult(sqlmock.NewResult(1, 1))
 
 	r := userRepository{}

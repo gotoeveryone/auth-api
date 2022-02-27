@@ -2,6 +2,7 @@ package database
 
 import (
 	"reflect"
+	"regexp"
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
@@ -18,7 +19,7 @@ func TestNewTokenRepository(t *testing.T) {
 }
 
 func TestFind(t *testing.T) {
-	mock.ExpectQuery("SELECT *").
+	mock.ExpectQuery(regexp.QuoteMeta("SELECT * FROM `tokens`")).
 		WillReturnRows(sqlmock.NewRows([]string{"token"}))
 
 	r := tokenRepository{}
@@ -32,7 +33,7 @@ func TestFind(t *testing.T) {
 		t.Errorf("actual: exists, expected: not exists [%s]", e.Token)
 	}
 
-	mock.ExpectQuery("SELECT *").
+	mock.ExpectQuery(regexp.QuoteMeta("SELECT * FROM `tokens`")).
 		WillReturnRows(sqlmock.NewRows([]string{"token"}).AddRow("test"))
 
 	if err := r.Find(v, &e); err != nil {
@@ -44,7 +45,7 @@ func TestFind(t *testing.T) {
 }
 
 func TestCreateToken(t *testing.T) {
-	mock.ExpectExec("INSERT INTO").
+	mock.ExpectExec("INSERT INTO `tokens`").
 		WillReturnResult(sqlmock.NewResult(1, 1))
 
 	r := tokenRepository{}
@@ -68,7 +69,7 @@ func TestCreateToken(t *testing.T) {
 }
 
 func TestDeleteToken(t *testing.T) {
-	mock.ExpectExec("DELETE FROM").
+	mock.ExpectExec("DELETE FROM `tokens`").
 		WillReturnResult(sqlmock.NewResult(1, 1))
 
 	r := tokenRepository{}
@@ -81,7 +82,7 @@ func TestDeleteToken(t *testing.T) {
 
 func TestDeleteExpiredToken(t *testing.T) {
 	a := int64(10)
-	mock.ExpectExec("DELETE FROM").
+	mock.ExpectExec("DELETE FROM `tokens`").
 		WillReturnResult(sqlmock.NewResult(1, a))
 
 	r := tokenRepository{}
