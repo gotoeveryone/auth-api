@@ -1,4 +1,4 @@
-FROM golang:1.16-alpine as development
+FROM golang:1.17-alpine as development
 
 ENV LANG C.UTF-8
 ENV APP_ROOT /var/app
@@ -9,12 +9,12 @@ WORKDIR ${APP_ROOT}
 COPY go.mod go.sum ./
 
 RUN go mod download && \
-  go get -u github.com/cosmtrek/air && \
-  go get -u github.com/swaggo/swag/cmd/swag
+  go install github.com/cosmtrek/air@latest && \
+  go install github.com/swaggo/swag/cmd/swag@latest
 
 CMD ["air", "-c", ".air.toml"]
 
-FROM golang:1.16-alpine as builder
+FROM golang:1.17-alpine as builder
 
 ENV LANG C.UTF-8
 ENV APP_ROOT /var/app
@@ -28,7 +28,7 @@ COPY ./ ${APP_ROOT}
 RUN go mod download && \
   go build -o auth-api ${APP_ROOT}/main.go
 
-FROM golang:1.16-alpine as production
+FROM golang:1.17-alpine as production
 
 ENV LANG C.UTF-8
 ENV APP_ROOT /var/app
