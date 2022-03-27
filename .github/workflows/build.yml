@@ -93,7 +93,7 @@ jobs:
 
       - uses: okteto/namespace@master
         with:
-          name: gotoeveryone
+          namespace: gotoeveryone
 
       - uses: okteto/apply@master
         with:
