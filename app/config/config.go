@@ -7,27 +7,27 @@ import (
 
 // DB データベース接続設定
 type DB struct {
-  Name     string
-  Host     string
-  Port     string
-  User     string
-  Password string
-  Timezone string
+	Name     string
+	Host     string
+	Port     string
+	User     string
+	Password string
+	Timezone string
 }
 
 // Cache キャッシュ接続設定
 type Cache struct {
-  Use  bool
-  Host string
-  Port string
-  Auth string
+	Use  bool
+	Host string
+	Port string
+	Auth string
 }
 
 // App is application configuration
 type App struct {
-	Debug    bool
-  DB
-  Cache
+	Debug bool
+	DB
+	Cache
 }
 
 var (

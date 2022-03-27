@@ -22,7 +22,7 @@ func initDBMock() sqlmock.Sqlmock {
 	// defer db.Close()
 
 	gdb, err := gorm.Open(mysql.New(mysql.Config{
-		Conn: db,
+		Conn:                      db,
 		SkipInitializeWithVersion: true,
 	}), &gorm.Config{
 		SkipDefaultTransaction: true,
