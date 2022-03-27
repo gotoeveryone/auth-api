@@ -18,25 +18,25 @@ Installed the following program.
 
 ```
 $ cp .env.example .env # with editing
-$ docker-compose up
+$ docker compose up
 ```
 
 ## Format Check
 
 ```
-$ docker-compose exec api go vet -v ./...
+$ docker compose exec api go vet -v ./...
 ```
 
 ## Test
 
 ```
-$ docker-compose exec api go test -v ./...
+$ docker compose exec api go test -v ./...
 ```
 
 ## Build
 
 ```
-$ docker-compose exec api go build main.go
+$ docker compose exec api go build main.go
 ```
 
 ## Swagger UI
