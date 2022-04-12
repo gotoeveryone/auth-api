@@ -11,6 +11,9 @@ COPY go.mod go.sum ./
 RUN go install github.com/cosmtrek/air@v1.29.0 && \
   go install github.com/swaggo/swag/cmd/swag@v1.8.0
 
+# uncomment if use sql-migrate run migration instead of gorm
+# RUN go install github.com/rubenv/sql-migrate/...@v1.1.1
+
 RUN go mod download
 
 CMD ["air", "-c", ".air.toml"]
