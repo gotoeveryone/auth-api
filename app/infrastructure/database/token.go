@@ -15,7 +15,7 @@ type tokenRepository struct {
 }
 
 // NewTokenRepository is create token management repository using Database.
-func NewTokenRepository() repository.TokenRepository {
+func NewTokenRepository() repository.Token {
 	return &tokenRepository{}
 }
 

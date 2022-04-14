@@ -4,8 +4,8 @@ import (
 	"github.com/gotoeveryone/auth-api/app/domain/entity"
 )
 
-// UserRepository is operate of user data.
-type UserRepository interface {
+// User is repository for operate about user.
+type User interface {
 	Exists(account string) (bool, error)
 	Find(id uint, u *entity.User) error
 	FindByAccount(account string) (*entity.User, error)

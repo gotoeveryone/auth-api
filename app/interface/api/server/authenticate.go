@@ -14,17 +14,14 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-type (
-	// authenticateHandler is authentication action handler
-	authenticateHandler struct {
-		userRepo  repository.UserRepository
-		tokenRepo repository.TokenRepository
-	}
-)
+type authHandler struct {
+	userRepo  repository.User
+	tokenRepo repository.Token
+}
 
-// NewAuthenticateHandler is state action handler
-func NewAuthenticateHandler(ur repository.UserRepository, tr repository.TokenRepository) handler.AuthenticateHandler {
-	return &authenticateHandler{
+// NewAuthHandler is create action handler for auth
+func NewAuthHandler(ur repository.User, tr repository.Token) handler.Authenticate {
+	return &authHandler{
 		userRepo:  ur,
 		tokenRepo: tr,
 	}
@@ -41,7 +38,7 @@ func NewAuthenticateHandler(ur repository.UserRepository, tr repository.TokenRep
 // @Failure 404 {object} entity.Error
 // @Failure 405 {object} entity.Error
 // @Router /v1/auth [post]
-func (h *authenticateHandler) Authenticate(c *gin.Context) {
+func (h *authHandler) Authenticate(c *gin.Context) {
 	// Execute validation
 	var input entity.Authenticate
 	if err := c.ShouldBindWith(&input, binding.JSON); err != nil {
@@ -107,7 +104,7 @@ func (h *authenticateHandler) Authenticate(c *gin.Context) {
 // @Failure 404 {object} entity.Error
 // @Failure 405 {object} entity.Error
 // @Router /v1/deauth [delete]
-func (h *authenticateHandler) Deauthenticate(c *gin.Context) {
+func (h *authHandler) Deauthenticate(c *gin.Context) {
 	// Delete token
 	token := c.GetString(TokenKey)
 	if err := h.tokenRepo.Delete(token); err != nil {
@@ -129,7 +126,7 @@ func (h *authenticateHandler) Deauthenticate(c *gin.Context) {
 // @Failure 404 {object} entity.Error
 // @Failure 405 {object} entity.Error
 // @Router /v1/users [post]
-func (h *authenticateHandler) Registration(c *gin.Context) {
+func (h *authHandler) Registration(c *gin.Context) {
 	// Execute validation
 	var u entity.User
 	if err := c.ShouldBindWith(&u, binding.JSON); err != nil {
@@ -180,7 +177,7 @@ func (h *authenticateHandler) Registration(c *gin.Context) {
 // @Failure 404 {object} entity.Error
 // @Failure 405 {object} entity.Error
 // @Router /v1/activate [post]
-func (h *authenticateHandler) Activate(c *gin.Context) {
+func (h *authHandler) Activate(c *gin.Context) {
 	// Execute validation
 	var a entity.Activate
 	if err := c.ShouldBindWith(&a, binding.JSON); err != nil {
@@ -233,7 +230,7 @@ func (h *authenticateHandler) Activate(c *gin.Context) {
 // @Failure 404 {object} entity.Error
 // @Failure 405 {object} entity.Error
 // @Router /v1/users [get]
-func (h *authenticateHandler) GetUser(c *gin.Context) {
+func (h *authHandler) GetUser(c *gin.Context) {
 	// Find user from post token
 	token := c.GetString(TokenKey)
 	var t entity.Token

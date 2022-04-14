@@ -6,12 +6,12 @@ import (
 	"github.com/gotoeveryone/auth-api/app/presentation/handler"
 )
 
-// NewStateHandler is create state action handler
-func NewStateHandler() handler.StateHandler {
+// NewStateHandler is create action handler for state
+func NewStateHandler() handler.State {
 	return server.NewStateHandler()
 }
 
-// NewAuthenticateHandler is create authenticate action handler
-func NewAuthenticateHandler(ur repository.UserRepository, tr repository.TokenRepository) handler.AuthenticateHandler {
-	return server.NewAuthenticateHandler(ur, tr)
+// NewAuthHandler is create action handler for auth
+func NewAuthHandler(ur repository.User, tr repository.Token) handler.Authenticate {
+	return server.NewAuthHandler(ur, tr)
 }

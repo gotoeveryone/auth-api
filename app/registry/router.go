@@ -8,17 +8,17 @@ import (
 	"github.com/swaggo/gin-swagger/swaggerFiles"
 )
 
-func NewRouter(config config.App, userRepo repository.UserRepository, tokenRepo repository.TokenRepository) *gin.Engine {
+func NewRouter(config config.App, userRepo repository.User, tokenRepo repository.Token) *gin.Engine {
 	// Initialize application
 	r := gin.Default()
 	r.HandleMethodNotAllowed = true
 
 	// Handler
 	sh := NewStateHandler()
-	ah := NewAuthenticateHandler(userRepo, tokenRepo)
+	ah := NewAuthHandler(userRepo, tokenRepo)
 
 	// Middleware
-	m := NewAuthenticateMiddleware(userRepo, tokenRepo)
+	m := NewAuthMiddleware(userRepo, tokenRepo)
 
 	// Routing
 	// Root

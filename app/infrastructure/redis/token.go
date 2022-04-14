@@ -15,7 +15,7 @@ type tokenRepository struct {
 }
 
 // NewTokenRepository is create token management repository using Redis.
-func NewTokenRepository(c cache.Client) repository.TokenRepository {
+func NewTokenRepository(c cache.Client) repository.Token {
 	return &tokenRepository{
 		client: c,
 	}

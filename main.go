@@ -83,7 +83,7 @@ func main() {
 	// Deleting expired tokens.
 	// When can't auto delete expired tokens, this function is behavior.
 	if !tr.CanAutoDeleteExpired() {
-		go func(repo repository.TokenRepository) {
+		go func(repo repository.Token) {
 			for {
 				cnt, err := repo.DeleteExpired()
 				if err != nil {

@@ -6,7 +6,7 @@ import (
 	"github.com/gotoeveryone/auth-api/app/presentation/middleware"
 )
 
-// NewAuthenticateMiddleware is create authenticate middleware
-func NewAuthenticateMiddleware(ur repository.UserRepository, tr repository.TokenRepository) middleware.Authenticate {
-	return server.NewTokenAuthenticate(ur, tr)
+// NewAuthMiddleware is create middleware about auth
+func NewAuthMiddleware(ur repository.User, tr repository.Token) middleware.Auth {
+	return server.NewTokenAuth(ur, tr)
 }

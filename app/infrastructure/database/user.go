@@ -14,7 +14,7 @@ import (
 type userRepository struct{}
 
 // NewUserRepository is create user management repository
-func NewUserRepository() repository.UserRepository {
+func NewUserRepository() repository.User {
 	return &userRepository{}
 }
 

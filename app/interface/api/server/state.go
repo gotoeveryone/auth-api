@@ -12,8 +12,8 @@ import (
 
 type stateHandler struct{}
 
-// NewStateHandler is state action handler
-func NewStateHandler() handler.StateHandler {
+// NewStateHandler is create action handler for state
+func NewStateHandler() handler.State {
 	return &stateHandler{}
 }
 

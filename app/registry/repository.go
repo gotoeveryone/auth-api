@@ -8,12 +8,12 @@ import (
 )
 
 // NewUserRepository is create user management repository.
-func NewUserRepository() repository.UserRepository {
+func NewUserRepository() repository.User {
 	return database.NewUserRepository()
 }
 
 // NewTokenRepository is create token management repository.
-func NewTokenRepository(c config.App) repository.TokenRepository {
+func NewTokenRepository(c config.App) repository.Token {
 	if c.Cache.Use {
 		c := redis.Client{
 			Config: c.Cache,

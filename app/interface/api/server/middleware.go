@@ -15,21 +15,21 @@ const (
 	tokenPrefix = "Bearer "
 )
 
-type tokenAuthenticate struct {
-	userRepo  repository.UserRepository
-	tokenRepo repository.TokenRepository
+type tokenAuth struct {
+	userRepo  repository.User
+	tokenRepo repository.Token
 }
 
-// NewTokenAuthenticate is create authenticate token middleware
-func NewTokenAuthenticate(ur repository.UserRepository, tr repository.TokenRepository) middleware.Authenticate {
-	return &tokenAuthenticate{
+// NewTokenAuth is create middleware use of token
+func NewTokenAuth(ur repository.User, tr repository.Token) middleware.Auth {
+	return &tokenAuth{
 		userRepo:  ur,
 		tokenRepo: tr,
 	}
 }
 
 // Authorized is confirm has exactly token during proccessing request
-func (m *tokenAuthenticate) Authorized() gin.HandlerFunc {
+func (m *tokenAuth) Authorized() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// Confirm has "Authorization" to HTTP header
 		tokenHeader := c.Request.Header.Get("Authorization")

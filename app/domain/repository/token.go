@@ -4,8 +4,8 @@ import (
 	"github.com/gotoeveryone/auth-api/app/domain/entity"
 )
 
-// TokenRepository is operate of token data.
-type TokenRepository interface {
+// Token is repository for operate about token.
+type Token interface {
 	Find(token string, t *entity.Token) error
 	Create(u *entity.User, t *entity.Token) error
 	Delete(token string) error
