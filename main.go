@@ -11,8 +11,6 @@ import (
 	"github.com/gotoeveryone/auth-api/app/registry"
 	_ "github.com/gotoeveryone/auth-api/docs"
 	"github.com/sirupsen/logrus"
-	swaggerFiles "github.com/swaggo/files"
-	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 func getEnv(key, fallback string) string {
@@ -75,47 +73,12 @@ func main() {
 		os.Exit(1)
 	}
 
-	// Initialize application
-	r := gin.Default()
-	r.HandleMethodNotAllowed = true
-
 	// Repository
 	ur := registry.NewUserRepository()
 	tr := registry.NewTokenRepository(c)
 
-	// Handler
-	sh := registry.NewStateHandler()
-	ah := registry.NewAuthenticateHandler(ur, tr)
-
-	// Middleware
-	m := registry.NewAuthenticateMiddleware(ur, tr)
-
-	// Routing
-	// Root
-	r.GET("/", sh.Get)
-	// Not Found
-	r.NoRoute(sh.NoRoute)
-	// Method Not Allowed
-	r.NoMethod(sh.NoMethod)
-	// Application
-	v1 := r.Group("v1")
-	{
-		v1.GET("/", sh.Get)
-		v1.POST("/users", ah.Registration)
-		v1.POST("/activate", ah.Activate)
-		v1.POST("/auth", ah.Authenticate)
-		auth := v1.Group("")
-		{
-			auth.Use(m.Authorized())
-			auth.GET("/users", ah.GetUser)
-			auth.DELETE("/deauth", ah.Deauthenticate)
-		}
-	}
-
-	// show swagger ui to /swagger/index.html
-	if c.Debug {
-		r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
-	}
+	// Initialize application
+	r := registry.NewRouter(c, ur, tr)
 
 	// Deleting expired tokens.
 	// When can't auto delete expired tokens, this function is behavior.
