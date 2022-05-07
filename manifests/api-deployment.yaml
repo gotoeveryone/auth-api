@@ -31,16 +31,6 @@ spec:
                 configMapKeyRef:
                   key: APP_ENV
                   name: env
-            - name: CACHE_HOST
-              valueFrom:
-                configMapKeyRef:
-                  key: CACHE_HOST
-                  name: env
-            - name: CACHE_PORT
-              valueFrom:
-                configMapKeyRef:
-                  key: CACHE_PORT
-                  name: env
             - name: DATABASE_HOST
               valueFrom:
                 configMapKeyRef:
@@ -70,11 +60,6 @@ spec:
               valueFrom:
                 configMapKeyRef:
                   key: TZ
-                  name: env
-            - name: USE_CACHE
-              valueFrom:
-                configMapKeyRef:
-                  key: USE_CACHE
                   name: env
           image: gotoeveryone/auth-api:1.0.0
           name: api
