@@ -17,13 +17,10 @@ const (
 )
 
 var (
-	errUnauthorized        = errors.New("Authorization failed")
-	errRequiredAccessToken = errors.New("Token is required")
-	errInvalidAccessToken  = errors.New("Token is invalid")
+	errUnauthorized = errors.New("Authorization failed")
 
 	errInvalidAccount = errors.New("Account is invalid")
 	errExistsAccount  = errors.New("Account is already exists")
-	errInvalidRole    = errors.New("Role is invalid")
 
 	errUpdatePassword     = errors.New("Update password failed")
 	errSamePassword       = errors.New("Not allowed changing to same password")

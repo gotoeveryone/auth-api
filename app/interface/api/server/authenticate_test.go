@@ -50,13 +50,14 @@ func TestRegistrationSuccess(t *testing.T) {
 	h := NewAuthHandler(&mock.UserRepository{})
 	r.POST("/v1/users", h.Registration)
 
-	mailAddress := "hoge@example.com"
-	p := entity.User{
+	role := "General"
+	p := entity.RegistrationUser{
 		Account:     "testuser",
 		Name:        "Test User",
-		Role:        "Administrator",
-		Sex:         "Male",
-		MailAddress: &mailAddress,
+		Role:        &role,
+		Gender:      "Unknown",
+		MailAddress: "hoge@example.com",
+		Birthday:    "2006-01-02",
 	}
 	j, err := json.Marshal(p)
 	if err != nil {
@@ -142,9 +143,9 @@ func TestActivateFailedAccountNotExist(t *testing.T) {
 	p := entity.Activate{
 		Authenticate: entity.Authenticate{
 			Account:  "testuser",
-			Password: "password",
+			Password: "HogeFuga001",
 		},
-		NewPassword: "new_password",
+		NewPassword: "HogeFuga001New",
 	}
 	j, err := json.Marshal(p)
 	if err != nil {
@@ -171,9 +172,9 @@ func TestActivateFailedPasswordNotMatched(t *testing.T) {
 	p := entity.Activate{
 		Authenticate: entity.Authenticate{
 			Account:  "testuser",
-			Password: "invalid_password",
+			Password: "HogeFuga001",
 		},
-		NewPassword: "new_password",
+		NewPassword: "HogeFuga001New",
 	}
 	j, err := json.Marshal(p)
 	if err != nil {
@@ -200,9 +201,9 @@ func TestActivateSuccess(t *testing.T) {
 	p := entity.Activate{
 		Authenticate: entity.Authenticate{
 			Account:  "testuser",
-			Password: "password",
+			Password: "HogeFuga001",
 		},
-		NewPassword: "newpassword",
+		NewPassword: "HogeFuga001New",
 	}
 	j, err := json.Marshal(p)
 	if err != nil {

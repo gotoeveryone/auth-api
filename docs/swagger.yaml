@@ -3,14 +3,12 @@ definitions:
   entity.Activate:
     properties:
       account:
-        maxLength: 10
-        minLength: 6
+        maxLength: 20
+        minLength: 8
         type: string
       newPassword:
-        minLength: 8
         type: string
       password:
-        minLength: 8
         type: string
     required:
     - account
@@ -20,11 +18,10 @@ definitions:
   entity.Authenticate:
     properties:
       account:
-        maxLength: 10
-        minLength: 6
+        maxLength: 20
+        minLength: 8
         type: string
       password:
-        minLength: 8
         type: string
     required:
     - account
@@ -37,6 +34,11 @@ definitions:
       token:
         type: string
     type: object
+  entity.Date:
+    properties:
+      time.Time:
+        type: string
+    type: object
   entity.Error:
     properties:
       code:
@@ -47,6 +49,37 @@ definitions:
     properties:
       password:
         type: string
+    type: object
+  entity.RegistrationUser:
+    properties:
+      account:
+        maxLength: 20
+        minLength: 8
+        type: string
+      birthday:
+        type: string
+      gender:
+        enum:
+        - Male
+        - Female
+        - Unknown
+        type: string
+      mailAddress:
+        type: string
+      name:
+        maxLength: 50
+        type: string
+      role:
+        enum:
+        - Administrator
+        - General
+        type: string
+    required:
+    - account
+    - birthday
+    - gender
+    - mailAddress
+    - name
     type: object
   entity.State:
     properties:
@@ -62,25 +95,19 @@ definitions:
   entity.User:
     properties:
       account:
-        maxLength: 10
-        minLength: 6
+        type: string
+      birthday:
+        $ref: '#/definitions/entity.Date'
+      gender:
         type: string
       id:
         type: integer
       mailAddress:
         type: string
       name:
-        maxLength: 50
         type: string
       role:
         type: string
-      sex:
-        type: string
-    required:
-    - account
-    - mailAddress
-    - name
-    - sex
     type: object
 info:
   contact: {}
@@ -245,7 +272,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/entity.User'
+          $ref: '#/definitions/entity.RegistrationUser'
       produces:
       - application/json
       responses:

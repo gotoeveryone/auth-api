@@ -1,46 +1,66 @@
 package entity
 
 import (
+	"database/sql/driver"
+	"fmt"
 	"time"
 )
 
 type Role string
 
+type Gender string
+
 const (
-	// RoleAdministrator is administrator user.
 	RoleAdministrator = Role("Administrator")
-	// RoleGeneral is general user.
-	RoleGeneral = Role("General")
+	RoleGeneral       = Role("General")
+
+	GenderMale    = Gender("Male")
+	GenderFemale  = Gender("Female")
+	GenderUnknown = Gender("Unknown")
 )
+
+type Date struct {
+	time.Time
+}
+
+func (d *Date) UnmarshalJSON(b []byte) error {
+	var err error
+	d.Time, err = time.Parse("\"2006-01-02\"", string(b))
+	return err
+}
+
+func (d Date) MarshalJSON() ([]byte, error) {
+	return []byte(fmt.Sprintf("\"%s\"", d.Time.Format("2006-01-02"))), nil
+}
+
+func (rt *Date) Scan(value interface{}) error {
+	rt.Time = value.(time.Time)
+	return nil
+}
+
+func (rt Date) Value() (driver.Value, error) {
+	return rt.Time, nil
+}
 
 // User is struct of authenticated user data
 type User struct {
 	ID          uint       `gorm:"primary_key" json:"id"`
-	Account     string     `gorm:"type:varchar(10);not null;unique_index" json:"account" binding:"required,min=6,max=10"`
-	Name        string     `gorm:"type:varchar(20);not null" json:"name" binding:"required,max=50"`
+	Account     string     `gorm:"type:varchar(20);not null;unique_index" json:"account"`
+	Name        string     `gorm:"type:varchar(50);not null" json:"name"`
 	Password    string     `gorm:"type:varchar(255);not null" json:"-"`
-	Sex         string     `gorm:"type:enum('Male','Female','Unknown');not null" json:"sex" binding:"required"`
-	MailAddress *string    `gorm:"type:varchar(100)" json:"mailAddress" binding:"required,email"`
-	Role        Role       `gorm:"type:enum('Administrator','General');not null" json:"role"`
+	Gender      Gender     `gorm:"type:enum('Male','Female','Unknown');not null" json:"gender"`
+	MailAddress string     `gorm:"type:varchar(255);not null" json:"mailAddress"`
+	Birthday    Date       `gorm:"type:date;not null" json:"birthday"`
+	Role        Role       `gorm:"type:enum('Administrator','General');not null"`
 	LastLogged  *time.Time `gorm:"type:datetime" json:"-"`
 	IsActive    bool       `gorm:"type:tinyint;not null" json:"-"`
 	IsEnable    bool       `gorm:"type:tinyint;not null" json:"-"`
 	CreatedAt   time.Time  `gorm:"type:datetime;not null" sql:"default:current_timestamp" json:"-"`
 }
 
+// Valid is valid user data
 func (u *User) Valid() bool {
-	return u.Account != "" && u.IsEnable && u.IsActive
-}
-
-// ValidRole is valid user role
-func (u *User) ValidRole() bool {
-	roles := []Role{RoleAdministrator, RoleGeneral}
-	for _, role := range roles {
-		if u.Role == role {
-			return true
-		}
-	}
-	return false
+	return u.Account != "" && u.IsEnable
 }
 
 // DefaultRole is get user default role

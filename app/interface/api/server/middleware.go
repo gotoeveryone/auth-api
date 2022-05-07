@@ -108,7 +108,7 @@ func (m jwtAuth) Create() (*jwt.GinJWTMiddleware, error) {
 		Authenticator: func(c *gin.Context) (interface{}, error) {
 			var p entity.Authenticate
 			if err := c.ShouldBind(&p); err != nil {
-				return "", errUnauthorized
+				return nil, errUnauthorized
 			}
 
 			user, err := m.repo.FindByAccount(p.Account)
@@ -123,6 +123,10 @@ func (m jwtAuth) Create() (*jwt.GinJWTMiddleware, error) {
 
 			if !user.Valid() {
 				return nil, errInvalidAccount
+			}
+
+			if !user.IsActive {
+				return nil, errMustChangePassword
 			}
 
 			if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(p.Password)); err != nil {
