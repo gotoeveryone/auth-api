@@ -41,4 +41,4 @@ $ docker compose exec api go build main.go
 
 ## Swagger UI
 
-- /swagger/index.html
+- http://localhost:8080/swagger/index.html

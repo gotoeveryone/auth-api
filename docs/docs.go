@@ -100,16 +100,13 @@ const docTemplate = `{
         },
         "/v1/auth": {
             "post": {
-                "consumes": [
-                    "application/json"
-                ],
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "Authenticate"
                 ],
-                "summary": "Execute authentication by user",
+                "summary": "Execute authentication for user",
                 "parameters": [
                     {
                         "description": "request data",
@@ -125,13 +122,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/entity.Token"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/entity.Error"
+                            "$ref": "#/definitions/entity.Claim"
                         }
                     },
                     "404": {
@@ -162,22 +153,10 @@ const docTemplate = `{
                 "tags": [
                     "Authenticate"
                 ],
-                "summary": "Execute deauthentication by user",
+                "summary": "Execute deauthentication for user",
                 "responses": {
                     "204": {
                         "description": ""
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/entity.Error"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/entity.Error"
-                        }
                     },
                     "404": {
                         "description": "Not Found",
@@ -194,7 +173,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/users": {
+        "/v1/me": {
             "get": {
                 "security": [
                     {
@@ -234,7 +213,45 @@ const docTemplate = `{
                         }
                     }
                 }
-            },
+            }
+        },
+        "/v1/refresh_token": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Authenticate"
+                ],
+                "summary": "Publish refresh token for user",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/entity.Claim"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/entity.Error"
+                        }
+                    },
+                    "405": {
+                        "description": "Method Not Allowed",
+                        "schema": {
+                            "$ref": "#/definitions/entity.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/users": {
             "post": {
                 "consumes": [
                     "application/json"
@@ -328,6 +345,17 @@ const docTemplate = `{
                 }
             }
         },
+        "entity.Claim": {
+            "type": "object",
+            "properties": {
+                "expire": {
+                    "type": "string"
+                },
+                "token": {
+                    "type": "string"
+                }
+            }
+        },
         "entity.Error": {
             "type": "object",
             "properties": {
@@ -359,20 +387,6 @@ const docTemplate = `{
                 },
                 "timezone": {
                     "type": "string"
-                }
-            }
-        },
-        "entity.Token": {
-            "type": "object",
-            "properties": {
-                "accessToken": {
-                    "type": "string"
-                },
-                "environment": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
                 }
             }
         },

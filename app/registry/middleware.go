@@ -7,6 +7,6 @@ import (
 )
 
 // NewAuthMiddleware is create middleware about auth
-func NewAuthMiddleware(ur repository.User, tr repository.Token) middleware.Auth {
-	return server.NewTokenAuth(ur, tr)
+func NewAuthMiddleware(ur repository.User) middleware.Auth {
+	return server.NewAuthMiddleware(ur)
 }

@@ -102,46 +102,6 @@ func TestFindByAccount(t *testing.T) {
 	}
 }
 
-func TestValidUser(t *testing.T) {
-	r := userRepository{}
-
-	if r.ValidUser(nil) {
-		t.Errorf("Valid user is not nil")
-	}
-
-	u := entity.User{}
-	if r.ValidUser(&u) {
-		t.Errorf("Valid user is empty key: %v", u)
-	}
-
-	u.Account = "test"
-	if r.ValidUser(&u) {
-		t.Errorf("Valid user is disable: %v", u)
-	}
-
-	u.IsEnable = true
-	if !r.ValidUser(&u) {
-		t.Errorf("Invalid user: %v", u)
-	}
-}
-
-func TestValidRole(t *testing.T) {
-	r := userRepository{}
-
-	role := "test"
-	if r.ValidRole(role) {
-		t.Errorf("Invalid role %s", role)
-	}
-
-	if !r.ValidRole(entity.RoleAdministrator) {
-		t.Errorf("Invalid role")
-	}
-
-	if !r.ValidRole(entity.RoleGeneral) {
-		t.Errorf("Invalid role")
-	}
-}
-
 func TestMatchPassword(t *testing.T) {
 	r := userRepository{}
 

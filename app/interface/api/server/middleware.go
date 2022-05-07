@@ -1,77 +1,172 @@
 package server
 
 import (
-	"strings"
+	"net/http"
+	"os"
+	"time"
 
+	jwt "github.com/appleboy/gin-jwt/v2"
 	"github.com/gin-gonic/gin"
+	"github.com/gotoeveryone/auth-api/app/config"
 	"github.com/gotoeveryone/auth-api/app/domain/entity"
 	"github.com/gotoeveryone/auth-api/app/domain/repository"
 	"github.com/gotoeveryone/auth-api/app/presentation/middleware"
 	"github.com/sirupsen/logrus"
+	"golang.org/x/crypto/bcrypt"
 )
 
 const (
-	// Authentication HTTP header prefix
-	tokenPrefix = "Bearer "
+	timeout time.Duration = time.Hour * 2
 )
 
-type tokenAuth struct {
-	userRepo  repository.User
-	tokenRepo repository.Token
+type jwtAuth struct {
+	repo repository.User
 }
 
-// NewTokenAuth is create middleware use of token
-func NewTokenAuth(ur repository.User, tr repository.Token) middleware.Auth {
-	return &tokenAuth{
-		userRepo:  ur,
-		tokenRepo: tr,
+// NewAuthMiddleware is create middleware for auth
+func NewAuthMiddleware(ur repository.User) middleware.Auth {
+	return &jwtAuth{
+		repo: ur,
 	}
 }
 
-// Authorized is confirm has exactly token during proccessing request
-func (m *tokenAuth) Authorized() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		// Confirm has "Authorization" to HTTP header
-		tokenHeader := c.Request.Header.Get("Authorization")
-		if !strings.HasPrefix(tokenHeader, tokenPrefix) {
-			c.Writer.Header().Set("WWW-Authenticate", "Bearer realm=\"token_required\"")
-			errorUnauthorized(c, errRequiredAccessToken)
-			return
-		}
+// @Summary Execute authentication for user
+// @Tags Authenticate
+// @Produce json
+// @Param data body entity.Authenticate true "request data"
+// @Success 200 {object} entity.Claim
+// @Failure 404 {object} entity.Error
+// @Failure 405 {object} entity.Error
+// @Router /v1/auth [post]
+func loginResponse(c *gin.Context, code int, token string, expire time.Time) {
+	c.JSON(code, entity.Claim{
+		Token:  token,
+		Expire: expire.Format(time.RFC3339),
+	})
+}
 
-		// Confirm can get token value from HTTP header
-		token := strings.TrimSpace(strings.Replace(tokenHeader, tokenPrefix, "", 1))
-		if token == "" {
-			c.Writer.Header().Set("WWW-Authenticate", "Bearer error=\"token_required\"")
-			errorUnauthorized(c, errRequiredAccessToken)
-			return
-		}
+// @Summary Publish refresh token for user
+// @Tags Authenticate
+// @Security ApiKeyAuth
+// @Produce json
+// @Success 200 {object} entity.Claim
+// @Failure 404 {object} entity.Error
+// @Failure 405 {object} entity.Error
+// @Router /v1/refresh_token [get]
+func refreshResponse(c *gin.Context, code int, token string, expire time.Time) {
+	c.JSON(code, entity.Claim{
+		Token:  token,
+		Expire: expire.Format(time.RFC3339),
+	})
+}
 
-		// Confirm has token valid
-		var t entity.Token
-		if err := m.tokenRepo.Find(token, &t); err != nil {
-			logrus.Error(err)
-			errorInternalServerError(c, err)
-			return
-		}
-		if t.Token == "" || t.UserID == 0 {
-			c.Writer.Header().Set("WWW-Authenticate", "Bearer error=\"invalid_token\"")
-			errorUnauthorized(c, errInvalidAccessToken)
-		}
-		var u entity.User
-		if err := m.userRepo.Find(t.UserID, &u); err != nil {
-			logrus.Error(err)
-			errorInternalServerError(c, err)
-			return
-		}
-		if !m.userRepo.ValidUser(&u) {
-			c.Writer.Header().Set("WWW-Authenticate", "Bearer error=\"invalid_token\"")
-			errorUnauthorized(c, errInvalidAccessToken)
-			return
-		}
+// @Summary Execute deauthentication for user
+// @Tags Authenticate
+// @Security ApiKeyAuth
+// @Produce json
+// @Success 204
+// @Failure 404 {object} entity.Error
+// @Failure 405 {object} entity.Error
+// @Router /v1/deauth [delete]
+func logoutResponse(c *gin.Context, code int) {
+	c.JSON(http.StatusNoContent, gin.H{})
+}
 
-		// Set token value
-		c.Set(TokenKey, token)
-		c.Next()
+// Create is create auth middleware
+func (m jwtAuth) Create() (*jwt.GinJWTMiddleware, error) {
+	identityKey := config.IdentityKey
+	middleware, err := jwt.New(&jwt.GinJWTMiddleware{
+		Realm:       "auth-api",
+		Key:         []byte(os.Getenv("SECRET_KEY")),
+		Timeout:     timeout,
+		MaxRefresh:  timeout,
+		IdentityKey: identityKey,
+		PayloadFunc: func(data interface{}) jwt.MapClaims {
+			if v, ok := data.(*entity.User); ok {
+				return jwt.MapClaims{
+					identityKey: v.ID,
+				}
+			}
+			return jwt.MapClaims{}
+		},
+		IdentityHandler: func(c *gin.Context) interface{} {
+			claims := jwt.ExtractClaims(c)
+			key, ok := claims[identityKey]
+			if !ok {
+				return nil
+			}
+			var user entity.User
+			if err := m.repo.Find(uint(key.(float64)), &user); err != nil {
+				logrus.Error(err)
+				return nil
+			}
+			if &user == nil {
+				return nil
+			}
+			return &user
+		},
+		Authenticator: func(c *gin.Context) (interface{}, error) {
+			var p entity.Authenticate
+			if err := c.ShouldBind(&p); err != nil {
+				return "", errUnauthorized
+			}
+
+			user, err := m.repo.FindByAccount(p.Account)
+			if err != nil {
+				logrus.Error(err)
+				return nil, errUnauthorized
+			}
+
+			if user == nil {
+				return nil, errUnauthorized
+			}
+
+			if !user.Valid() {
+				return nil, errInvalidAccount
+			}
+
+			if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(p.Password)); err != nil {
+				logrus.Error(err)
+				return nil, errUnauthorized
+			}
+
+			return user, nil
+		},
+		Authorizator: func(data interface{}, c *gin.Context) bool {
+			if _, ok := data.(*entity.User); ok {
+				return true
+			}
+
+			return false
+		},
+		Unauthorized: func(c *gin.Context, code int, message string) {
+			c.JSON(code, entity.Error{
+				Code:    code,
+				Message: message,
+			})
+		},
+
+		TokenLookup: "header: Authorization",
+
+		// TokenHeadName is a string in the header. Default value is "Bearer"
+		TokenHeadName: "Bearer",
+
+		// TimeFunc provides the current time. You can override it to use another time value. This is useful for testing or if your server uses a different time zone than your tokens.
+		TimeFunc: time.Now,
+
+		// Response
+		LoginResponse:   loginResponse,
+		LogoutResponse:  logoutResponse,
+		RefreshResponse: refreshResponse,
+	})
+
+	if err != nil {
+		return nil, err
 	}
+
+	if err := middleware.MiddlewareInit(); err != nil {
+		return nil, err
+	}
+
+	return middleware, nil
 }

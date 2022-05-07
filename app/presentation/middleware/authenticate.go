@@ -1,8 +1,8 @@
 package middleware
 
-import "github.com/gin-gonic/gin"
+import jwt "github.com/appleboy/gin-jwt/v2"
 
 // Auth is middleware interface for authentication and authorization
 type Auth interface {
-	Authorized() gin.HandlerFunc
+	Create() (*jwt.GinJWTMiddleware, error)
 }

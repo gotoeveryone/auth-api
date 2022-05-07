@@ -19,3 +19,9 @@ type State struct {
 type GeneratedPassword struct {
 	Password string `json:"password"`
 }
+
+// Claim is struct of logged in user claim data
+type Claim struct {
+	Expire string `json:"expire"`
+	Token  string `json:"token"`
+}

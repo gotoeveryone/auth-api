@@ -3,22 +3,28 @@ package registry
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/gotoeveryone/auth-api/app/config"
-	"github.com/gotoeveryone/auth-api/app/domain/repository"
+	"github.com/sirupsen/logrus"
 	ginSwagger "github.com/swaggo/gin-swagger"
 	"github.com/swaggo/gin-swagger/swaggerFiles"
 )
 
-func NewRouter(config config.App, userRepo repository.User, tokenRepo repository.Token) *gin.Engine {
+func NewRouter(config config.App) *gin.Engine {
 	// Initialize application
 	r := gin.Default()
 	r.HandleMethodNotAllowed = true
 
+	// Repository
+	ur := NewUserRepository()
+
 	// Handler
 	sh := NewStateHandler()
-	ah := NewAuthHandler(userRepo, tokenRepo)
+	ah := NewAuthHandler(ur)
 
 	// Middleware
-	m := NewAuthMiddleware(userRepo, tokenRepo)
+	m, err := NewAuthMiddleware(ur).Create()
+	if err != nil {
+		logrus.Fatal(err)
+	}
 
 	// Routing
 	// Root
@@ -33,12 +39,15 @@ func NewRouter(config config.App, userRepo repository.User, tokenRepo repository
 		v1.GET("/", sh.Get)
 		v1.POST("/users", ah.Registration)
 		v1.POST("/activate", ah.Activate)
-		v1.POST("/auth", ah.Authenticate)
+		v1.POST("/auth", m.LoginHandler)
+		v1.GET("/refresh_token", m.RefreshHandler)
 		auth := v1.Group("")
 		{
-			auth.Use(m.Authorized())
-			auth.GET("/users", ah.GetUser)
-			auth.DELETE("/deauth", ah.Deauthenticate)
+			auth.Use(m.MiddlewareFunc())
+			{
+				auth.GET("/me", ah.User)
+				auth.DELETE("/deauth", m.LogoutHandler)
+			}
 		}
 	}
 
