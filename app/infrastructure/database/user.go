@@ -49,22 +49,6 @@ func (r userRepository) FindByAccount(account string) (*entity.User, error) {
 	return &u, nil
 }
 
-// ValidUser is valid user
-func (r userRepository) ValidUser(u *entity.User) bool {
-	return u != nil && u.Account != "" && u.IsEnable
-}
-
-// ValidRole is valid user role
-func (r userRepository) ValidRole(role string) bool {
-	roles := []string{entity.RoleAdministrator, entity.RoleGeneral}
-	for _, r := range roles {
-		if r == role {
-			return true
-		}
-	}
-	return false
-}
-
 // MatchPassword is check password matching from user has password
 func (r userRepository) MatchPassword(hashedPassword, password string) error {
 	return bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password))
@@ -82,7 +66,7 @@ func (r userRepository) Create(u *entity.User) (string, error) {
 
 	// If not specify role, use default role
 	if u.Role == "" {
-		u.Role = u.GetDefaultRole()
+		u.Role = u.DefaultRole()
 	}
 
 	u.IsEnable = true

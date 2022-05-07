@@ -44,7 +44,7 @@ func Init(debug bool, dbConfig config.DB) error {
 	}
 
 	// マイグレーション実行
-	if err := dbManager.AutoMigrate(entity.Token{}, entity.User{}); err != nil {
+	if err := dbManager.AutoMigrate(entity.User{}); err != nil {
 		return err
 	}
 

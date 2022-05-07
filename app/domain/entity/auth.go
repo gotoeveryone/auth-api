@@ -4,11 +4,13 @@ import (
 	"time"
 )
 
-var (
+type Role string
+
+const (
 	// RoleAdministrator is administrator user.
-	RoleAdministrator = "Administrator"
+	RoleAdministrator = Role("Administrator")
 	// RoleGeneral is general user.
-	RoleGeneral = "General"
+	RoleGeneral = Role("General")
 )
 
 // User is struct of authenticated user data
@@ -19,26 +21,29 @@ type User struct {
 	Password    string     `gorm:"type:varchar(255);not null" json:"-"`
 	Sex         string     `gorm:"type:enum('Male','Female','Unknown');not null" json:"sex" binding:"required"`
 	MailAddress *string    `gorm:"type:varchar(100)" json:"mailAddress" binding:"required,email"`
-	Role        string     `gorm:"type:enum('Administrator','General');not null" json:"role"`
+	Role        Role       `gorm:"type:enum('Administrator','General');not null" json:"role"`
 	LastLogged  *time.Time `gorm:"type:datetime" json:"-"`
 	IsActive    bool       `gorm:"type:tinyint;not null" json:"-"`
 	IsEnable    bool       `gorm:"type:tinyint;not null" json:"-"`
 	CreatedAt   time.Time  `gorm:"type:datetime;not null" sql:"default:current_timestamp" json:"-"`
-	Tokens      []Token    `json:"-"`
 }
 
-// Token is struct of authenticated token data
-type Token struct {
-	ID          uint      `gorm:"primary_key" json:"-"`
-	UserID      uint      `gorm:"type:int unsigned;not null" json:"id"`
-	Token       string    `gorm:"type:varchar(64);not null;unique_index" json:"accessToken"`
-	Environment string    `gorm:"type:varchar(20);not null" json:"environment"`
-	CreatedAt   time.Time `gorm:"type:datetime;not null" json:"-"`
-	ExpiredAt   time.Time `gorm:"type:datetime;not null" json:"-"`
-	User        User      `json:"-"`
+func (u *User) Valid() bool {
+	return u.Account != "" && u.IsEnable && u.IsActive
 }
 
-// GetDefaultRole is get user default role
-func (u *User) GetDefaultRole() string {
+// ValidRole is valid user role
+func (u *User) ValidRole() bool {
+	roles := []Role{RoleAdministrator, RoleGeneral}
+	for _, role := range roles {
+		if u.Role == role {
+			return true
+		}
+	}
+	return false
+}
+
+// DefaultRole is get user default role
+func (u *User) DefaultRole() Role {
 	return RoleGeneral
 }

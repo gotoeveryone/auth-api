@@ -30,6 +30,13 @@ definitions:
     - account
     - password
     type: object
+  entity.Claim:
+    properties:
+      expire:
+        type: string
+      token:
+        type: string
+    type: object
   entity.Error:
     properties:
       code:
@@ -51,15 +58,6 @@ definitions:
         type: string
       timezone:
         type: string
-    type: object
-  entity.Token:
-    properties:
-      accessToken:
-        type: string
-      environment:
-        type: string
-      id:
-        type: integer
     type: object
   entity.User:
     properties:
@@ -144,8 +142,6 @@ paths:
       - Authenticate
   /v1/auth:
     post:
-      consumes:
-      - application/json
       parameters:
       - description: request data
         in: body
@@ -159,11 +155,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/entity.Token'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/entity.Error'
+            $ref: '#/definitions/entity.Claim'
         "404":
           description: Not Found
           schema:
@@ -172,7 +164,7 @@ paths:
           description: Method Not Allowed
           schema:
             $ref: '#/definitions/entity.Error'
-      summary: Execute authentication by user
+      summary: Execute authentication for user
       tags:
       - Authenticate
   /v1/deauth:
@@ -182,14 +174,6 @@ paths:
       responses:
         "204":
           description: ""
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/entity.Error'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/entity.Error'
         "404":
           description: Not Found
           schema:
@@ -200,10 +184,10 @@ paths:
             $ref: '#/definitions/entity.Error'
       security:
       - ApiKeyAuth: []
-      summary: Execute deauthentication by user
+      summary: Execute deauthentication for user
       tags:
       - Authenticate
-  /v1/users:
+  /v1/me:
     get:
       produces:
       - application/json
@@ -229,6 +213,29 @@ paths:
       summary: Return authenticated user
       tags:
       - Authenticate
+  /v1/refresh_token:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.Claim'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/entity.Error'
+        "405":
+          description: Method Not Allowed
+          schema:
+            $ref: '#/definitions/entity.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: Publish refresh token for user
+      tags:
+      - Authenticate
+  /v1/users:
     post:
       consumes:
       - application/json

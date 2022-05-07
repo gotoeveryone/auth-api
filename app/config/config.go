@@ -15,20 +15,15 @@ type DB struct {
 	Timezone string
 }
 
-// Cache キャッシュ接続設定
-type Cache struct {
-	Use  bool
-	Host string
-	Port string
-	Auth string
-}
-
 // App is application configuration
 type App struct {
 	Debug bool
 	DB
-	Cache
 }
+
+const (
+	IdentityKey = "id"
+)
 
 var (
 	// Rand for this package.
