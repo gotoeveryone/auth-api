@@ -36,7 +36,7 @@ $ docker compose exec api go test -v ./...
 ## Build
 
 ```
-$ docker compose exec api go build main.go
+$ docker compose exec api go build cmd/api/main.go
 ```
 
 ## Swagger UI

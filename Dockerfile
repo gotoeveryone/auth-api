@@ -35,7 +35,7 @@ WORKDIR ${APP_ROOT}
 COPY ./ ${APP_ROOT}
 
 RUN go mod download && \
-  go build -o auth-api ${APP_ROOT}/main.go
+  go build -o auth-api ${APP_ROOT}/cmd/api/main.go
 
 FROM golang:1.17-alpine as production
 
