@@ -3,12 +3,11 @@ package server
 import (
 	"errors"
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/gin-gonic/gin/binding"
 	"github.com/go-playground/validator/v10"
 	"github.com/gotoeveryone/auth-api/app/config"
-	"github.com/gotoeveryone/auth-api/app/domain"
 	"github.com/gotoeveryone/auth-api/app/domain/entity"
 	"github.com/gotoeveryone/auth-api/app/domain/repository"
 	"github.com/gotoeveryone/auth-api/app/presentation/handler"
@@ -31,19 +30,18 @@ func NewAuthHandler(ur repository.User) handler.Authenticate {
 // @Tags Authenticate
 // @Accept  json
 // @Produce json
-// @Param data body entity.User true "request data"
+// @Param data body entity.RegistrationUser true "request data"
 // @Success 201 {object} entity.GeneratedPassword
 // @Failure 400 {object} entity.Error
 // @Failure 404 {object} entity.Error
 // @Failure 405 {object} entity.Error
 // @Router /v1/users [post]
 func (h *authHandler) Registration(c *gin.Context) {
-	// Execute validation
-	var u entity.User
-	if err := c.ShouldBindWith(&u, binding.JSON); err != nil {
+	var p entity.RegistrationUser
+	if err := c.ShouldBindJSON(&p); err != nil {
 		var verr validator.ValidationErrors
 		if errors.As(err, &verr) {
-			errorBadRequest(c, domain.ValidationErrors(verr, &u))
+			errorBadRequest(c, ValidationErrors(verr, &p))
 			return
 		}
 		errorBadRequest(c, errValidationFailed)
@@ -51,7 +49,7 @@ func (h *authHandler) Registration(c *gin.Context) {
 	}
 
 	// Check the same account already exists
-	if res, err := h.repo.Exists(u.Account); err != nil {
+	if res, err := h.repo.Exists(p.Account); err != nil {
 		errorInternalServerError(c, err)
 		return
 	} else if res {
@@ -59,13 +57,24 @@ func (h *authHandler) Registration(c *gin.Context) {
 		return
 	}
 
-	// Check valid role
-	if !u.ValidRole() {
-		errorBadRequest(c, errInvalidRole)
+	t, err := time.Parse(p.Birthday, "2006-01-02")
+	if err != nil {
+		errorInternalServerError(c, err)
 		return
 	}
 
-	// Create user
+	u := entity.User{
+		Account:     p.Account,
+		Name:        p.Name,
+		Gender:      entity.Gender(p.Gender),
+		MailAddress: p.MailAddress,
+		Birthday:    entity.Date{Time: t},
+	}
+
+	if p.Role != nil {
+		u.Role = entity.Role(*p.Role)
+	}
+
 	pass, err := h.repo.Create(&u)
 	if err != nil {
 		errorInternalServerError(c, err)
@@ -91,10 +100,10 @@ func (h *authHandler) Registration(c *gin.Context) {
 func (h *authHandler) Activate(c *gin.Context) {
 	// Execute validation
 	var a entity.Activate
-	if err := c.ShouldBindWith(&a, binding.JSON); err != nil {
+	if err := c.ShouldBindJSON(&a); err != nil {
 		var verr validator.ValidationErrors
 		if errors.As(err, &verr) {
-			errorBadRequest(c, domain.ValidationErrors(verr, &a))
+			errorBadRequest(c, ValidationErrors(verr, &a))
 			return
 		}
 		errorBadRequest(c, errValidationFailed)

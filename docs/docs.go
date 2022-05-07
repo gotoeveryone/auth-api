@@ -270,7 +270,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/entity.User"
+                            "$ref": "#/definitions/entity.RegistrationUser"
                         }
                     }
                 ],
@@ -314,16 +314,14 @@ const docTemplate = `{
             "properties": {
                 "account": {
                     "type": "string",
-                    "maxLength": 10,
-                    "minLength": 6
+                    "maxLength": 20,
+                    "minLength": 8
                 },
                 "newPassword": {
-                    "type": "string",
-                    "minLength": 8
+                    "type": "string"
                 },
                 "password": {
-                    "type": "string",
-                    "minLength": 8
+                    "type": "string"
                 }
             }
         },
@@ -336,12 +334,11 @@ const docTemplate = `{
             "properties": {
                 "account": {
                     "type": "string",
-                    "maxLength": 10,
-                    "minLength": 6
+                    "maxLength": 20,
+                    "minLength": 8
                 },
                 "password": {
-                    "type": "string",
-                    "minLength": 8
+                    "type": "string"
                 }
             }
         },
@@ -352,6 +349,14 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "token": {
+                    "type": "string"
+                }
+            }
+        },
+        "entity.Date": {
+            "type": "object",
+            "properties": {
+                "time.Time": {
                     "type": "string"
                 }
             }
@@ -370,6 +375,48 @@ const docTemplate = `{
             "properties": {
                 "password": {
                     "type": "string"
+                }
+            }
+        },
+        "entity.RegistrationUser": {
+            "type": "object",
+            "required": [
+                "account",
+                "birthday",
+                "gender",
+                "mailAddress",
+                "name"
+            ],
+            "properties": {
+                "account": {
+                    "type": "string",
+                    "maxLength": 20,
+                    "minLength": 8
+                },
+                "birthday": {
+                    "type": "string"
+                },
+                "gender": {
+                    "type": "string",
+                    "enum": [
+                        "Male",
+                        "Female",
+                        "Unknown"
+                    ]
+                },
+                "mailAddress": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string",
+                    "maxLength": 50
+                },
+                "role": {
+                    "type": "string",
+                    "enum": [
+                        "Administrator",
+                        "General"
+                    ]
                 }
             }
         },
@@ -392,17 +439,15 @@ const docTemplate = `{
         },
         "entity.User": {
             "type": "object",
-            "required": [
-                "account",
-                "mailAddress",
-                "name",
-                "sex"
-            ],
             "properties": {
                 "account": {
-                    "type": "string",
-                    "maxLength": 10,
-                    "minLength": 6
+                    "type": "string"
+                },
+                "birthday": {
+                    "$ref": "#/definitions/entity.Date"
+                },
+                "gender": {
+                    "type": "string"
                 },
                 "id": {
                     "type": "integer"
@@ -411,13 +456,9 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "name": {
-                    "type": "string",
-                    "maxLength": 50
-                },
-                "role": {
                     "type": "string"
                 },
-                "sex": {
+                "role": {
                     "type": "string"
                 }
             }

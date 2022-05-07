@@ -11,6 +11,7 @@ services:
       - "8080:8080"
     depends_on:
       - database
+    command: /bin/sh -c "go mod download && dockerize -timeout 60s -wait tcp://database:3306 && air -c .air.toml"
   database:
     image: mysql:5.7
     volumes:
