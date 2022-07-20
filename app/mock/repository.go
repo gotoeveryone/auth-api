@@ -15,9 +15,8 @@ func (r *UserRepository) Exists(account string) (bool, error) {
 	return r.User != nil, nil
 }
 
-func (r *UserRepository) Find(id uint, u *entity.User) error {
-	u = r.User
-	return nil
+func (r *UserRepository) Find(id uint) (*entity.User, error) {
+	return r.User, nil
 }
 
 func (r *UserRepository) FindByAccount(account string) (*entity.User, error) {
@@ -28,7 +27,7 @@ func (r *UserRepository) MatchPassword(hashedPassword, password string) error {
 	if r.IsMatchPassword {
 		return nil
 	}
-	return errors.New("Password not matched")
+	return errors.New("password not matched")
 }
 
 func (r *UserRepository) Create(u *entity.User) (string, error) {

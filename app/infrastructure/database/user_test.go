@@ -8,7 +8,6 @@ import (
 
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/gotoeveryone/auth-api/app/domain/entity"
-	"gorm.io/gorm"
 )
 
 func TestNewUserRepository(t *testing.T) {
@@ -48,30 +47,32 @@ func TestExists(t *testing.T) {
 }
 
 func TestFindUser(t *testing.T) {
-	mock.ExpectQuery(regexp.QuoteMeta("SELECT * FROM `users`")).
-		WillReturnRows(sqlmock.NewRows([]string{"id"}))
-
 	r := userRepository{}
-
 	id := uint(1)
-	e := entity.User{}
-	if err := r.Find(id, &e); err != nil {
-		if err != gorm.ErrRecordNotFound {
+
+	{
+		mock.ExpectQuery(regexp.QuoteMeta("SELECT * FROM `users`")).
+			WillReturnRows(sqlmock.NewRows([]string{"id"}))
+
+		e, err := r.Find(id)
+		if err != nil {
 			t.Error(err)
 		}
+		if e != nil {
+			t.Error("actual: exists")
+		}
 	}
-	if e.ID != 0 {
-		t.Errorf("actual: exists, expected: not exists [%d]", e.ID)
-	}
+	{
+		mock.ExpectQuery(regexp.QuoteMeta("SELECT * FROM `users`")).
+			WillReturnRows(sqlmock.NewRows([]string{"id"}).AddRow(1))
 
-	mock.ExpectQuery(regexp.QuoteMeta("SELECT * FROM `users`")).
-		WillReturnRows(sqlmock.NewRows([]string{"id"}).AddRow(1))
-
-	if err := r.Find(id, &e); err != nil {
-		t.Error(err)
-	}
-	if e.ID != 1 {
-		t.Errorf("actual: not exists, expected: exists [%d]", e.ID)
+		e, err := r.Find(id)
+		if err != nil {
+			t.Error(err)
+		}
+		if e.ID != 1 {
+			t.Errorf("actual: not exists, expected: exists [%d]", e.ID)
+		}
 	}
 }
 

@@ -14,7 +14,8 @@ RUN wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSI
   && rm dockerize-alpine-linux-amd64-$DOCKERIZE_VERSION.tar.gz
 
 RUN go install github.com/cosmtrek/air@v1.29.0 && \
-  go install github.com/swaggo/swag/cmd/swag@v1.8.0
+  go install github.com/swaggo/swag/cmd/swag@v1.8.0 && \
+  go install honnef.co/go/tools/cmd/staticcheck@2022.1.2
 
 # uncomment if use sql-migrate run migration instead of gorm
 # RUN go install github.com/rubenv/sql-migrate/...@v1.1.1
@@ -35,7 +36,7 @@ WORKDIR ${APP_ROOT}
 COPY ./ ${APP_ROOT}
 
 RUN go mod download && \
-  go build -o auth-api ${APP_ROOT}/cmd/api/main.go
+  go build -o auth-api ${APP_ROOT}/app/main.go
 
 FROM golang:1.17-alpine as production
 

@@ -7,7 +7,7 @@ import (
 // User is repository for operate about user.
 type User interface {
 	Exists(account string) (bool, error)
-	Find(id uint, u *entity.User) error
+	Find(id uint) (*entity.User, error)
 	FindByAccount(account string) (*entity.User, error)
 	MatchPassword(hashedPassword, password string) error
 	Create(u *entity.User) (string, error)

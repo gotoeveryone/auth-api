@@ -10,8 +10,8 @@ import (
 )
 
 var (
-	dateRegex     = regexp.MustCompile("^\\d{4}-\\d{2}-\\d{2}$")
-	passwordRegex = regexp.MustCompile("^[A-Za-z0-9]{8,}$")
+	dateRegex     = regexp.MustCompile(`^\d{4}-\d{2}-\d{2}$`)
+	passwordRegex = regexp.MustCompile(`^[A-Za-z0-9]{8,}$`)
 )
 
 func date(fl validator.FieldLevel) bool {
@@ -39,9 +39,9 @@ func ValidationErrors(ve validator.ValidationErrors, o interface{}) map[string]s
 		if err.Param() != "" {
 			res[key] = fmt.Sprintf("Value is %s %s", err.Tag(), err.Param())
 		} else if err.Tag() == "required" {
-			res[key] = fmt.Sprint("Value is required")
+			res[key] = "Value is required"
 		} else {
-			res[key] = fmt.Sprint("Value is invalid")
+			res[key] = "Value is invalid"
 		}
 	}
 
