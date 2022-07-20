@@ -2,6 +2,8 @@ package entity
 
 import (
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestActivate(t *testing.T) {
@@ -12,18 +14,12 @@ func TestActivate(t *testing.T) {
 		},
 	}
 
-	if a.NewPassword != "" {
-		t.Errorf("NewPassword is not default value")
-	}
+	assert.Empty(t, a.NewPassword)
 }
 
 func TestAuthenticate(t *testing.T) {
 	a := Authenticate{}
 
-	if a.Account != "" {
-		t.Errorf("Account is not default value")
-	}
-	if a.Password != "" {
-		t.Errorf("Password is not default value")
-	}
+	assert.Empty(t, a.Account)
+	assert.Empty(t, a.Password)
 }

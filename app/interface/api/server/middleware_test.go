@@ -10,6 +10,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gotoeveryone/auth-api/app/domain/entity"
 	"github.com/gotoeveryone/auth-api/app/mock"
+	"github.com/stretchr/testify/assert"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -35,9 +36,7 @@ func TestLoginFailedInvalidParam(t *testing.T) {
 	req.Header.Set("Content-Type", "application/json")
 	r.ServeHTTP(w, req)
 
-	if w.Code != http.StatusUnauthorized {
-		t.Errorf("Failed: HTTP status code is not matched, actual: %d, expected: %d", w.Code, http.StatusUnauthorized)
-	}
+	assert.Equal(t, w.Code, http.StatusUnauthorized)
 }
 
 func TestLoginFailedAccountNotExist(t *testing.T) {
@@ -65,9 +64,7 @@ func TestLoginFailedAccountNotExist(t *testing.T) {
 	req.Header.Set("Content-Type", "application/json")
 	r.ServeHTTP(w, req)
 
-	if w.Code != http.StatusUnauthorized {
-		t.Errorf("Failed: HTTP status code is not matched, actual: %d, expected: %d", w.Code, http.StatusUnauthorized)
-	}
+	assert.Equal(t, w.Code, http.StatusUnauthorized)
 }
 
 func TestLoginFailedInvalidAccount(t *testing.T) {
@@ -100,9 +97,7 @@ func TestLoginFailedInvalidAccount(t *testing.T) {
 	req.Header.Set("Content-Type", "application/json")
 	r.ServeHTTP(w, req)
 
-	if w.Code != http.StatusUnauthorized {
-		t.Errorf("Failed: HTTP status code is not matched, actual: %d, expected: %d", w.Code, http.StatusUnauthorized)
-	}
+	assert.Equal(t, w.Code, http.StatusUnauthorized)
 }
 
 func TestLoginFaileNotActiveAccount(t *testing.T) {
@@ -136,9 +131,7 @@ func TestLoginFaileNotActiveAccount(t *testing.T) {
 	req.Header.Set("Content-Type", "application/json")
 	r.ServeHTTP(w, req)
 
-	if w.Code != http.StatusUnauthorized {
-		t.Errorf("Failed: HTTP status code is not matched, actual: %d, expected: %d", w.Code, http.StatusUnauthorized)
-	}
+	assert.Equal(t, w.Code, http.StatusUnauthorized)
 }
 
 func TestLoginFailedPasswordNotMatched(t *testing.T) {
@@ -172,9 +165,7 @@ func TestLoginFailedPasswordNotMatched(t *testing.T) {
 	req.Header.Set("Content-Type", "application/json")
 	r.ServeHTTP(w, req)
 
-	if w.Code != http.StatusUnauthorized {
-		t.Errorf("Failed: HTTP status code is not matched, actual: %d, expected: %d", w.Code, http.StatusUnauthorized)
-	}
+	assert.Equal(t, w.Code, http.StatusUnauthorized)
 }
 
 func TestLoginSuccess(t *testing.T) {
@@ -209,7 +200,11 @@ func TestLoginSuccess(t *testing.T) {
 	req.Header.Set("Content-Type", "application/json")
 	r.ServeHTTP(w, req)
 
-	if w.Code != http.StatusOK {
-		t.Errorf("Failed: HTTP status code is not matched, actual: %d, expected: %d", w.Code, http.StatusOK)
+	assert.Equal(t, w.Code, http.StatusOK)
+
+	c := entity.Claim{}
+	if err := json.Unmarshal(w.Body.Bytes(), &c); err != nil {
+		t.Error(err)
 	}
+	assert.NotEmpty(t, c.Token)
 }

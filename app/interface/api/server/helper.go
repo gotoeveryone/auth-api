@@ -2,7 +2,6 @@ package server
 
 import (
 	"errors"
-	"fmt"
 	"net/http"
 	"reflect"
 
@@ -45,7 +44,7 @@ func errorUnauthorized(c *gin.Context, message interface{}) {
 
 // Return internal server error response.
 func errorInternalServerError(c *gin.Context, err error) {
-	logrus.Error(fmt.Errorf("error: %s", err))
+	logrus.Errorf("error: %s", err)
 	errorJSON(c, entity.Error{
 		Code:    http.StatusInternalServerError,
 		Message: "",

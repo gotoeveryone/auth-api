@@ -44,7 +44,7 @@ func (r userRepository) Find(id uint) (*entity.User, error) {
 // FindByAccount is find user data from account and password
 func (r userRepository) FindByAccount(account string) (*entity.User, error) {
 	var u entity.User
-	err := dbManager.Where(&entity.User{Account: account, IsEnable: true}).Find(&u).Error
+	err := dbManager.Where(&entity.User{Account: account, IsEnable: true}).First(&u).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, nil
