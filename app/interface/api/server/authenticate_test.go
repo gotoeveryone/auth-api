@@ -11,6 +11,7 @@ import (
 	"github.com/gotoeveryone/auth-api/app/config"
 	"github.com/gotoeveryone/auth-api/app/domain/entity"
 	"github.com/gotoeveryone/auth-api/app/mock"
+	"github.com/stretchr/testify/assert"
 )
 
 func setIdentity(user *entity.User) gin.HandlerFunc {
@@ -38,9 +39,7 @@ func TestRegistrationFailed(t *testing.T) {
 	req, _ := http.NewRequest("POST", "/v1/users", body)
 	r.ServeHTTP(w, req)
 
-	if w.Code != http.StatusBadRequest {
-		t.Errorf("Failed: HTTP status code is not matched, actual: %d, expected: %d", w.Code, http.StatusBadRequest)
-	}
+	assert.Equal(t, w.Code, http.StatusBadRequest)
 }
 
 func TestRegistrationSuccess(t *testing.T) {
@@ -67,17 +66,13 @@ func TestRegistrationSuccess(t *testing.T) {
 	req, _ := http.NewRequest("POST", "/v1/users", body)
 	r.ServeHTTP(w, req)
 
-	if w.Code != http.StatusCreated {
-		t.Errorf("Failed: HTTP status code is not matched, actual: %d, expected: %d", w.Code, http.StatusCreated)
-	}
+	assert.Equal(t, w.Code, http.StatusCreated)
 
 	e := entity.GeneratedPassword{}
 	if err := json.Unmarshal(w.Body.Bytes(), &e); err != nil {
 		t.Error(err)
 	}
-	if e.Password == "" {
-		t.Error("Failed: Password is empty")
-	}
+	assert.NotEmpty(t, e.Password)
 }
 
 func TestActivateFailedInvalidParam(t *testing.T) {
@@ -101,9 +96,7 @@ func TestActivateFailedInvalidParam(t *testing.T) {
 	req, _ := http.NewRequest("POST", "/v1/activate", body)
 	r.ServeHTTP(w, req)
 
-	if w.Code != http.StatusBadRequest {
-		t.Errorf("Failed: HTTP status code is not matched, actual: %d, expected: %d", w.Code, http.StatusBadRequest)
-	}
+	assert.Equal(t, w.Code, http.StatusBadRequest)
 }
 
 func TestActivateFailedSamePassword(t *testing.T) {
@@ -128,9 +121,7 @@ func TestActivateFailedSamePassword(t *testing.T) {
 	req, _ := http.NewRequest("POST", "/v1/activate", body)
 	r.ServeHTTP(w, req)
 
-	if w.Code != http.StatusBadRequest {
-		t.Errorf("Failed: HTTP status code is not matched, actual: %d, expected: %d", w.Code, http.StatusBadRequest)
-	}
+	assert.Equal(t, w.Code, http.StatusBadRequest)
 }
 
 func TestActivateFailedAccountNotExist(t *testing.T) {
@@ -155,9 +146,7 @@ func TestActivateFailedAccountNotExist(t *testing.T) {
 	req, _ := http.NewRequest("POST", "/v1/activate", body)
 	r.ServeHTTP(w, req)
 
-	if w.Code != http.StatusUnauthorized {
-		t.Errorf("Failed: HTTP status code is not matched, actual: %d, expected: %d", w.Code, http.StatusUnauthorized)
-	}
+	assert.Equal(t, w.Code, http.StatusUnauthorized)
 }
 
 func TestActivateFailedPasswordNotMatched(t *testing.T) {
@@ -184,9 +173,7 @@ func TestActivateFailedPasswordNotMatched(t *testing.T) {
 	req, _ := http.NewRequest("POST", "/v1/activate", body)
 	r.ServeHTTP(w, req)
 
-	if w.Code != http.StatusUnauthorized {
-		t.Errorf("Failed: HTTP status code is not matched, actual: %d, expected: %d", w.Code, http.StatusUnauthorized)
-	}
+	assert.Equal(t, w.Code, http.StatusUnauthorized)
 }
 
 func TestActivateSuccess(t *testing.T) {
@@ -213,9 +200,7 @@ func TestActivateSuccess(t *testing.T) {
 	req, _ := http.NewRequest("POST", "/v1/activate", body)
 	r.ServeHTTP(w, req)
 
-	if w.Code != http.StatusOK {
-		t.Errorf("Failed: HTTP status code is not matched, actual: %d, expected: %d", w.Code, http.StatusCreated)
-	}
+	assert.Equal(t, w.Code, http.StatusOK)
 }
 
 func TestGetUser(t *testing.T) {
@@ -230,15 +215,11 @@ func TestGetUser(t *testing.T) {
 	req, _ := http.NewRequest("GET", "/v1/me", nil)
 	r.ServeHTTP(w, req)
 
-	if w.Code != http.StatusOK {
-		t.Errorf("Failed: HTTP status code is not matched, actual: %d, expected: %d", w.Code, http.StatusOK)
-	}
+	assert.Equal(t, w.Code, http.StatusOK)
 
 	e := entity.User{}
 	if err := json.Unmarshal(w.Body.Bytes(), &e); err != nil {
 		t.Error(err)
 	}
-	if e.Account != u.Account {
-		t.Errorf("Failed: Account is not matched, actual: %s, expected: %s", e.Account, u.Account)
-	}
+	assert.Equal(t, e.Account, u.Account)
 }

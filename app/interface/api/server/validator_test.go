@@ -1,12 +1,12 @@
 package server
 
 import (
-	"strings"
 	"testing"
 
 	"github.com/gin-gonic/gin/binding"
 	"github.com/go-playground/validator/v10"
 	"github.com/gotoeveryone/auth-api/app/domain/entity"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestRegistrationUserValidate(t *testing.T) {
@@ -18,9 +18,7 @@ func TestRegistrationUserValidate(t *testing.T) {
 	if err := binding.Validator.ValidateStruct(a); err != nil {
 		errs := err.(validator.ValidationErrors)
 		messages := ValidationErrors(errs, &a)
-		if !strings.Contains(messages["birthday"], "invalid") {
-			t.Errorf("Birthday is valid format")
-		}
+		assert.Contains(t, messages["birthday"], "invalid")
 	}
 }
 
@@ -36,9 +34,7 @@ func TestActivateValidate(t *testing.T) {
 	if err := binding.Validator.ValidateStruct(a); err != nil {
 		errs := err.(validator.ValidationErrors)
 		messages := ValidationErrors(errs, &a)
-		if !strings.Contains(messages["newPassword"], "required") {
-			t.Errorf("NewPassword is required not specified")
-		}
+		assert.Contains(t, messages["newPassword"], "required")
 	}
 
 	// password
@@ -46,9 +42,7 @@ func TestActivateValidate(t *testing.T) {
 	if err := binding.Validator.ValidateStruct(a); err != nil {
 		errs := err.(validator.ValidationErrors)
 		messages := ValidationErrors(errs, &a)
-		if !strings.Contains(messages["newPassword"], "invalid") {
-			t.Errorf("NewPassword is valid format")
-		}
+		assert.Contains(t, messages["newPassword"], "invalid")
 	}
 }
 
@@ -59,12 +53,8 @@ func TestAuthenticateValidate(t *testing.T) {
 	if err := binding.Validator.ValidateStruct(a); err != nil {
 		errs := err.(validator.ValidationErrors)
 		messages := ValidationErrors(errs, &a)
-		if !strings.Contains(messages["account"], "required") {
-			t.Errorf("Account is required not specified")
-		}
-		if !strings.Contains(messages["password"], "required") {
-			t.Errorf("Password is required not specified")
-		}
+		assert.Contains(t, messages["account"], "required")
+		assert.Contains(t, messages["password"], "required")
 	}
 
 	// min length
@@ -72,9 +62,7 @@ func TestAuthenticateValidate(t *testing.T) {
 	if err := binding.Validator.ValidateStruct(a); err != nil {
 		errs := err.(validator.ValidationErrors)
 		messages := ValidationErrors(errs, &a)
-		if !strings.Contains(messages["account"], "min") {
-			t.Errorf("Account is min length not specified")
-		}
+		assert.Contains(t, messages["account"], "min")
 	}
 
 	// max length
@@ -82,9 +70,7 @@ func TestAuthenticateValidate(t *testing.T) {
 	if err := binding.Validator.ValidateStruct(a); err != nil {
 		errs := err.(validator.ValidationErrors)
 		messages := ValidationErrors(errs, &a)
-		if !strings.Contains(messages["account"], "max") {
-			t.Errorf("Account is max length not specified")
-		}
+		assert.Contains(t, messages["account"], "max")
 	}
 
 	// password
@@ -92,8 +78,6 @@ func TestAuthenticateValidate(t *testing.T) {
 	if err := binding.Validator.ValidateStruct(a); err != nil {
 		errs := err.(validator.ValidationErrors)
 		messages := ValidationErrors(errs, &a)
-		if !strings.Contains(messages["password"], "invalid") {
-			t.Errorf("Password is valid format")
-		}
+		assert.Contains(t, messages["password"], "invalid")
 	}
 }

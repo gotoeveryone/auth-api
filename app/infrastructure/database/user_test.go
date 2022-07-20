@@ -1,22 +1,14 @@
 package database
 
 import (
-	"reflect"
 	"regexp"
 	"testing"
 	"time"
 
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/gotoeveryone/auth-api/app/domain/entity"
+	"github.com/stretchr/testify/assert"
 )
-
-func TestNewUserRepository(t *testing.T) {
-	a := reflect.TypeOf(&userRepository{})
-	e := reflect.TypeOf(NewUserRepository())
-	if a != e {
-		t.Errorf("NewTokenRepository type is mismatch, actual: %s, expected: %s", a, e)
-	}
-}
 
 func TestExists(t *testing.T) {
 	mock.ExpectQuery(regexp.QuoteMeta("SELECT count(*) FROM `users`")).
@@ -27,23 +19,15 @@ func TestExists(t *testing.T) {
 
 	v := "test"
 	e, err := r.Exists(v)
-	if err != nil {
-		t.Error(err)
-	}
-	if !e {
-		t.Errorf("User %s is not exists", v)
-	}
+	assert.Nil(t, err)
+	assert.True(t, e)
 
 	mock.ExpectQuery(regexp.QuoteMeta("SELECT count(*) FROM `users`")).
 		WillReturnRows(sqlmock.NewRows([]string{"count"}).AddRow(0))
 
 	e, err = r.Exists(v)
-	if err != nil {
-		t.Error(err)
-	}
-	if e {
-		t.Errorf("User %s is exists", v)
-	}
+	assert.Nil(t, err)
+	assert.False(t, e)
 }
 
 func TestFindUser(t *testing.T) {
@@ -55,51 +39,38 @@ func TestFindUser(t *testing.T) {
 			WillReturnRows(sqlmock.NewRows([]string{"id"}))
 
 		e, err := r.Find(id)
-		if err != nil {
-			t.Error(err)
-		}
-		if e != nil {
-			t.Error("actual: exists")
-		}
+		assert.Nil(t, err)
+		assert.Nil(t, e)
 	}
 	{
 		mock.ExpectQuery(regexp.QuoteMeta("SELECT * FROM `users`")).
 			WillReturnRows(sqlmock.NewRows([]string{"id"}).AddRow(1))
 
 		e, err := r.Find(id)
-		if err != nil {
-			t.Error(err)
-		}
-		if e.ID != 1 {
-			t.Errorf("actual: not exists, expected: exists [%d]", e.ID)
-		}
+		assert.Nil(t, err)
+		assert.NotNil(t, e)
 	}
 }
 
 func TestFindByAccount(t *testing.T) {
-	mock.ExpectQuery(regexp.QuoteMeta("SELECT * FROM `users`")).
-		WillReturnRows(sqlmock.NewRows([]string{"account"}))
-
 	r := userRepository{}
-
 	v := "test"
-	u, err := r.FindByAccount(v)
-	if err != nil {
-		t.Error(err)
-	}
-	if u.Account != "" {
-		t.Errorf("actual: not exists, expected: exists [%s]", u.Account)
-	}
 
-	mock.ExpectQuery(regexp.QuoteMeta("SELECT * FROM `users`")).
-		WillReturnRows(sqlmock.NewRows([]string{"account"}).AddRow("test"))
+	{
+		mock.ExpectQuery(regexp.QuoteMeta("SELECT * FROM `users`")).
+			WillReturnRows(sqlmock.NewRows([]string{"account"}))
 
-	u, err = r.FindByAccount(v)
-	if err != nil {
-		t.Error(err)
+		u, err := r.FindByAccount(v)
+		assert.Nil(t, err)
+		assert.Nil(t, u)
 	}
-	if u.Account == "" {
-		t.Errorf("actual: exists [%s], expected: not exists", v)
+	{
+		mock.ExpectQuery(regexp.QuoteMeta("SELECT * FROM `users`")).
+			WillReturnRows(sqlmock.NewRows([]string{"account"}).AddRow("test"))
+
+		u, err := r.FindByAccount(v)
+		assert.Nil(t, err)
+		assert.NotNil(t, u)
 	}
 }
 
@@ -108,56 +79,37 @@ func TestMatchPassword(t *testing.T) {
 
 	s := "testtest"
 	d, err := r.hashedPassword(s)
-	if err != nil {
-		t.Error(err)
-	}
-
-	if err := r.MatchPassword(d, "testtest1"); err == nil {
-		t.Errorf("MatchPassword test failed: %s", d)
-	}
-
-	if err := r.MatchPassword(d, s); err != nil {
-		t.Error(err)
-	}
+	assert.Nil(t, err)
+	assert.NotNil(t, r.MatchPassword(d, "testtest1"))
+	assert.Nil(t, r.MatchPassword(d, s))
 }
 
 func TestCreateUser(t *testing.T) {
-	mock.ExpectExec(regexp.QuoteMeta("INSERT INTO `users`")).
-		WillReturnResult(sqlmock.NewResult(1, 1))
-
 	r := userRepository{}
 
-	u := entity.User{}
-	if pass, err := r.Create(&u); err != nil {
-		t.Error(err)
-	} else if pass == "" {
-		t.Errorf("Generated password is empty")
+	{
+		mock.ExpectExec(regexp.QuoteMeta("INSERT INTO `users`")).
+			WillReturnResult(sqlmock.NewResult(1, 1))
+
+		u := entity.User{}
+		pass, err := r.Create(&u)
+		assert.Nil(t, err)
+		assert.NotEmpty(t, pass)
+		assert.Equal(t, u.Role, entity.RoleGeneral)
+		assert.True(t, u.IsEnable)
 	}
 
-	if u.Role == "" {
-		t.Errorf("Role is empty")
-	}
-	if u.Role != entity.RoleGeneral {
-		t.Errorf("Role is not matched, actual: %s, expected: %s", entity.RoleGeneral, u.Role)
-	}
-	if !u.IsEnable {
-		t.Errorf("User is disable")
-	}
+	{
+		mock.ExpectExec(regexp.QuoteMeta("INSERT INTO `users`")).
+			WillReturnResult(sqlmock.NewResult(1, 1))
 
-	mock.ExpectExec(regexp.QuoteMeta("INSERT INTO `users`")).
-		WillReturnResult(sqlmock.NewResult(1, 1))
-
-	u = entity.User{
-		Role: entity.RoleAdministrator,
-	}
-	if pass, err := r.Create(&u); err != nil {
-		t.Error(err)
-	} else if pass == "" {
-		t.Errorf("Generated password is empty")
-	}
-
-	if u.Role != entity.RoleAdministrator {
-		t.Errorf("Role is not matched, actual: %s, expected: %s", entity.RoleAdministrator, u.Role)
+		u := entity.User{
+			Role: entity.RoleAdministrator,
+		}
+		pass, err := r.Create(&u)
+		assert.Nil(t, err)
+		assert.NotEmpty(t, pass)
+		assert.Equal(t, u.Role, entity.RoleAdministrator)
 	}
 }
 
@@ -171,16 +123,9 @@ func TestUpdatePassword(t *testing.T) {
 	u := entity.User{
 		ID: 1,
 	}
-	if err := r.UpdatePassword(&u, np); err != nil {
-		t.Error(err)
-	}
-	if err := r.MatchPassword(u.Password, np); err != nil {
-		t.Error(err)
-	}
-
-	if !u.IsActive {
-		t.Errorf("User is not active")
-	}
+	assert.Nil(t, r.UpdatePassword(&u, np))
+	assert.Nil(t, r.MatchPassword(u.Password, np))
+	assert.True(t, u.IsActive)
 }
 
 func TestUpdateAuthed(t *testing.T) {
@@ -194,11 +139,6 @@ func TestUpdateAuthed(t *testing.T) {
 		ID:         1,
 		LastLogged: &s,
 	}
-	if err := r.UpdateAuthed(&u); err != nil {
-		t.Error(err)
-	}
-
-	if s.Equal(*u.LastLogged) {
-		t.Errorf("LastLogged not updated")
-	}
+	assert.Nil(t, r.UpdateAuthed(&u))
+	assert.False(t, s.Equal(*u.LastLogged))
 }
