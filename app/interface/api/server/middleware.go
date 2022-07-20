@@ -95,15 +95,12 @@ func (m jwtAuth) Create() (*jwt.GinJWTMiddleware, error) {
 			if !ok {
 				return nil
 			}
-			var user entity.User
-			if err := m.repo.Find(uint(key.(float64)), &user); err != nil {
+			user, err := m.repo.Find(uint(key.(float64)))
+			if err != nil {
 				logrus.Error(err)
 				return nil
 			}
-			if &user == nil {
-				return nil
-			}
-			return &user
+			return user
 		},
 		Authenticator: func(c *gin.Context) (interface{}, error) {
 			var p entity.Authenticate

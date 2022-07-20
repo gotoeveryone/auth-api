@@ -17,16 +17,12 @@ const (
 )
 
 var (
-	errUnauthorized = errors.New("Authorization failed")
-
-	errInvalidAccount = errors.New("Account is invalid")
-	errExistsAccount  = errors.New("Account is already exists")
-
-	errUpdatePassword     = errors.New("Update password failed")
-	errSamePassword       = errors.New("Not allowed changing to same password")
-	errMustChangePassword = errors.New("Password must be changed")
-
-	errValidationFailed = errors.New("Validation failed")
+	errExistsAccount      = errors.New("account is already exists")
+	errInvalidAccount     = errors.New("account is invalid")
+	errMustChangePassword = errors.New("password must be changed")
+	errSamePassword       = errors.New("not allowed changing to same password")
+	errUnauthorized       = errors.New("authorization failed")
+	errValidationFailed   = errors.New("validation failed")
 )
 
 // Return bad request response.

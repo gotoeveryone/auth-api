@@ -21,31 +21,36 @@ func NewUserRepository() repository.User {
 // Exists is confirm to account already exists
 func (r userRepository) Exists(account string) (bool, error) {
 	var count int64
-	dbManager.Model(&entity.User{}).Where(&entity.User{Account: account}).Count(&count)
-	if err := dbManager.Error; err != nil {
+	err := dbManager.Model(&entity.User{}).Where(&entity.User{Account: account}).Count(&count).Error
+	if err != nil {
 		return false, err
 	}
-
 	return (count > 0), nil
 }
 
 // Find is execute user data finding
-func (r userRepository) Find(id uint, u *entity.User) error {
-	return dbManager.Where(&entity.User{ID: id}).First(u).Error
-}
-
-// FindByAccount is find user data from account and password
-func (r userRepository) FindByAccount(account string) (*entity.User, error) {
+func (r userRepository) Find(id uint) (*entity.User, error) {
 	var u entity.User
-	dbManager.Where(&entity.User{Account: account, IsEnable: true}).Find(&u)
-
-	if err := dbManager.Error; err != nil {
+	err := dbManager.Where(&entity.User{ID: id}).First(&u).Error
+	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, nil
 		}
 		return nil, err
 	}
+	return &u, nil
+}
 
+// FindByAccount is find user data from account and password
+func (r userRepository) FindByAccount(account string) (*entity.User, error) {
+	var u entity.User
+	err := dbManager.Where(&entity.User{Account: account, IsEnable: true}).Find(&u).Error
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil
+		}
+		return nil, err
+	}
 	return &u, nil
 }
 

@@ -33,13 +33,13 @@ func (d Date) MarshalJSON() ([]byte, error) {
 	return []byte(fmt.Sprintf("\"%s\"", d.Time.Format("2006-01-02"))), nil
 }
 
-func (rt *Date) Scan(value interface{}) error {
-	rt.Time = value.(time.Time)
+func (d *Date) Scan(value interface{}) error {
+	d.Time = value.(time.Time)
 	return nil
 }
 
-func (rt Date) Value() (driver.Value, error) {
-	return rt.Time, nil
+func (d Date) Value() (driver.Value, error) {
+	return d.Time, nil
 }
 
 // User is struct of authenticated user data

@@ -24,7 +24,7 @@ $ docker compose up
 ## Format Check
 
 ```
-$ docker compose exec api go vet -v ./...
+$ docker compose exec api go vet ./... && staticcheck ./...
 ```
 
 ## Test
@@ -36,7 +36,7 @@ $ docker compose exec api go test -v ./...
 ## Build
 
 ```
-$ docker compose exec api go build cmd/api/main.go
+$ docker compose exec api go build app/main.go
 ```
 
 ## Swagger UI
