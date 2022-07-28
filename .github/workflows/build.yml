@@ -12,14 +12,14 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v1
         with:
-          go-version: 1.17
+          go-version: 1.18
 
       - name: Cache dependencies
         uses: actions/cache@v2
         id: backend_cache
         with:
           path: ~/go/pkg/mod
-          key: ${{ runner.OS }}-${{ hashFiles('**/go.sum') }}
+          key: ${{ runner.OS }}-1.18-${{ hashFiles('**/go.sum') }}
 
       - name: Get dependencies
         if: ${{ steps.backend_cache.outputs.cache-hit != 'true' }}
@@ -44,14 +44,14 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v1
         with:
-          go-version: 1.17
+          go-version: 1.18
 
       - name: Cache dependencies
         uses: actions/cache@v2
         id: backend_cache
         with:
           path: ~/go/pkg/mod
-          key: ${{ runner.OS }}-${{ hashFiles('**/go.sum') }}
+          key: ${{ runner.OS }}-1.18-${{ hashFiles('**/go.sum') }}
 
       - name: Get dependencies
         if: ${{ steps.backend_cache.outputs.cache-hit != 'true' }}

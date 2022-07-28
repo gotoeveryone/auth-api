@@ -1,4 +1,4 @@
-FROM golang:1.17-alpine as development
+FROM golang:1.18-alpine as development
 
 ENV LANG C.UTF-8
 ENV APP_ROOT /var/app
@@ -24,7 +24,7 @@ RUN go mod download
 
 CMD ["air", "-c", ".air.toml"]
 
-FROM golang:1.17-alpine as builder
+FROM golang:1.18-alpine as builder
 
 ENV LANG C.UTF-8
 ENV APP_ROOT /var/app
@@ -38,7 +38,7 @@ COPY ./ ${APP_ROOT}
 RUN go mod download && \
   go build -o auth-api ${APP_ROOT}/app/main.go
 
-FROM golang:1.17-alpine as production
+FROM golang:1.18-alpine as production
 
 ENV LANG C.UTF-8
 ENV APP_ROOT /var/app
