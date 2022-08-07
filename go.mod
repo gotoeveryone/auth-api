@@ -9,8 +9,8 @@ require (
 	github.com/go-playground/validator/v10 v10.11.0
 	github.com/sirupsen/logrus v1.9.0
 	github.com/stretchr/testify v1.8.0
-	github.com/swaggo/gin-swagger v1.4.1
-	github.com/swaggo/swag v1.7.9
+	github.com/swaggo/gin-swagger v1.5.1
+	github.com/swaggo/swag v1.8.1
 	golang.org/x/crypto v0.0.0-20220209154931-65fa2f7aa847
 	gorm.io/driver/mysql v1.3.5
 	gorm.io/gorm v1.23.8
@@ -43,7 +43,7 @@ require (
 	github.com/pelletier/go-toml/v2 v2.0.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/ugorji/go/codec v1.2.7 // indirect
-	golang.org/x/net v0.0.0-20220127200216-cd36cc0744dd // indirect
+	golang.org/x/net v0.0.0-20220425223048-2871e0cb64e4 // indirect
 	golang.org/x/sys v0.0.0-20220715151400-c0bba94af5f8 // indirect
 	golang.org/x/text v0.3.7 // indirect
 	golang.org/x/tools v0.1.9 // indirect
