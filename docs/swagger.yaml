@@ -151,7 +151,7 @@ paths:
       - application/json
       responses:
         "200":
-          description: ""
+          description: OK
         "400":
           description: Bad Request
           schema:
@@ -200,7 +200,7 @@ paths:
       - application/json
       responses:
         "204":
-          description: ""
+          description: No Content
         "404":
           description: Not Found
           schema:
