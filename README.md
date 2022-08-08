@@ -1,7 +1,7 @@
 # General authentication API
 
 ![Build Status](https://github.com/gotoeveryone/auth-api/workflows/Build/badge.svg)
-[![License](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](https://github.com/gotoeveryone/myrecipe/blob/master/LICENSE)
+[![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/gotoeveryone/auth-api/blob/master/LICENSE)
 [![GitHub version](https://badge.fury.io/gh/gotoeveryone%2Fauth-api.svg)](https://badge.fury.io/gh/gotoeveryone%2Fauth-api)
 
 Execute authentication and authorization with JSON Request and Response.
