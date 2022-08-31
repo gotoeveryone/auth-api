@@ -11,7 +11,7 @@ require (
 	github.com/stretchr/testify v1.8.0
 	github.com/swaggo/files v0.0.0-20220610200504-28940afbdbfe
 	github.com/swaggo/gin-swagger v1.5.2
-	github.com/swaggo/swag v1.8.4
+	github.com/swaggo/swag v1.8.5
 	golang.org/x/crypto v0.0.0-20220209154931-65fa2f7aa847
 	gorm.io/driver/mysql v1.3.6
 	gorm.io/gorm v1.23.8
