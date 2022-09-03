@@ -24,7 +24,7 @@ $ docker compose up
 ## Format Check
 
 ```
-$ docker compose exec api go vet ./... && staticcheck ./...
+$ docker compose exec api sh -c 'go vet ./... && staticcheck ./...'
 ```
 
 ## Test
