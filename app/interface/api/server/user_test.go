@@ -25,8 +25,8 @@ func TestRegistrationFailed(t *testing.T) {
 	w := httptest.NewRecorder()
 	_, r := gin.CreateTestContext(w)
 
-	h := NewAuthHandler(&mock.UserRepository{})
-	r.POST("/v1/users", h.Registration)
+	h := NewUserHandler(&mock.UserRepository{})
+	r.POST("/v1/users", h.Register)
 
 	p := entity.User{
 		Account: "testuser",
@@ -46,8 +46,8 @@ func TestRegistrationSuccess(t *testing.T) {
 	w := httptest.NewRecorder()
 	_, r := gin.CreateTestContext(w)
 
-	h := NewAuthHandler(&mock.UserRepository{})
-	r.POST("/v1/users", h.Registration)
+	h := NewUserHandler(&mock.UserRepository{})
+	r.POST("/v1/users", h.Register)
 
 	role := "General"
 	p := entity.RegistrationUser{
@@ -79,7 +79,7 @@ func TestActivateFailedInvalidParam(t *testing.T) {
 	w := httptest.NewRecorder()
 	_, r := gin.CreateTestContext(w)
 
-	h := NewAuthHandler(&mock.UserRepository{})
+	h := NewUserHandler(&mock.UserRepository{})
 	r.POST("/v1/activate", h.Activate)
 
 	p := entity.Activate{
@@ -103,7 +103,7 @@ func TestActivateFailedSamePassword(t *testing.T) {
 	w := httptest.NewRecorder()
 	_, r := gin.CreateTestContext(w)
 
-	h := NewAuthHandler(&mock.UserRepository{})
+	h := NewUserHandler(&mock.UserRepository{})
 	r.POST("/v1/activate", h.Activate)
 
 	p := entity.Activate{
@@ -128,7 +128,7 @@ func TestActivateFailedAccountNotExist(t *testing.T) {
 	w := httptest.NewRecorder()
 	_, r := gin.CreateTestContext(w)
 
-	h := NewAuthHandler(&mock.UserRepository{})
+	h := NewUserHandler(&mock.UserRepository{})
 	r.POST("/v1/activate", h.Activate)
 
 	p := entity.Activate{
@@ -153,7 +153,7 @@ func TestActivateFailedPasswordNotMatched(t *testing.T) {
 	w := httptest.NewRecorder()
 	_, r := gin.CreateTestContext(w)
 
-	h := NewAuthHandler(&mock.UserRepository{User: &entity.User{
+	h := NewUserHandler(&mock.UserRepository{User: &entity.User{
 		Account: "testuser",
 	}, IsMatchPassword: false})
 	r.POST("/v1/activate", h.Activate)
@@ -180,7 +180,7 @@ func TestActivateSuccess(t *testing.T) {
 	w := httptest.NewRecorder()
 	_, r := gin.CreateTestContext(w)
 
-	h := NewAuthHandler(&mock.UserRepository{User: &entity.User{
+	h := NewUserHandler(&mock.UserRepository{User: &entity.User{
 		Account: "testuser",
 	}, IsMatchPassword: true})
 	r.POST("/v1/activate", h.Activate)
@@ -203,14 +203,14 @@ func TestActivateSuccess(t *testing.T) {
 	assert.Equal(t, w.Code, http.StatusOK)
 }
 
-func TestGetUser(t *testing.T) {
+func TestIdentity(t *testing.T) {
 	w := httptest.NewRecorder()
 	_, r := gin.CreateTestContext(w)
 	u := entity.User{Account: "testuser"}
 	r.Use(setIdentity(&u))
 
-	h := NewAuthHandler(&mock.UserRepository{})
-	r.GET("/v1/me", h.User)
+	h := NewUserHandler(&mock.UserRepository{})
+	r.GET("/v1/me", h.Identity)
 
 	req, _ := http.NewRequest("GET", "/v1/me", nil)
 	r.ServeHTTP(w, req)

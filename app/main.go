@@ -12,13 +12,6 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-func getEnv(key, fallback string) string {
-	if value, ok := os.LookupEnv(key); ok {
-		return value
-	}
-	return fallback
-}
-
 // @title    General authentication API
 // @version  1.0
 // @license.name Kazuki Kamizuru
@@ -32,21 +25,21 @@ func main() {
 
 	c := config.App{
 		DB: config.DB{
-			Host:     getEnv("DATABASE_HOST", "127.0.0.1"),
-			Port:     getEnv("DATABASE_PORT", "3306"),
-			Name:     getEnv("DATABASE_NAME", "auth_api"),
-			User:     getEnv("DATABASE_USER", "auth_api"),
-			Password: getEnv("DATABASE_PASSWORD", ""),
+			Host:     config.GetenvOrDefault("DATABASE_HOST", "127.0.0.1"),
+			Port:     config.GetenvOrDefault("DATABASE_PORT", "3306"),
+			Name:     config.GetenvOrDefault("DATABASE_NAME", "auth_api"),
+			User:     config.GetenvOrDefault("DATABASE_USER", "auth_api"),
+			Password: config.GetenvOrDefault("DATABASE_PASSWORD", ""),
 		},
 	}
 
-	if getEnv("APP_ENV", "dev") == "dev" {
+	if config.GetenvOrDefault("APP_ENV", "dev") == "dev" {
 		c.Debug = true
 	}
 
 	// Set timezone
 	var err error
-	time.Local, err = time.LoadLocation(getEnv("TZ", "Asia/Tokyo"))
+	time.Local, err = time.LoadLocation(config.GetenvOrDefault("TZ", "Asia/Tokyo"))
 	if err != nil {
 		logrus.Error(fmt.Sprintf("Get location error: %s", err))
 		// continue with default timezone.
@@ -66,8 +59,8 @@ func main() {
 	// Initialize application
 	r := registry.NewRouter(c)
 
-	host := getEnv("APP_HOST", "0.0.0.0")
-	port := getEnv("APP_PORT", "8080")
+	host := config.GetenvOrDefault("APP_HOST", "0.0.0.0")
+	port := config.GetenvOrDefault("APP_PORT", "8080")
 	if err := r.Run(fmt.Sprintf("%s:%s", host, port)); err != nil {
 		logrus.Error(err)
 		os.Exit(1)

@@ -14,18 +14,18 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-type authHandler struct {
+type userHandler struct {
 	repo repository.User
 }
 
-// NewAuthHandler is create action handler for auth
-func NewAuthHandler(ur repository.User) handler.Authenticate {
-	return &authHandler{
+// NewUserHandler is create action handler for user
+func NewUserHandler(ur repository.User) handler.User {
+	return &userHandler{
 		repo: ur,
 	}
 }
 
-// Registration is execute registration of account
+// Register is execute registration of account
 // @Summary Execute registration of account
 // @Tags Authenticate
 // @Accept  json
@@ -36,7 +36,7 @@ func NewAuthHandler(ur repository.User) handler.Authenticate {
 // @Failure 404 {object} entity.Error
 // @Failure 405 {object} entity.Error
 // @Router /v1/users [post]
-func (h *authHandler) Registration(c *gin.Context) {
+func (h *userHandler) Register(c *gin.Context) {
 	var p entity.RegistrationUser
 	if err := c.ShouldBindJSON(&p); err != nil {
 		var verr validator.ValidationErrors
@@ -97,7 +97,7 @@ func (h *authHandler) Registration(c *gin.Context) {
 // @Failure 404 {object} entity.Error
 // @Failure 405 {object} entity.Error
 // @Router /v1/activate [post]
-func (h *authHandler) Activate(c *gin.Context) {
+func (h *userHandler) Activate(c *gin.Context) {
 	// Execute validation
 	var a entity.Activate
 	if err := c.ShouldBindJSON(&a); err != nil {
@@ -144,7 +144,7 @@ func (h *authHandler) Activate(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{})
 }
 
-// User is find user data from token
+// Identity is get authenticated user
 // @Summary Return authenticated user
 // @Tags Authenticate
 // @Security ApiKeyAuth
@@ -154,7 +154,7 @@ func (h *authHandler) Activate(c *gin.Context) {
 // @Failure 404 {object} entity.Error
 // @Failure 405 {object} entity.Error
 // @Router /v1/me [get]
-func (h *authHandler) User(c *gin.Context) {
+func (h *userHandler) Identity(c *gin.Context) {
 	identity, _ := c.Get(config.IdentityKey)
 	user := *identity.(*entity.User)
 

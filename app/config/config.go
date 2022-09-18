@@ -2,6 +2,7 @@ package config
 
 import (
 	"math/rand"
+	"os"
 	"time"
 )
 
@@ -34,8 +35,8 @@ func init() {
 	r = rand.New(rand.NewSource(time.Now().UnixNano()))
 }
 
-// Generate a random character string matching the specified digit
-func Generate(l int) string {
+// RandomString is generate string at specify length from character and digit
+func RandomString(l int) string {
 	letters := "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 	v := ""
 	for i := 0; i < l; i++ {
@@ -43,4 +44,12 @@ func Generate(l int) string {
 		v += letters[idx : idx+1]
 	}
 	return v
+}
+
+// GetenvOrDefault is return got value from env or default value
+func GetenvOrDefault(key, fallback string) string {
+	if value, ok := os.LookupEnv(key); ok {
+		return value
+	}
+	return fallback
 }

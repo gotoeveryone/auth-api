@@ -11,7 +11,7 @@ func NewStateHandler() handler.State {
 	return server.NewStateHandler()
 }
 
-// NewAuthHandler is create action handler for auth
-func NewAuthHandler(r repository.User) handler.Authenticate {
-	return server.NewAuthHandler(r)
+// NewUserHandler is create action handler for user
+func NewUserHandler(r repository.User) handler.User {
+	return server.NewUserHandler(r)
 }

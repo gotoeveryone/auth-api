@@ -18,7 +18,7 @@ func NewRouter(config config.App) *gin.Engine {
 
 	// Handler
 	sh := NewStateHandler()
-	ah := NewAuthHandler(ur)
+	uh := NewUserHandler(ur)
 
 	// Middleware
 	m, err := NewAuthMiddleware(ur).Create()
@@ -37,15 +37,15 @@ func NewRouter(config config.App) *gin.Engine {
 	v1 := r.Group("v1")
 	{
 		v1.GET("/", sh.Get)
-		v1.POST("/users", ah.Registration)
-		v1.POST("/activate", ah.Activate)
+		v1.POST("/users", uh.Register)
+		v1.POST("/activate", uh.Activate)
 		v1.POST("/auth", m.LoginHandler)
 		v1.GET("/refresh_token", m.RefreshHandler)
 		auth := v1.Group("")
 		{
 			auth.Use(m.MiddlewareFunc())
 			{
-				auth.GET("/me", ah.User)
+				auth.GET("/me", uh.Identity)
 				auth.DELETE("/deauth", m.LogoutHandler)
 			}
 		}
