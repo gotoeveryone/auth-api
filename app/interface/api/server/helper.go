@@ -25,7 +25,7 @@ var (
 )
 
 // Return bad request response.
-func errorBadRequest(c *gin.Context, message interface{}) {
+func errorBadRequest(c *gin.Context, message any) {
 	errorJSON(c, entity.Error{
 		Code:    http.StatusBadRequest,
 		Message: message,
@@ -34,7 +34,7 @@ func errorBadRequest(c *gin.Context, message interface{}) {
 }
 
 // Return unauthorized response.
-func errorUnauthorized(c *gin.Context, message interface{}) {
+func errorUnauthorized(c *gin.Context, message any) {
 	errorJSON(c, entity.Error{
 		Code:    http.StatusUnauthorized,
 		Message: message,

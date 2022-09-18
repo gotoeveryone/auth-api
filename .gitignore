@@ -5,8 +5,8 @@
 # dotenv
 .env
 
-# goenv
-.go-version
+# asdf
+.tool-versions
 
 # database
 /database

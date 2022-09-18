@@ -1,4 +1,4 @@
-FROM golang:1.18-alpine as development
+FROM golang:1.19-alpine as development
 
 ENV LANG C.UTF-8
 ENV APP_ROOT /var/app
@@ -24,7 +24,7 @@ RUN go mod download
 
 CMD ["air", "-c", ".air.toml"]
 
-FROM golang:1.18-alpine as builder
+FROM golang:1.19-alpine as builder
 
 ENV LANG C.UTF-8
 ENV APP_ROOT /var/app

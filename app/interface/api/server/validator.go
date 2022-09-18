@@ -30,7 +30,7 @@ func init() {
 }
 
 // ValidationErrors is create validation error message.
-func ValidationErrors(ve validator.ValidationErrors, o interface{}) map[string]string {
+func ValidationErrors(ve validator.ValidationErrors, o any) map[string]string {
 	res := map[string]string{}
 
 	for _, err := range ve {

@@ -81,7 +81,7 @@ func (m jwtAuth) Create() (*jwt.GinJWTMiddleware, error) {
 		Timeout:     timeout,
 		MaxRefresh:  timeout,
 		IdentityKey: identityKey,
-		PayloadFunc: func(data interface{}) jwt.MapClaims {
+		PayloadFunc: func(data any) jwt.MapClaims {
 			if v, ok := data.(*entity.User); ok {
 				return jwt.MapClaims{
 					identityKey: v.ID,
@@ -89,7 +89,7 @@ func (m jwtAuth) Create() (*jwt.GinJWTMiddleware, error) {
 			}
 			return jwt.MapClaims{}
 		},
-		IdentityHandler: func(c *gin.Context) interface{} {
+		IdentityHandler: func(c *gin.Context) any {
 			claims := jwt.ExtractClaims(c)
 			key, ok := claims[identityKey]
 			if !ok {
@@ -102,7 +102,7 @@ func (m jwtAuth) Create() (*jwt.GinJWTMiddleware, error) {
 			}
 			return user
 		},
-		Authenticator: func(c *gin.Context) (interface{}, error) {
+		Authenticator: func(c *gin.Context) (any, error) {
 			var p entity.Authenticate
 			if err := c.ShouldBind(&p); err != nil {
 				return nil, errUnauthorized
@@ -133,7 +133,7 @@ func (m jwtAuth) Create() (*jwt.GinJWTMiddleware, error) {
 
 			return user, nil
 		},
-		Authorizator: func(data interface{}, c *gin.Context) bool {
+		Authorizator: func(data any, c *gin.Context) bool {
 			if _, ok := data.(*entity.User); ok {
 				return true
 			}
