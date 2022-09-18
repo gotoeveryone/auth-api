@@ -2,9 +2,9 @@ package handler
 
 import "github.com/gin-gonic/gin"
 
-// Authenticate is action handler about authentication and authorization
-type Authenticate interface {
-	Registration(c *gin.Context)
+// User is action handler about user data
+type User interface {
+	Register(c *gin.Context)
 	Activate(c *gin.Context)
-	User(c *gin.Context)
+	Identity(c *gin.Context)
 }
