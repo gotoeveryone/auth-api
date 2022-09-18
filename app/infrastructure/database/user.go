@@ -62,7 +62,7 @@ func (r userRepository) MatchPassword(hashedPassword, password string) error {
 // Create is create user data and return generate password
 func (r userRepository) Create(u *entity.User) (string, error) {
 	// Issue initial password
-	password := config.Generate(16)
+	password := config.RandomString(16)
 	hashPassword, err := r.hashedPassword(password)
 	if err != nil {
 		return "", err

@@ -34,8 +34,8 @@ func init() {
 	r = rand.New(rand.NewSource(time.Now().UnixNano()))
 }
 
-// Generate a random character string matching the specified digit
-func Generate(l int) string {
+// RandomString a generate string at specify length from character and digit
+func RandomString(l int) string {
 	letters := "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 	v := ""
 	for i := 0; i < l; i++ {
