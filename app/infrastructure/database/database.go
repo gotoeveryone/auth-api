@@ -2,8 +2,8 @@ package database
 
 import (
 	"fmt"
-	"net/url"
 
+	mysqlDriver "github.com/go-sql-driver/mysql"
 	"github.com/gotoeveryone/auth-api/app/config"
 	"github.com/gotoeveryone/auth-api/app/domain/entity"
 	"gorm.io/driver/mysql"
@@ -18,23 +18,26 @@ var (
 
 // Init is execute database connection initial setting
 func Init(debug bool, dbConfig config.DB) error {
-	var err error
-	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8&parseTime=True&loc=%s",
-		dbConfig.User,
-		dbConfig.Password,
-		dbConfig.Host,
-		dbConfig.Port,
-		dbConfig.Name,
-		url.QueryEscape(dbConfig.Timezone),
-	)
+	fmt.Sprintln(dbConfig.Host, dbConfig.Port)
+	c := mysqlDriver.Config{
+		User:                 dbConfig.User,
+		Passwd:               dbConfig.Password,
+		DBName:               dbConfig.Name,
+		Addr:                 fmt.Sprintf("%s:%s", dbConfig.Host, dbConfig.Port),
+		Net:                  "tcp",
+		ParseTime:            true,
+		Loc:                  dbConfig.Timezone,
+		AllowNativePasswords: true,
+	}
 
 	logMode := logger.Warn
 	if debug {
 		logMode = logger.Info
 	}
 
+	var err error
 	dbManager, err = gorm.Open(mysql.New(mysql.Config{
-		DSN: dsn,
+		DSN: c.FormatDSN(),
 	}), &gorm.Config{
 		Logger: logger.Default.LogMode(logMode),
 	})

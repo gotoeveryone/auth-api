@@ -13,7 +13,7 @@ type DB struct {
 	Port     string
 	User     string
 	Password string
-	Timezone string
+	Timezone *time.Location
 }
 
 // App is application configuration

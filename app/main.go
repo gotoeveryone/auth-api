@@ -23,6 +23,14 @@ func main() {
 	// Initialize logger
 	logrus.SetFormatter(&logrus.JSONFormatter{})
 
+	// Set timezone
+	var err error
+	time.Local, err = time.LoadLocation(config.GetenvOrDefault("TZ", "Asia/Tokyo"))
+	if err != nil {
+		logrus.Error(fmt.Sprintf("Get location error: %s", err))
+		// continue with default timezone.
+	}
+
 	c := config.App{
 		DB: config.DB{
 			Host:     config.GetenvOrDefault("DATABASE_HOST", "127.0.0.1"),
@@ -30,19 +38,12 @@ func main() {
 			Name:     config.GetenvOrDefault("DATABASE_NAME", "auth_api"),
 			User:     config.GetenvOrDefault("DATABASE_USER", "auth_api"),
 			Password: config.GetenvOrDefault("DATABASE_PASSWORD", ""),
+			Timezone: time.Local,
 		},
 	}
 
 	if config.GetenvOrDefault("APP_ENV", "dev") == "dev" {
 		c.Debug = true
-	}
-
-	// Set timezone
-	var err error
-	time.Local, err = time.LoadLocation(config.GetenvOrDefault("TZ", "Asia/Tokyo"))
-	if err != nil {
-		logrus.Error(fmt.Sprintf("Get location error: %s", err))
-		// continue with default timezone.
 	}
 
 	// Set release mode
