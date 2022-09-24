@@ -35,6 +35,11 @@ jobs:
           install-go: false
           cache-key: auth-api
 
+      - name: Run hadolint
+        uses: hadolint/hadolint-action@v2.0.0
+        with:
+          dockerfile: Dockerfile
+
   test:
     name: Test
     runs-on: ubuntu-latest

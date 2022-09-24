@@ -3,13 +3,13 @@ FROM golang:1.19-alpine as development
 ENV LANG C.UTF-8
 ENV APP_ROOT /var/app
 
-RUN apk add gcc g++
+RUN apk add gcc~=11.2 g++~=11.2 --no-cache
 
 WORKDIR ${APP_ROOT}
 COPY go.mod go.sum ./
 
 ENV DOCKERIZE_VERSION v0.6.1
-RUN wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-alpine-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
+RUN wget -q https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-alpine-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
   && tar -C /usr/local/bin -xzvf dockerize-alpine-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
   && rm dockerize-alpine-linux-amd64-$DOCKERIZE_VERSION.tar.gz
 
@@ -30,7 +30,7 @@ ENV LANG C.UTF-8
 ENV APP_ROOT /var/app
 ENV GIN_MODE release
 
-RUN apk add gcc g++
+RUN apk add gcc~=11.2 g++~=11.2 --no-cache
 
 WORKDIR ${APP_ROOT}
 COPY ./ ${APP_ROOT}
@@ -38,7 +38,7 @@ COPY ./ ${APP_ROOT}
 RUN go mod download && \
   go build -o auth-api ${APP_ROOT}/app/main.go
 
-FROM golang:1.18-alpine as production
+FROM golang:1.19-alpine as production
 
 ENV LANG C.UTF-8
 ENV APP_ROOT /var/app
@@ -47,4 +47,4 @@ ENV GIN_MODE release
 WORKDIR ${APP_ROOT}
 COPY --from=builder ${APP_ROOT}/auth-api ${APP_ROOT}
 
-CMD ${APP_ROOT}/auth-api
+CMD ["${APP_ROOT}/auth-api"]
