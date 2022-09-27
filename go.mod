@@ -15,7 +15,7 @@ require (
 	github.com/swaggo/swag v1.8.6
 	golang.org/x/crypto v0.0.0-20220209154931-65fa2f7aa847
 	gorm.io/driver/mysql v1.3.6
-	gorm.io/gorm v1.23.9
+	gorm.io/gorm v1.23.10
 )
 
 require (
