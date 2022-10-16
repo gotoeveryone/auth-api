@@ -13,9 +13,6 @@ on:
 jobs:
   build_image:
     name: Build image
-    needs:
-      - lint
-      - test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
