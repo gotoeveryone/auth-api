@@ -7,19 +7,19 @@ jobs:
     name: Lint
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v3
 
       - name: Set up Go
-        uses: actions/setup-go@v1
+        uses: actions/setup-go@v3
         with:
           go-version: 1.19
 
       - name: Cache dependencies
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         id: backend_cache
         with:
           path: ~/go/pkg/mod
-          key: ${{ runner.OS }}-1.18-${{ hashFiles('**/go.sum') }}
+          key: ${{ runner.OS }}-1.19-${{ hashFiles('**/go.sum') }}
 
       - name: Get dependencies
         if: ${{ steps.backend_cache.outputs.cache-hit != 'true' }}
@@ -44,19 +44,19 @@ jobs:
     name: Test
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v3
 
       - name: Set up Go
-        uses: actions/setup-go@v1
+        uses: actions/setup-go@v3
         with:
           go-version: 1.19
 
       - name: Cache dependencies
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         id: backend_cache
         with:
           path: ~/go/pkg/mod
-          key: ${{ runner.OS }}-1.18-${{ hashFiles('**/go.sum') }}
+          key: ${{ runner.OS }}-1.19-${{ hashFiles('**/go.sum') }}
 
       - name: Get dependencies
         if: ${{ steps.backend_cache.outputs.cache-hit != 'true' }}
@@ -75,7 +75,7 @@ jobs:
       - test
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v3
 
       - name: Login to Docker Hub
         uses: docker/login-action@v1
@@ -97,7 +97,7 @@ jobs:
       - build_image
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v3
 
       - uses: okteto/login@latest
         with:
@@ -117,7 +117,7 @@ jobs:
       - deploy
     runs-on: ubuntu-latest
     steps:
-      - uses: technote-space/workflow-conclusion-action@v1
+      - uses: technote-space/workflow-conclusion-action@v3
       - name: Notify to Slack
         uses: 8398a7/action-slack@v3
         with:
