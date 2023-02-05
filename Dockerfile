@@ -14,7 +14,7 @@ RUN wget -q https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VE
   && rm dockerize-alpine-linux-amd64-$DOCKERIZE_VERSION.tar.gz
 
 RUN go install github.com/cosmtrek/air@v1.29.0 && \
-  go install github.com/swaggo/swag/cmd/swag@v1.8.9 && \
+  go install github.com/swaggo/swag/cmd/swag@v1.8.10 && \
   go install honnef.co/go/tools/cmd/staticcheck@2022.1.2
 
 # uncomment if use sql-migrate run migration instead of gorm
