@@ -12,7 +12,7 @@ require (
 	github.com/stretchr/testify v1.8.2
 	github.com/swaggo/files v1.0.1
 	github.com/swaggo/gin-swagger v1.5.3
-	github.com/swaggo/swag v1.8.10
+	github.com/swaggo/swag v1.8.11
 	golang.org/x/crypto v0.7.0
 	gorm.io/driver/mysql v1.4.7
 	gorm.io/gorm v1.24.6
