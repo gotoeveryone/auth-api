@@ -7,7 +7,7 @@ require (
 	github.com/appleboy/gin-jwt/v2 v2.9.1
 	github.com/gin-gonic/gin v1.9.0
 	github.com/go-playground/validator/v10 v10.13.0
-	github.com/go-sql-driver/mysql v1.7.0
+	github.com/go-sql-driver/mysql v1.7.1
 	github.com/sirupsen/logrus v1.9.0
 	github.com/stretchr/testify v1.8.2
 	github.com/swaggo/files v1.0.1
