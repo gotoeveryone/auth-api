@@ -3,7 +3,7 @@ FROM golang:1.19-alpine as development
 ENV LANG C.UTF-8
 ENV APP_ROOT /var/app
 
-RUN apk add gcc~=11.2 g++~=11.2 --no-cache
+RUN apk add gcc g++ --no-cache
 
 WORKDIR ${APP_ROOT}
 COPY go.mod go.sum ./
@@ -14,7 +14,7 @@ RUN wget -q https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VE
   && rm dockerize-alpine-linux-amd64-$DOCKERIZE_VERSION.tar.gz
 
 RUN go install github.com/cosmtrek/air@v1.29.0 && \
-  go install github.com/swaggo/swag/cmd/swag@v1.8.11 && \
+  go install github.com/swaggo/swag/cmd/swag@v1.8.12 && \
   go install honnef.co/go/tools/cmd/staticcheck@2022.1.2
 
 # uncomment if use sql-migrate run migration instead of gorm
@@ -30,7 +30,7 @@ ENV LANG C.UTF-8
 ENV APP_ROOT /var/app
 ENV GIN_MODE release
 
-RUN apk add gcc~=11.2 g++~=11.2 --no-cache
+RUN apk add gcc g++ --no-cache
 
 WORKDIR ${APP_ROOT}
 COPY ./ ${APP_ROOT}
