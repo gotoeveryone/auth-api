@@ -7,7 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gotoeveryone/auth-api/app/domain/entity"
 	"github.com/gotoeveryone/auth-api/app/presentation/handler"
-	"github.com/sirupsen/logrus"
+	"github.com/rs/zerolog"
 )
 
 type stateHandler struct{}
@@ -29,7 +29,7 @@ func (h *stateHandler) Get(c *gin.Context) {
 	c.JSON(http.StatusOK, entity.State{
 		Status:      "Active",
 		Environment: gin.Mode(),
-		LogLevel:    logrus.GetLevel().String(),
+		LogLevel:    zerolog.GlobalLevel().String(),
 		TimeZone:    time.Local.String(),
 	})
 }

@@ -11,7 +11,7 @@ import (
 	"github.com/gotoeveryone/auth-api/app/domain/entity"
 	"github.com/gotoeveryone/auth-api/app/domain/repository"
 	"github.com/gotoeveryone/auth-api/app/presentation/middleware"
-	"github.com/sirupsen/logrus"
+	"github.com/rs/zerolog/log"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -97,7 +97,7 @@ func (m jwtAuth) Create() (*jwt.GinJWTMiddleware, error) {
 			}
 			user, err := m.repo.Find(uint(key.(float64)))
 			if err != nil {
-				logrus.Error(err)
+				log.Error().Err(err).Msg("")
 				return nil
 			}
 			return user
@@ -110,7 +110,7 @@ func (m jwtAuth) Create() (*jwt.GinJWTMiddleware, error) {
 
 			user, err := m.repo.FindByAccount(p.Account)
 			if err != nil {
-				logrus.Error(err)
+				log.Error().Err(err).Msg("")
 				return nil, errUnauthorized
 			}
 
@@ -127,7 +127,7 @@ func (m jwtAuth) Create() (*jwt.GinJWTMiddleware, error) {
 			}
 
 			if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(p.Password)); err != nil {
-				logrus.Error(err)
+				log.Error().Err(err).Msg("")
 				return nil, errUnauthorized
 			}
 

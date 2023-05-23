@@ -11,7 +11,7 @@ import (
 	"github.com/gotoeveryone/auth-api/app/domain/entity"
 	"github.com/gotoeveryone/auth-api/app/domain/repository"
 	"github.com/gotoeveryone/auth-api/app/presentation/handler"
-	"github.com/sirupsen/logrus"
+	"github.com/rs/zerolog/log"
 )
 
 type userHandler struct {
@@ -129,7 +129,7 @@ func (h *userHandler) Activate(c *gin.Context) {
 
 	// Check password matching from user has password
 	if err := h.repo.MatchPassword(user.Password, a.Password); err != nil {
-		logrus.Error(err)
+		log.Fatal().Err(err)
 		errorUnauthorized(c, errUnauthorized)
 		return
 	}
