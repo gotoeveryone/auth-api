@@ -3,6 +3,7 @@ FROM golang:1.19-alpine as development
 ENV LANG C.UTF-8
 ENV APP_ROOT /var/app
 
+# hadolint ignore=DL3018
 RUN apk add gcc g++ --no-cache
 
 WORKDIR ${APP_ROOT}
@@ -30,6 +31,7 @@ ENV LANG C.UTF-8
 ENV APP_ROOT /var/app
 ENV GIN_MODE release
 
+# hadolint ignore=DL3018
 RUN apk add gcc g++ --no-cache
 
 WORKDIR ${APP_ROOT}
