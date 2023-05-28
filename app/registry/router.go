@@ -3,12 +3,11 @@ package registry
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/gotoeveryone/auth-api/app/config"
-	"github.com/sirupsen/logrus"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
-func NewRouter(config config.App) *gin.Engine {
+func NewRouter(config config.App) (*gin.Engine, error) {
 	// Initialize application
 	r := gin.Default()
 	r.HandleMethodNotAllowed = true
@@ -23,7 +22,7 @@ func NewRouter(config config.App) *gin.Engine {
 	// Middleware
 	m, err := NewAuthMiddleware(ur).Create()
 	if err != nil {
-		logrus.Fatal(err)
+		return nil, err
 	}
 
 	// Routing
@@ -56,5 +55,5 @@ func NewRouter(config config.App) *gin.Engine {
 		r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	}
 
-	return r
+	return r, nil
 }

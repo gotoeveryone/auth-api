@@ -2,14 +2,14 @@ package main
 
 import (
 	"fmt"
-	"os"
 	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gotoeveryone/auth-api/app/config"
 	"github.com/gotoeveryone/auth-api/app/registry"
 	_ "github.com/gotoeveryone/auth-api/docs"
-	"github.com/sirupsen/logrus"
+	"github.com/rs/zerolog"
+	"github.com/rs/zerolog/log"
 )
 
 // @title    General authentication API
@@ -20,18 +20,30 @@ import (
 // @in header
 // @name Authorization
 func main() {
-	// Initialize logger
-	logrus.SetFormatter(&logrus.JSONFormatter{})
+	isDebug := false
+	if config.GetenvOrDefault("APP_ENV", "dev") == "dev" {
+		isDebug = true
+	}
+
+	// Set log level
+	zerolog.SetGlobalLevel(zerolog.DebugLevel)
+
+	// Set release mode
+	if !isDebug {
+		gin.SetMode(gin.ReleaseMode)
+		zerolog.SetGlobalLevel(zerolog.InfoLevel)
+	}
 
 	// Set timezone
 	var err error
 	time.Local, err = time.LoadLocation(config.GetenvOrDefault("TZ", "Asia/Tokyo"))
 	if err != nil {
-		logrus.Error(fmt.Sprintf("Get location error: %s", err))
+		log.Error().Msgf("Get location error: %s", err)
 		// continue with default timezone.
 	}
 
 	c := config.App{
+		Debug: isDebug,
 		DB: config.DB{
 			Host:     config.GetenvOrDefault("DATABASE_HOST", "127.0.0.1"),
 			Port:     config.GetenvOrDefault("DATABASE_PORT", "3306"),
@@ -42,28 +54,20 @@ func main() {
 		},
 	}
 
-	if config.GetenvOrDefault("APP_ENV", "dev") == "dev" {
-		c.Debug = true
-	}
-
-	// Set release mode
-	if !c.Debug {
-		gin.SetMode(gin.ReleaseMode)
-	}
-
 	// Initialize datastore
 	if err := registry.InitDatastore(c.Debug, c.DB); err != nil {
-		logrus.Error(err)
-		os.Exit(1)
+		log.Fatal().Err(err)
 	}
 
-	// Initialize application
-	r := registry.NewRouter(c)
+	// Initialize router
+	r, err := registry.NewRouter(c)
+	if err != nil {
+		log.Fatal().Err(err)
+	}
 
 	host := config.GetenvOrDefault("APP_HOST", "0.0.0.0")
 	port := config.GetenvOrDefault("APP_PORT", "8080")
 	if err := r.Run(fmt.Sprintf("%s:%s", host, port)); err != nil {
-		logrus.Error(err)
-		os.Exit(1)
+		log.Fatal().Err(err)
 	}
 }
