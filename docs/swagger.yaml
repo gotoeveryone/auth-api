@@ -45,6 +45,16 @@ definitions:
         type: integer
       message: {}
     type: object
+  entity.Gender:
+    enum:
+    - Male
+    - Female
+    - Unknown
+    type: string
+    x-enum-varnames:
+    - GenderMale
+    - GenderFemale
+    - GenderUnknown
   entity.GeneratedPassword:
     properties:
       password:
@@ -81,6 +91,14 @@ definitions:
     - mailAddress
     - name
     type: object
+  entity.Role:
+    enum:
+    - Administrator
+    - General
+    type: string
+    x-enum-varnames:
+    - RoleAdministrator
+    - RoleGeneral
   entity.State:
     properties:
       environment:
@@ -99,7 +117,7 @@ definitions:
       birthday:
         $ref: '#/definitions/entity.Date'
       gender:
-        type: string
+        $ref: '#/definitions/entity.Gender'
       id:
         type: integer
       mailAddress:
@@ -107,7 +125,7 @@ definitions:
       name:
         type: string
       role:
-        type: string
+        $ref: '#/definitions/entity.Role'
     type: object
 info:
   contact: {}

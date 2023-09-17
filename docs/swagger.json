@@ -361,6 +361,19 @@
                 "message": {}
             }
         },
+        "entity.Gender": {
+            "type": "string",
+            "enum": [
+                "Male",
+                "Female",
+                "Unknown"
+            ],
+            "x-enum-varnames": [
+                "GenderMale",
+                "GenderFemale",
+                "GenderUnknown"
+            ]
+        },
         "entity.GeneratedPassword": {
             "type": "object",
             "properties": {
@@ -411,6 +424,17 @@
                 }
             }
         },
+        "entity.Role": {
+            "type": "string",
+            "enum": [
+                "Administrator",
+                "General"
+            ],
+            "x-enum-varnames": [
+                "RoleAdministrator",
+                "RoleGeneral"
+            ]
+        },
         "entity.State": {
             "type": "object",
             "properties": {
@@ -438,7 +462,7 @@
                     "$ref": "#/definitions/entity.Date"
                 },
                 "gender": {
-                    "type": "string"
+                    "$ref": "#/definitions/entity.Gender"
                 },
                 "id": {
                     "type": "integer"
@@ -450,7 +474,7 @@
                     "type": "string"
                 },
                 "role": {
-                    "type": "string"
+                    "$ref": "#/definitions/entity.Role"
                 }
             }
         }
