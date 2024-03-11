@@ -7,7 +7,7 @@ require (
 	github.com/appleboy/gin-jwt/v2 v2.9.2
 	github.com/gin-gonic/gin v1.9.1
 	github.com/go-playground/validator/v10 v10.19.0
-	github.com/go-sql-driver/mysql v1.7.1
+	github.com/go-sql-driver/mysql v1.8.0
 	github.com/rs/zerolog v1.32.0
 	github.com/stretchr/testify v1.9.0
 	github.com/swaggo/files v1.0.1
@@ -19,6 +19,7 @@ require (
 )
 
 require (
+	filippo.io/edwards25519 v1.1.0 // indirect
 	github.com/KyleBanks/depth v1.2.1 // indirect
 	github.com/PuerkitoBio/purell v1.1.1 // indirect
 	github.com/PuerkitoBio/urlesc v0.0.0-20170810143723-de5bf2ad4578 // indirect
